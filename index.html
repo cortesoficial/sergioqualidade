@@ -3,163 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Controle - Master</title>
+    <title>Sistema de Qualidade</title>
     <style>
-        /* --- ESTILO (CSS) --- */
-        body {
-            background-color: #0f0f0f;
-            font-family: 'Segoe UI', sans-serif;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background: #1a1a1a;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 350px;
-            text-align: center;
-        }
-
+        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 450px; text-align: center; }
+        .wide-container { max-width: 800px; }
         h2 { color: #3498db; margin-bottom: 20px; }
-        h3 { font-size: 1.1rem; color: #bbb; }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            box-sizing: border-box;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #252525;
-            color: white;
-            outline: none;
-        }
-
-        input:focus { border-color: #3498db; }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            background: #3498db;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #2980b9; }
-
-        .btn-cadastrar { background: #27ae60; }
-        .btn-cadastrar:hover { background: #219150; }
-
-        .btn-sair { background: #e74c3c; margin-top: 20px; }
-        .btn-sair:hover { background: #c0392b; }
-
-        hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
-
-        #msg-erro { color: #ff4d4d; font-size: 0.9rem; }
-        #msg-sucesso { color: #2ecc71; font-size: 0.9rem; }
+        .btn-add { background: #27ae60; }
+        .btn-add:hover { background: #219150; }
+        .btn-sair { background: #e74c3c; width: auto; padding: 8px 20px; margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; color: #eee; }
+        th, td { padding: 10px; border: 1px solid #333; text-align: left; font-size: 0.85rem; }
+        th { background-color: #3498db; color: white; }
+        tr:nth-child(even) { background-color: #1a1a1a; }
+        
+        .status-badge { padding: 20px; border: 2px dashed #3498db; border-radius: 8px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
     <div id="login-section" class="container">
-        <h2>Acesso</h2>
-        <input type="text" id="user" placeholder="Usuário">
+        <h2>Acesso ao Sistema</h2>
+        <input type="text" id="user" placeholder="Usuário (Login)">
         <input type="password" id="pass" placeholder="Senha">
         <button onclick="logar()">Entrar</button>
-        <p id="msg-erro"></p>
+        <p id="msg-erro" style="color: #ff4d4d;"></p>
     </div>
 
-    <div id="master-panel" class="container" style="display: none;">
-        <h2>Painel Master</h2>
-        <p>Logado como: <strong>Administrador</strong></p>
-        <hr>
-        <h3>Cadastrar Novo Acesso</h3>
-        <input type="text" id="new-user" placeholder="Novo Usuário">
-        <input type="password" id="new-pass" placeholder="Senha do Novo Usuário">
-        <button onclick="cadastrarUsuario()" class="btn-cadastrar">Salvar Novo Login</button>
-        <button onclick="logout()" class="btn-sair">Sair do Sistema</button>
-        <p id="msg-sucesso"></p>
+    <div id="master-panel" class="container wide-container" style="display: none;">
+        <button onclick="logout()" class="btn-sair" style="float: right;">Sair</button>
+        <h2>Painel Administrativo</h2>
+        
+        <div style="background: #252525; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3>Cadastrar Novo Usuário</h3>
+            <input type="text" id="new-full-name" placeholder="Nome Completo">
+            <input type="text" id="new-user" placeholder="Nome de Usuário (Login)">
+            <input type="password" id="new-pass" placeholder="Senha">
+            <select id="new-shift">
+                <option value="">Selecione o Turno</option>
+                <option value="1º Turno">1º Turno</option>
+                <option value="2º Turno">2º Turno</option>
+                <option value="3º Turno">3º Turno</option>
+                <option value="Administrativo">Administrativo</option>
+            </select>
+            <button onclick="cadastrarUsuario()" class="btn-add">Adicionar Usuário</button>
+        </div>
+
+        <h3>Contas Criadas</h3>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome Completo</th>
+                        <th>Login</th>
+                        <th>Turno</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-usuarios"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="user-panel" class="container" style="display: none;">
-        <h2>Área Restrita</h2>
-        <p>Bem-vindo ao sistema.</p>
-        <p style="font-size: 0.8rem; color: #888;">Você não tem permissão para gerenciar contas.</p>
-        <button onclick="logout()" class="btn-sair">Sair</button>
+        <button onclick="logout()" class="btn-sair" style="float: right;">Sair</button>
+        <h2>Sistema de Qualidade</h2>
+        <div class="status-badge">
+            <p>Olá, <strong id="nome-logado"></strong>!</p>
+            <p>O sistema de relatórios está em desenvolvimento.</p>
+            <p><strong>STATUS: EM BREVE</strong></p>
+        </div>
     </div>
 
     <script>
-        /* --- LÓGICA (JAVASCRIPT) --- */
-
         // LOGIN MASTER FIXO
         const MASTER_USER = "admin";
         const MASTER_PASS = "admin123";
 
         function logar() {
-            const user = document.getElementById('user').value;
-            const pass = document.getElementById('pass').value;
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
             const erro = document.getElementById('msg-erro');
 
-            // 1. Verifica se é a conta Master
-            if (user === MASTER_USER && pass === MASTER_PASS) {
-                abrirPainel('master-panel');
+            if (u === MASTER_USER && p === MASTER_PASS) {
+                exibir('master-panel');
+                atualizarTabela();
                 return;
             }
 
-            // 2. Verifica se é um usuário comum (salvo no navegador)
-            let listaUsuarios = JSON.parse(localStorage.getItem('banco_usuarios')) || [];
-            let encontrado = listaUsuarios.find(u => u.nome === user && u.senha === pass);
+            let usuarios = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            let conta = usuarios.find(item => item.login === u && item.senha === p);
 
-            if (encontrado) {
-                abrirPainel('user-panel');
+            if (conta) {
+                document.getElementById('nome-logado').innerText = conta.nomeCompleto;
+                exibir('user-panel');
             } else {
                 erro.innerText = "Usuário ou senha incorretos!";
             }
         }
 
         function cadastrarUsuario() {
-            const novoNome = document.getElementById('new-user').value;
-            const novaSenha = document.getElementById('new-pass').value;
-            const sucesso = document.getElementById('msg-sucesso');
+            const nome = document.getElementById('new-full-name').value;
+            const login = document.getElementById('new-user').value;
+            const senha = document.getElementById('new-pass').value;
+            const turno = document.getElementById('new-shift').value;
 
-            if (novoNome === "" || novaSenha === "") {
-                alert("Preencha o nome e a senha do novo usuário!");
+            if (!nome || !login || !senha || !turno) {
+                alert("Preencha todos os campos!");
                 return;
             }
 
-            // Puxa a lista atual ou cria uma nova
-            let listaUsuarios = JSON.parse(localStorage.getItem('banco_usuarios')) || [];
-            
-            // Adiciona o novo e salva de volta no navegador
-            listaUsuarios.push({ nome: novoNome, senha: novaSenha });
-            localStorage.setItem('banco_usuarios', JSON.stringify(listaUsuarios));
+            let usuarios = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            usuarios.push({ nomeCompleto: nome, login: login, senha: senha, turno: turno });
+            localStorage.setItem('contas_qualidade', JSON.stringify(usuarios));
 
-            sucesso.innerText = "Usuário " + novoNome + " cadastrado com sucesso!";
-            
-            // Limpa os campos
+            alert("Usuário cadastrado!");
+            limparCampos();
+            atualizarTabela();
+        }
+
+        function atualizarTabela() {
+            const corpo = document.getElementById('tabela-usuarios');
+            let usuarios = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            corpo.innerHTML = "";
+
+            usuarios.forEach((u, index) => {
+                corpo.innerHTML += `
+                    <tr>
+                        <td>${u.nomeCompleto}</td>
+                        <td>${u.login}</td>
+                        <td>${u.turno}</td>
+                        <td><button onclick="remover(${index})" style="background:none; color:red; width:auto; padding:0; margin:0; font-size:12px;">Excluir</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function remover(index) {
+            let usuarios = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            usuarios.splice(index, 1);
+            localStorage.setItem('contas_qualidade', JSON.stringify(usuarios));
+            atualizarTabela();
+        }
+
+        function exibir(id) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('master-panel').style.display = 'none';
+            document.getElementById('user-panel').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function limparCampos() {
+            document.getElementById('new-full-name').value = "";
             document.getElementById('new-user').value = "";
             document.getElementById('new-pass').value = "";
+            document.getElementById('new-shift').value = "";
         }
 
-        function abrirPainel(painelId) {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById(painelId).style.display = 'block';
-        }
-
-        function logout() {
-            window.location.reload(); // Recarrega para voltar à tela de login
-        }
+        function logout() { window.location.reload(); }
     </script>
 </body>
 </html>
