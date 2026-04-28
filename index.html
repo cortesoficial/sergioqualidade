@@ -45,9 +45,9 @@
                 <input type="password" id="new-pass" placeholder="Senha">
                 <select id="new-shift">
                     <option value="">Turno...</option>
-                    <option value="1º Turno">1º Turno</option>
-                    <option value="2º Turno">2º Turno</option>
-                    <option value="3º Turno">3º Turno</option>
+                    <option value="1º Turno">turno A</option>
+                    <option value="2º Turno">turno B</option>
+                    <option value="3º Turno">turno C</option>
                     <option value="Adm">Administrativo</option>
                 </select>
             </div>
@@ -82,8 +82,8 @@
 
     <script>
         // CONFIGURAÇÃO MASTER
-        const ADM_USER = "admin";
-        const ADM_PASS = "admin123";
+        const ADM_USER = "master";
+        const ADM_PASS = "master";
 
         function logar() {
             const u = document.getElementById('user').value;
