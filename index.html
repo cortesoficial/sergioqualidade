@@ -3,169 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagina da Qualidade</title>
+    <title>SQUADRADRY - Sistema Qualidade</title>
     <style>
-        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 450px; text-align: center; }
-        .wide-container { max-width: 850px; }
-        h2 { color: #3498db; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #3498db; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        button:hover { background: #2980b9; }
-        .btn-add { background: #27ae60; }
-        .btn-sair { background: #e74c3c; width: auto; padding: 8px 20px; margin-bottom: 20px; float: right; }
+        :root { --primary: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #0f0f0f; --card: #1a1a1a; }
+        body { background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 95%; max-width: 900px; margin: 20px; }
+        .login-box { max-width: 400px; text-align: center; }
+        h2, h3 { color: var(--primary); margin-top: 0; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; }
-        th, td { padding: 12px; border: 1px solid #333; text-align: left; font-size: 0.85rem; }
-        th { background-color: #3498db; }
+        /* Inputs e Botões */
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--primary); }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { opacity: 0.8; }
+        .btn-green { background: var(--success); }
+        .btn-red { background: var(--danger); width: auto; padding: 8px 20px; }
+        
+        /* Tabela e Layout */
+        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #222; padding: 20px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111; font-size: 0.9rem; }
+        th, td { padding: 12px; border: 1px solid #333; text-align: left; }
+        th { background-color: var(--primary); }
         tr:nth-child(even) { background-color: #1a1a1a; }
-        .btn-del { background: #c0392b; width: auto; padding: 4px 8px; font-size: 11px; }
+        
+        .header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin-bottom: 20px; padding-bottom: 10px; }
+        .admin-only { background: #2d1a00; border: 1px solid #f39c12; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="login-section" class="container">
-        <h2>Qualidade - Acesso</h2>
+    <div id="login-section" class="container login-box">
+        <h2>SQUADRADRY</h2>
+        <p style="color: #888;">Gestão de Qualidade</p>
         <input type="text" id="user" placeholder="Usuário">
         <input type="password" id="pass" placeholder="Senha">
-        <button onclick="logar()">Entrar</button>
-        <p id="msg-erro" style="color: #ff4d4d; margin-top: 15px;"></p>
+        <button onclick="logar()">Entrar no Sistema</button>
+        <p id="msg-erro" style="color: var(--danger); margin-top: 15px;"></p>
     </div>
 
-    <div id="master-panel" class="container wide-container" style="display: none;">
-        <button onclick="logout()" class="btn-sair">Sair</button>
-        <h2 style="text-align: left;">Painel Master</h2>
-        
-        <div style="background: #252525; padding: 20px; border-radius: 8px; text-align: left;">
-            <h3 style="margin-top:0">Novo Usuário</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div id="main-panel" class="container" style="display: none;">
+        <div class="header-panel">
+            <div>
+                <h2 style="margin:0">Painel de Qualidade</h2>
+                <small id="info-user" style="color: #aaa;"></small>
+            </div>
+            <button onclick="logout()" class="btn-red">Sair</button>
+        </div>
+
+        <div id="admin-area" class="admin-only" style="display: none;">
+            <h3>Gerenciamento de Equipe (Master)</h3>
+            <div class="grid-form" style="background: transparent; padding: 0;">
                 <input type="text" id="new-full-name" placeholder="Nome Completo">
                 <input type="text" id="new-user" placeholder="Login">
                 <input type="password" id="new-pass" placeholder="Senha">
                 <select id="new-shift">
                     <option value="">Turno...</option>
-                    <option value="1º Turno">turno A</option>
-                    <option value="2º Turno">turno B</option>
-                    <option value="3º Turno">turno C</option>
-                    <option value="Adm">Administrativo</option>
+                    <option value="1º Turno">1º Turno</option>
+                    <option value="2º Turno">2º Turno</option>
+                    <option value="3º Turno">3º Turno</option>
                 </select>
             </div>
-            <button onclick="cadastrarUsuario()" class="btn-add">Cadastrar Funcionário</button>
+            <button onclick="cadastrarUsuario()" class="btn-green" style="width: 200px;">Adicionar Usuário</button>
+            <div id="lista-usuarios-log"></div>
         </div>
 
-        <h3>Contas Ativas</h3>
+        <h3>Nova Inspeção</h3>
+        <div class="grid-form">
+            <div>
+                <label>Item Inspecionado:</label>
+                <select id="item-inspecao">
+                    <option value="Mancal">Mancal</option>
+                    <option value="Disco">Disco</option>
+                </select>
+            </div>
+            <div>
+                <label>Condição:</label>
+                <select id="status-inspecao">
+                    <option value="OK">✅ OK (Conforme)</option>
+                    <option value="Troca">⚠️ Necessita Troca</option>
+                    <option value="Falha">❌ Falha Crítica</option>
+                </select>
+            </div>
+            <div>
+                <label>Observação:</label>
+                <input type="text" id="obs-inspecao" placeholder="Ex: Desgaste excessivo">
+            </div>
+        </div>
+        <button onclick="salvarRegistro()" class="btn-green">Salvar Relatório</button>
+
+        <h3>Histórico de Registros</h3>
         <div style="overflow-x:auto;">
             <table>
                 <thead>
                     <tr>
-                        <th>Nome Completo</th>
-                        <th>Login</th>
+                        <th>Data/Hora</th>
+                        <th>Inspetor</th>
                         <th>Turno</th>
-                        <th>Ações</th>
+                        <th>Item</th>
+                        <th>Status</th>
+                        <th>Observação</th>
                     </tr>
                 </thead>
-                <tbody id="tabela-usuarios"></tbody>
+                <tbody id="tabela-corpo"></tbody>
             </table>
         </div>
     </div>
 
-    <div id="user-panel" class="container" style="display: none;">
-        <button onclick="logout()" class="btn-sair">Sair</button>
-        <h2>Sistema de Qualidade</h2>
-        <div style="padding: 20px; border: 1px solid #3498db; border-radius: 8px;">
-            <p>Olá, <strong id="nome-logado"></strong>!</p>
-            <p>Seu acesso ao sistema foi confirmado.</p>
-            <p style="color: #f1c40f;"><strong>Módulo em Desenvolvimento</strong></p>
-        </div>
-    </div>
-
     <script>
-        // CONFIGURAÇÃO MASTER
-        const ADM_USER = "master";
-        const ADM_PASS = "master";
+        const ADM_USER = "admin";
+        const ADM_PASS = "admin123";
+        let usuarioLogado = null;
 
         function logar() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            const erro = document.getElementById('msg-erro');
 
-            // 1. Testa se é o Master primeiro
             if (u === ADM_USER && p === ADM_PASS) {
-                abrir('master-panel');
-                atualizarTabela();
+                usuarioLogado = { nomeCompleto: "Administrador", turno: "Geral", role: "admin" };
+                carregarSistema();
                 return;
             }
 
-            // 2. Testa os usuários criados
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            let usuario = lista.find(x => x.login === u && x.senha === p);
+            let conta = lista.find(x => x.login === u && x.senha === p);
 
-            if (usuario) {
-                document.getElementById('nome-logado').innerText = usuario.nomeCompleto;
-                abrir('user-panel');
+            if (conta) {
+                usuarioLogado = { ...conta, role: "user" };
+                carregarSistema();
             } else {
-                erro.innerText = "Usuário ou senha inválidos.";
+                document.getElementById('msg-erro').innerText = "Acesso negado!";
             }
+        }
+
+        function carregarSistema() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('main-panel').style.display = 'block';
+            document.getElementById('info-user').innerText = `Logado como: ${usuarioLogado.nomeCompleto} (${usuarioLogado.turno})`;
+            
+            if (usuarioLogado.role === "admin") {
+                document.getElementById('admin-area').style.display = 'block';
+            }
+            atualizarTabelaRegistros();
         }
 
         function cadastrarUsuario() {
             const nome = document.getElementById('new-full-name').value;
             const login = document.getElementById('new-user').value;
-            const senha = document.getElementById('new-pass').value;
+            const pass = document.getElementById('new-pass').value;
             const turno = document.getElementById('new-shift').value;
 
-            if (!nome || !login || !senha || !turno) {
-                alert("Preencha todos os campos!");
-                return;
-            }
+            if (!nome || !login || !pass || !turno) return alert("Preencha tudo!");
 
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.push({ nomeCompleto: nome, login: login, senha: senha, turno: turno });
+            lista.push({ nomeCompleto: nome, login: login, senha: pass, turno: turno });
             localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-
-            limparForm();
-            atualizarTabela();
+            alert("Usuário cadastrado!");
+            location.reload();
         }
 
-        function atualizarTabela() {
-            const corpo = document.getElementById('tabela-usuarios');
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            corpo.innerHTML = "";
+        function salvarRegistro() {
+            const registro = {
+                data: new Date().toLocaleString('pt-BR'),
+                inspetor: usuarioLogado.nomeCompleto,
+                turno: usuarioLogado.turno,
+                item: document.getElementById('item-inspecao').value,
+                status: document.getElementById('status-inspecao').value,
+                obs: document.getElementById('obs-inspecao').value || "-"
+            };
 
-            lista.forEach((u, i) => {
-                corpo.innerHTML += `
-                    <tr>
-                        <td>${u.nomeCompleto}</td>
-                        <td>${u.login}</td>
-                        <td>${u.turno}</td>
-                        <td><button onclick="remover(${i})" class="btn-del">Remover</button></td>
-                    </tr>
-                `;
-            });
+            let historico = JSON.parse(localStorage.getItem('historico_qualidade')) || [];
+            historico.unshift(registro);
+            localStorage.setItem('historico_qualidade', JSON.stringify(historico));
+            
+            document.getElementById('obs-inspecao').value = "";
+            atualizarTabelaRegistros();
         }
 
-        function remover(i) {
-            if(confirm("Deseja excluir este usuário?")) {
-                let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-                lista.splice(i, 1);
-                localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-                atualizarTabela();
-            }
-        }
-
-        function abrir(id) {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('master-panel').style.display = 'none';
-            document.getElementById('user-panel').style.display = 'none';
-            document.getElementById(id).style.display = 'block';
-        }
-
-        function limparForm() {
-            document.getElementById('new-full-name').value = "";
-            document.getElementById('new-user').value = "";
-            document.getElementById('new-pass').value = "";
-            document.getElementById('new-shift').value = "";
+        function atualizarTabelaRegistros() {
+            const corpo = document.getElementById('tabela-corpo');
+            let historico = JSON.parse(localStorage.getItem('historico_qualidade')) || [];
+            corpo.innerHTML = historico.map(r => `
+                <tr>
+                    <td>${r.data}</td>
+                    <td>${r.inspetor}</td>
+                    <td>${r.turno}</td>
+                    <td>${r.item}</td>
+                    <td>${r.status}</td>
+                    <td>${r.obs}</td>
+                </tr>
+            `).join('');
         }
 
         function logout() { window.location.reload(); }
