@@ -12,7 +12,7 @@
         h3 { color: #ccc; margin-bottom: 15px; }
         
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #3498db; }
+        input:focus, select:focus { border-color: #3498db; }
         
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #2980b9; }
@@ -32,7 +32,6 @@
         .grid-painel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
         .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
         
-        /* Estilo para os indicadores de linha */
         .info-linha { font-size: 0.85rem; margin-bottom: 15px; padding-left: 5px; border-left: 2px solid #444; }
         .info-linha span { display: block; color: #aaa; margin-top: 2px; }
         .info-linha b { color: #3498db; }
@@ -46,11 +45,14 @@
         @media (max-width: 600px) { .grid-painel { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body>
+<body onload="verificarSessao()">
 
     <div id="login-section" class="container">
         <h2>Qualidade - Acesso</h2>
-        <input type="text" id="user" placeholder="Usuário">
+        <select id="user-select">
+            <option value="">Selecione seu usuário...</option>
+            <option value="admin">Administrador (Master)</option>
+            </select>
         <input type="password" id="pass" placeholder="Senha">
         <button onclick="logar()">Entrar</button>
         <p id="msg-erro" style="color: #ff4d4d; margin-top: 15px;"></p>
@@ -105,41 +107,28 @@
 
             <div class="card" style="border-color: #3498db;">
                 <h3 style="margin-top:0; font-size: 1.1rem; color: #3498db;">Resultados</h3>
-                
                 <div class="info-linha">
                     <label>A (Pegadas):</label>
                     <input type="number" id="input-A" placeholder="0" oninput="calcular()">
                     <span>Área: <b id="res-A">0.00</b> m²</span>
-                    <span>Representa: <b id="perc-A-ind">0.00</b>% do total</span>
+                    <span>Representa: <b id="perc-A-ind">0.00</b>%</span>
                 </div>
-
                 <div id="campo-C" class="info-linha">
                     <label>C (Pegadas):</label>
                     <input type="number" id="input-C" placeholder="0" oninput="calcular()">
                     <span>Área: <b id="res-C">0.00</b> m²</span>
-                    <span>Representa: <b id="perc-C-ind">0.00</b>% do total</span>
+                    <span>Representa: <b id="perc-C-ind">0.00</b>%</span>
                 </div>
-
                 <div class="info-linha" style="border-left-color: #e74c3c;">
                     <label>Q (Peças):</label>
-                    <input type="number" id="input-Q" placeholder="0" oninput="calcular()">
+                    <input type="number" id="input-Q" placeholder="0" oninput="inputQManual()">
                     <span>Área: <b id="res-Q">0.00</b> m²</span>
-                    <span>Representa: <b id="perc-Q-ind">0.00</b>% do total</span>
+                    <span>Representa: <b id="perc-Q-ind">0.00</b>%</span>
                 </div>
-
                 <div class="stats-final">
-                    <div class="stat-box">
-                        <small>Total Produção (A+C)</small>
-                        <strong id="total-ac">0.00</strong> <small>m²</small>
-                    </div>
-                    <div class="stat-box">
-                        <small>Geral (A+C+Q)</small>
-                        <strong id="total-acq">0.00</strong> <small>m²</small>
-                    </div>
-                    <div class="stat-box quebra" style="grid-column: span 2;">
-                        <small>Índice de Quebra Total</small>
-                        <strong id="perc-quebra-total">0.00</strong><strong>%</strong>
-                    </div>
+                    <div class="stat-box"><small>Produção (A+C)</small><strong id="total-ac">0.00</strong></div>
+                    <div class="stat-box"><small>Geral (A+C+Q)</small><strong id="total-acq">0.00</strong></div>
+                    <div class="stat-box quebra" style="grid-column: span 2;"><small>Índice de Quebra Total</small><strong id="perc-quebra-total">0.00</strong>%</div>
                 </div>
                 <button class="btn-add">Salvar Registro</button>
             </div>
@@ -147,22 +136,98 @@
     </div>
 
     <script>
-        const ADM_USER = "admin"; const ADM_PASS = "admin123";
+        const ADM_PASS = "admin123";
+
+        // Verifica se já existe alguém logado ao abrir a página
+        function verificarSessao() {
+            carregarSelectUsuarios();
+            const logado = JSON.parse(localStorage.getItem('sessao_qualidade'));
+            if (logado) {
+                if (logado.tipo === 'admin') {
+                    abrir('master-panel');
+                    atualizarTabela();
+                } else {
+                    document.getElementById('nome-logado').innerText = logado.nome;
+                    abrir('user-panel');
+                    alternarCampos();
+                }
+            }
+        }
+
+        function carregarSelectUsuarios() {
+            const select = document.getElementById('user-select');
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            // Mantém apenas o admin fixo e limpa o resto para recarregar
+            select.innerHTML = '<option value="">Selecione seu usuário...</option><option value="admin">Administrador (Master)</option>';
+            lista.forEach(u => {
+                let opt = document.createElement('option');
+                opt.value = u.login;
+                opt.textContent = u.nomeCompleto;
+                select.appendChild(opt);
+            });
+        }
 
         function logar() {
-            const u = document.getElementById('user').value;
+            const u = document.getElementById('user-select').value;
             const p = document.getElementById('pass').value;
-            if (u === ADM_USER && p === ADM_PASS) { abrir('master-panel'); atualizarTabela(); return; }
+            const erro = document.getElementById('msg-erro');
+
+            if (u === "admin" && p === ADM_PASS) {
+                localStorage.setItem('sessao_qualidade', JSON.stringify({ tipo: 'admin', nome: 'Administrador' }));
+                abrir('master-panel');
+                atualizarTabela();
+                return;
+            }
+
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
             let usuario = lista.find(x => x.login === u && x.senha === p);
-            if (usuario) { document.getElementById('nome-logado').innerText = usuario.nomeCompleto; abrir('user-panel'); alternarCampos(); }
-            else { document.getElementById('msg-erro').innerText = "Usuário/Senha incorretos."; }
+
+            if (usuario) {
+                localStorage.setItem('sessao_qualidade', JSON.stringify({ tipo: 'user', nome: usuario.nomeCompleto, login: usuario.login }));
+                document.getElementById('nome-logado').innerText = usuario.nomeCompleto;
+                abrir('user-panel');
+                alternarCampos();
+            } else {
+                erro.innerText = "Senha incorreta.";
+            }
+        }
+
+        function cadastrarUsuario() {
+            const nome = document.getElementById('new-full-name').value;
+            const login = document.getElementById('new-user').value;
+            const senha = document.getElementById('new-pass').value;
+            const turno = document.getElementById('new-shift').value;
+            if (!nome || !login || !senha || !turno) return alert("Preencha tudo!");
+            
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            lista.push({ nomeCompleto: nome, login, senha, turno });
+            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
+            
+            // Limpa campos e recarrega tudo
+            document.getElementById('new-full-name').value = "";
+            document.getElementById('new-user').value = "";
+            document.getElementById('new-pass').value = "";
+            atualizarTabela();
+            carregarSelectUsuarios();
+        }
+
+        function atualizarTabela() {
+            const corpo = document.querySelector('#tabela-usuarios tbody');
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            corpo.innerHTML = lista.map((u, i) => `<tr><td>${u.nomeCompleto}</td><td>${u.login}</td><td>${u.turno}</td><td><button onclick="remover(${i})" class="btn-del" style="background:#c0392b; padding:4px 8px; font-size:11px;">Remover</button></td></tr>`).join('');
+        }
+
+        function remover(i) {
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            lista.splice(i, 1);
+            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
+            atualizarTabela();
+            carregarSelectUsuarios();
         }
 
         function alternarCampos() {
             const proc = document.querySelector('input[name="processo"]:checked').value;
             document.getElementById('campo-C').style.display = (proc === "A+Q") ? 'none' : 'block';
-            if(proc === "A+Q") document.getElementById('input-C').value = "";
             calcular();
         }
 
@@ -173,67 +238,40 @@
             const valQ = parseFloat(document.getElementById('input-Q').value) || 0;
 
             let m2A = 0, m2C = 0, m2Q = 0;
-
             if (bitola === "90x90") {
-                const fatorPegada = 5 * 3 * 0.81; // 12.15 m²
-                m2A = valA * fatorPegada;
-                m2C = valC * fatorPegada;
-                m2Q = valQ * 0.81; // Peça individual
+                const fator = 5 * 3 * 0.81;
+                m2A = valA * fator;
+                m2C = valC * fator;
+                m2Q = valQ * 0.81;
             }
 
             const totalACQ = m2A + m2C + m2Q;
             const totalAC = m2A + m2C;
 
-            // Porcentagens individuais sobre o TOTAL GERAL (A+C+Q)
-            const pA = totalACQ > 0 ? (m2A / totalACQ) * 100 : 0;
-            const pC = totalACQ > 0 ? (m2C / totalACQ) * 100 : 0;
-            const pQ = totalACQ > 0 ? (m2Q / totalACQ) * 100 : 0;
-
-            // Atualização dos campos de texto
             document.getElementById('res-A').innerText = m2A.toFixed(2);
             document.getElementById('res-C').innerText = m2C.toFixed(2);
             document.getElementById('res-Q').innerText = m2Q.toFixed(2);
             
-            document.getElementById('perc-A-ind').innerText = pA.toFixed(2);
-            document.getElementById('perc-C-ind').innerText = pC.toFixed(2);
-            document.getElementById('perc-Q-ind').innerText = pQ.toFixed(2);
+            document.getElementById('perc-A-ind').innerText = totalACQ > 0 ? ((m2A/totalACQ)*100).toFixed(2) : "0.00";
+            document.getElementById('perc-C-ind').innerText = totalACQ > 0 ? ((m2C/totalACQ)*100).toFixed(2) : "0.00";
+            document.getElementById('perc-Q-ind').innerText = totalACQ > 0 ? ((m2Q/totalACQ)*100).toFixed(2) : "0.00";
 
             document.getElementById('total-ac').innerText = totalAC.toFixed(2);
             document.getElementById('total-acq').innerText = totalACQ.toFixed(2);
-            document.getElementById('perc-quebra-total').innerText = pQ.toFixed(2);
+            document.getElementById('perc-quebra-total').innerText = totalACQ > 0 ? ((m2Q/totalACQ)*100).toFixed(2) : "0.00";
         }
 
-        function cadastrarUsuario() {
-            const nome = document.getElementById('new-full-name').value;
-            const login = document.getElementById('new-user').value;
-            const senha = document.getElementById('new-pass').value;
-            const turno = document.getElementById('new-shift').value;
-            if (!nome || !login || !senha || !turno) return alert("Preencha todos os campos!");
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.push({ nomeCompleto: nome, login, senha, turno });
-            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-            atualizarTabela();
-        }
-
-        function atualizarTabela() {
-            const corpo = document.querySelector('#tabela-usuarios tbody');
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            corpo.innerHTML = lista.map((u, i) => `<tr><td>${u.nomeCompleto}</td><td>${u.login}</td><td>${u.turno}</td><td><button onclick="remover(${i})" class="btn-del">Remover</button></td></tr>`).join('');
-        }
-
-        function remover(i) {
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.splice(i, 1);
-            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-            atualizarTabela();
-        }
+        function inputQManual() { calcular(); }
 
         function abrir(id) {
             ['login-section', 'master-panel', 'user-panel'].forEach(d => document.getElementById(d).style.display = 'none');
             document.getElementById(id).style.display = 'block';
         }
 
-        function logout() { window.location.reload(); }
+        function logout() {
+            localStorage.removeItem('sessao_qualidade');
+            window.location.reload();
+        }
     </script>
 </body>
 </html>
