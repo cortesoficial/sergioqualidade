@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Qualidade</title>
+    <title>Sistema de Qualidade - Industrial</title>
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 450px; text-align: center; }
-        .wide-container { max-width: 850px; }
+        .wide-container { max-width: 900px; }
         h2 { color: #3498db; margin-bottom: 20px; }
         h3 { color: #ccc; margin-bottom: 15px; }
+        
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
         input:focus { border-color: #3498db; }
+        
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #2980b9; }
+        
         .btn-add { background: #27ae60; }
         .btn-add:hover { background: #219150; }
         .btn-sair { background: #e74c3c; width: auto; padding: 8px 20px; margin-bottom: 20px; float: right; }
@@ -21,12 +24,17 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; }
         th, td { padding: 12px; border: 1px solid #333; text-align: left; font-size: 0.85rem; }
         th { background-color: #3498db; }
-        tr:nth-child(even) { background-color: #1a1a1a; }
-        .btn-del { background: #c0392b; width: auto; padding: 4px 8px; font-size: 11px; }
-
+        
         .radio-group { display: flex; gap: 20px; justify-content: flex-start; margin: 15px 0; background: #252525; padding: 12px; border-radius: 6px; border: 1px solid #333; }
-        .radio-option { display: flex; align-items: center; cursor: pointer; }
-        .radio-option input { width: auto; margin: 0 8px 0 0; }
+        .radio-option { display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; }
+        .radio-option input { width: auto; margin-right: 8px; }
+
+        .grid-painel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
+        .resultado-label { font-size: 0.8rem; color: #aaa; margin-top: -5px; margin-bottom: 10px; display: block; }
+        .total-destaque { font-size: 1.2rem; color: #27ae60; font-weight: bold; }
+
+        @media (max-width: 600px) { .grid-painel { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -43,7 +51,7 @@
         <button onclick="logout()" class="btn-sair">Sair</button>
         <h2 style="text-align: left;">Painel Master</h2>
         
-        <div style="background: #252525; padding: 20px; border-radius: 8px; text-align: left;">
+        <div class="card">
             <h3 style="margin-top:0">Novo Usuário</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <input type="text" id="new-full-name" placeholder="Nome Completo">
@@ -65,7 +73,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Nome Completo</th>
+                        <th>Nome</th>
                         <th>Login</th>
                         <th>Turno</th>
                         <th>Ações</th>
@@ -80,35 +88,62 @@
         <button onclick="logout()" class="btn-sair">Sair</button>
         <h2 style="text-align: left;">Qualidade por Hora</h2>
         
-        <div style="background: #252525; padding: 25px; border-radius: 8px; text-align: left; border: 1px solid #333;">
-            <p style="margin-top: 0;">Bem-vindo, <strong id="nome-logado" style="color: #3498db;"></strong></p>
-            <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+        <div class="grid-painel">
+            <div class="card">
+                <p style="margin-top: 0;">Operador: <strong id="nome-logado" style="color: #3498db;"></strong></p>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
 
-            <label><strong>Tipo de Processo:</strong></label>
-            <div class="radio-group">
-                <label class="radio-option">
-                    <input type="radio" name="processo" value="A+C+Q"> A+C+Q
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="processo" value="A+Q"> A+Q
-                </label>
+                <label><strong>Tipo de Processo:</strong></label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="processo" value="A+C+Q" checked onclick="alternarCampos()"> A+C+Q
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="processo" value="A+Q" onclick="alternarCampos()"> A+Q
+                    </label>
+                </div>
+
+                <label><strong>Selecione a Bitola:</strong></label>
+                <select id="bitola" onchange="calcular()">
+                    <option value="">-- Selecione --</option>
+                    <option value="90x90">90x90</option>
+                    <option value="32x60">32x60</option>
+                    <option value="30x90">30x90</option>
+                    <option value="45x120">45x120</option>
+                </select>
             </div>
 
-            <label><strong>Selecione a Bitola:</strong></label>
-            <select id="bitola">
-                <option value="">-- Clique para selecionar --</option>
-                <option value="90x90">90x90</option>
-                <option value="32x60">32x60</option>
-                <option value="30x90">30x90</option>
-                <option value="45x120">45x120</option>
-            </select>
+            <div class="card" style="border-color: #3498db;">
+                <h3 style="margin-top:0; font-size: 1.1rem; color: #3498db;">Lançamento de Dados</h3>
+                
+                <div id="campo-A">
+                    <label>A (Pegadas):</label>
+                    <input type="number" id="input-A" placeholder="Qtd Pegadas" oninput="calcular()">
+                    <span class="resultado-label">Total A: <span id="res-A">0.00</span> m²</span>
+                </div>
 
-            <button class="btn-add" style="margin-top: 20px;" onclick="iniciarModulo()">Abrir Módulo de Inspeção</button>
+                <div id="campo-C">
+                    <label>C (Pegadas):</label>
+                    <input type="number" id="input-C" placeholder="Qtd Pegadas" oninput="calcular()">
+                    <span class="resultado-label">Total C: <span id="res-C">0.00</span> m²</span>
+                </div>
+
+                <div id="campo-Q">
+                    <label>Q (Peças):</label>
+                    <input type="number" id="input-Q" placeholder="Qtd Peças" oninput="calcular()">
+                    <span class="resultado-label">Total Q: <span id="res-Q">0.00</span> m²</span>
+                </div>
+
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #444;">
+                    <p>Total Geral: <span id="total-geral" class="total-destaque">0.00</span> <strong>m²</strong></p>
+                </div>
+                <button class="btn-add">Salvar Registro</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO MASTER
+        // CONFIGURAÇÃO INICIAL ADMIN
         const ADM_USER = "admin";
         const ADM_PASS = "admin123";
 
@@ -117,20 +152,19 @@
             const p = document.getElementById('pass').value;
             const erro = document.getElementById('msg-erro');
 
-            // 1. Testa Master
             if (u === ADM_USER && p === ADM_PASS) {
                 abrir('master-panel');
                 atualizarTabela();
                 return;
             }
 
-            // 2. Testa usuários do LocalStorage
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
             let usuario = lista.find(x => x.login === u && x.senha === p);
 
             if (usuario) {
                 document.getElementById('nome-logado').innerText = usuario.nomeCompleto;
                 abrir('user-panel');
+                alternarCampos(); // Ajusta campos iniciais
             } else {
                 erro.innerText = "Usuário ou senha inválidos.";
             }
@@ -150,8 +184,13 @@
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
             lista.push({ nomeCompleto: nome, login: login, senha: senha, turno: turno });
             localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-
-            limparForm();
+            
+            // Limpa campos
+            document.getElementById('new-full-name').value = "";
+            document.getElementById('new-user').value = "";
+            document.getElementById('new-pass').value = "";
+            document.getElementById('new-shift').value = "";
+            
             atualizarTabela();
         }
 
@@ -159,26 +198,55 @@
             const corpo = document.getElementById('tabela-usuarios');
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
             corpo.innerHTML = "";
-
             lista.forEach((u, i) => {
-                corpo.innerHTML += `
-                    <tr>
-                        <td>${u.nomeCompleto}</td>
-                        <td>${u.login}</td>
-                        <td>${u.turno}</td>
-                        <td><button onclick="remover(${i})" class="btn-del">Remover</button></td>
-                    </tr>
-                `;
+                corpo.innerHTML += `<tr><td>${u.nomeCompleto}</td><td>${u.login}</td><td>${u.turno}</td><td><button onclick="remover(${i})" class="btn-del">Sair</button></td></tr>`;
             });
         }
 
         function remover(i) {
-            if(confirm("Deseja excluir este usuário?")) {
-                let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-                lista.splice(i, 1);
-                localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-                atualizarTabela();
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            lista.splice(i, 1);
+            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
+            atualizarTabela();
+        }
+
+        function alternarCampos() {
+            const processo = document.querySelector('input[name="processo"]:checked').value;
+            const campoC = document.getElementById('campo-C');
+            if (processo === "A+Q") {
+                campoC.style.display = 'none';
+                document.getElementById('input-C').value = "";
+            } else {
+                campoC.style.display = 'block';
             }
+            calcular();
+        }
+
+        function calcular() {
+            const bitola = document.getElementById('bitola').value;
+            const valA = parseFloat(document.getElementById('input-A').value) || 0;
+            const valC = parseFloat(document.getElementById('input-C').value) || 0;
+            const valQ = parseFloat(document.getElementById('input-Q').value) || 0;
+
+            let m2A = 0, m2C = 0, m2Q = 0;
+
+            // Lógica para 90x90
+            if (bitola === "90x90") {
+                // Cada pegada (A e C) = 5 caixas * 3 peças * 0.81m² = 12.15 m²
+                const fatorPegada = 5 * 3 * 0.81;
+                m2A = valA * fatorPegada;
+                m2C = valC * fatorPegada;
+                // Q é por peça = 0.81m²
+                m2Q = valQ * 0.81;
+            } else {
+                // Para outras bitolas, o cálculo pode ser definido depois (atualmente 1:1)
+                m2A = valA; m2C = valC; m2Q = valQ;
+            }
+
+            document.getElementById('res-A').innerText = m2A.toFixed(2);
+            document.getElementById('res-C').innerText = m2C.toFixed(2);
+            document.getElementById('res-Q').innerText = m2Q.toFixed(2);
+            document.getElementById('total-geral').innerText = (m2A + m2C + m2Q).toFixed(2);
         }
 
         function abrir(id) {
@@ -186,24 +254,6 @@
             document.getElementById('master-panel').style.display = 'none';
             document.getElementById('user-panel').style.display = 'none';
             document.getElementById(id).style.display = 'block';
-        }
-
-        function limparForm() {
-            document.getElementById('new-full-name').value = "";
-            document.getElementById('new-user').value = "";
-            document.getElementById('new-pass').value = "";
-            document.getElementById('new-shift').value = "";
-        }
-
-        function iniciarModulo() {
-            const bitola = document.getElementById('bitola').value;
-            const processo = document.querySelector('input[name="processo"]:checked');
-
-            if(!bitola || !processo) {
-                alert("Por favor, selecione o processo e a bitola antes de continuar.");
-                return;
-            }
-            alert("Módulo iniciado para " + bitola + " no processo " + processo.value);
         }
 
         function logout() { window.location.reload(); }
