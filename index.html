@@ -7,7 +7,7 @@
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 450px; text-align: center; }
-        .wide-container { max-width: 900px; }
+        .wide-container { max-width: 950px; }
         h2 { color: #3498db; margin-bottom: 20px; }
         h3 { color: #ccc; margin-bottom: 15px; }
         
@@ -32,7 +32,13 @@
         .grid-painel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
         .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
         .resultado-label { font-size: 0.8rem; color: #aaa; margin-top: -5px; margin-bottom: 10px; display: block; }
-        .total-destaque { font-size: 1.2rem; color: #27ae60; font-weight: bold; }
+        
+        .stats-container { margin-top: 15px; padding-top: 15px; border-top: 1px solid #444; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: #1a1a1a; padding: 10px; border-radius: 4px; border-left: 4px solid #3498db; }
+        .stat-box.success { border-left-color: #27ae60; }
+        .stat-box.warning { border-left-color: #f1c40f; }
+        .stat-box span { display: block; font-size: 0.75rem; color: #888; }
+        .stat-box strong { font-size: 1rem; color: #fff; }
 
         @media (max-width: 600px) { .grid-painel { grid-template-columns: 1fr; } }
     </style>
@@ -50,9 +56,8 @@
     <div id="master-panel" class="container wide-container" style="display: none;">
         <button onclick="logout()" class="btn-sair">Sair</button>
         <h2 style="text-align: left;">Painel Master</h2>
-        
         <div class="card">
-            <h3 style="margin-top:0">Novo Usuário</h3>
+            <h3>Novo Usuário</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <input type="text" id="new-full-name" placeholder="Nome Completo">
                 <input type="text" id="new-user" placeholder="Login">
@@ -67,19 +72,10 @@
             </div>
             <button onclick="cadastrarUsuario()" class="btn-add">Cadastrar Funcionário</button>
         </div>
-
-        <h3>Contas Ativas</h3>
         <div style="overflow-x:auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Login</th>
-                        <th>Turno</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tabela-usuarios"></tbody>
+            <table id="tabela-usuarios">
+                <thead><tr><th>Nome</th><th>Login</th><th>Turno</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -90,20 +86,14 @@
         
         <div class="grid-painel">
             <div class="card">
-                <p style="margin-top: 0;">Operador: <strong id="nome-logado" style="color: #3498db;"></strong></p>
+                <p>Operador: <strong id="nome-logado" style="color: #3498db;"></strong></p>
                 <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-
                 <label><strong>Tipo de Processo:</strong></label>
                 <div class="radio-group">
-                    <label class="radio-option">
-                        <input type="radio" name="processo" value="A+C+Q" checked onclick="alternarCampos()"> A+C+Q
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="processo" value="A+Q" onclick="alternarCampos()"> A+Q
-                    </label>
+                    <label class="radio-option"><input type="radio" name="processo" value="A+C+Q" checked onclick="alternarCampos()"> A+C+Q</label>
+                    <label class="radio-option"><input type="radio" name="processo" value="A+Q" onclick="alternarCampos()"> A+Q</label>
                 </div>
-
-                <label><strong>Selecione a Bitola:</strong></label>
+                <label><strong>Bitola:</strong></label>
                 <select id="bitola" onchange="calcular()">
                     <option value="">-- Selecione --</option>
                     <option value="90x90">90x90</option>
@@ -114,28 +104,26 @@
             </div>
 
             <div class="card" style="border-color: #3498db;">
-                <h3 style="margin-top:0; font-size: 1.1rem; color: #3498db;">Lançamento de Dados</h3>
-                
-                <div id="campo-A">
-                    <label>A (Pegadas):</label>
-                    <input type="number" id="input-A" placeholder="Qtd Pegadas" oninput="calcular()">
-                    <span class="resultado-label">Total A: <span id="res-A">0.00</span> m²</span>
-                </div>
+                <h3 style="margin-top:0; font-size: 1.1rem; color: #3498db;">Lançamento</h3>
+                <label>A (Pegadas):</label>
+                <input type="number" id="input-A" oninput="calcular()">
+                <span class="resultado-label">Área A: <span id="res-A">0.00</span> m²</span>
 
                 <div id="campo-C">
                     <label>C (Pegadas):</label>
-                    <input type="number" id="input-C" placeholder="Qtd Pegadas" oninput="calcular()">
-                    <span class="resultado-label">Total C: <span id="res-C">0.00</span> m²</span>
+                    <input type="number" id="input-C" oninput="calcular()">
+                    <span class="resultado-label">Área C: <span id="res-C">0.00</span> m²</span>
                 </div>
 
-                <div id="campo-Q">
-                    <label>Q (Peças):</label>
-                    <input type="number" id="input-Q" placeholder="Qtd Peças" oninput="calcular()">
-                    <span class="resultado-label">Total Q: <span id="res-Q">0.00</span> m²</span>
-                </div>
+                <label>Q (Peças):</label>
+                <input type="number" id="input-Q" oninput="calcular()">
+                <span class="resultado-label">Área Q: <span id="res-Q">0.00</span> m²</span>
 
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #444;">
-                    <p>Total Geral: <span id="total-geral" class="total-destaque">0.00</span> <strong>m²</strong></p>
+                <div class="stats-container">
+                    <div class="stat-box"><span>Total A+C</span><strong id="total-ac">0.00</strong> m²</div>
+                    <div class="stat-box success"><span>% A (Qualidade)</span><strong id="perc-a">0.00</strong>%</div>
+                    <div class="stat-box"><span>Total A+C+Q</span><strong id="total-acq">0.00</strong> m²</div>
+                    <div class="stat-box warning"><span>% Quebra (Q)</span><strong id="perc-q">0.00</strong>%</div>
                 </div>
                 <button class="btn-add">Salvar Registro</button>
             </div>
@@ -143,82 +131,22 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO INICIAL ADMIN
-        const ADM_USER = "admin";
-        const ADM_PASS = "admin123";
+        const ADM_USER = "admin"; const ADM_PASS = "admin123";
 
         function logar() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            const erro = document.getElementById('msg-erro');
-
-            if (u === ADM_USER && p === ADM_PASS) {
-                abrir('master-panel');
-                atualizarTabela();
-                return;
-            }
-
+            if (u === ADM_USER && p === ADM_PASS) { abrir('master-panel'); atualizarTabela(); return; }
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
             let usuario = lista.find(x => x.login === u && x.senha === p);
-
-            if (usuario) {
-                document.getElementById('nome-logado').innerText = usuario.nomeCompleto;
-                abrir('user-panel');
-                alternarCampos(); // Ajusta campos iniciais
-            } else {
-                erro.innerText = "Usuário ou senha inválidos.";
-            }
-        }
-
-        function cadastrarUsuario() {
-            const nome = document.getElementById('new-full-name').value;
-            const login = document.getElementById('new-user').value;
-            const senha = document.getElementById('new-pass').value;
-            const turno = document.getElementById('new-shift').value;
-
-            if (!nome || !login || !senha || !turno) {
-                alert("Preencha todos os campos!");
-                return;
-            }
-
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.push({ nomeCompleto: nome, login: login, senha: senha, turno: turno });
-            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-            
-            // Limpa campos
-            document.getElementById('new-full-name').value = "";
-            document.getElementById('new-user').value = "";
-            document.getElementById('new-pass').value = "";
-            document.getElementById('new-shift').value = "";
-            
-            atualizarTabela();
-        }
-
-        function atualizarTabela() {
-            const corpo = document.getElementById('tabela-usuarios');
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            corpo.innerHTML = "";
-            lista.forEach((u, i) => {
-                corpo.innerHTML += `<tr><td>${u.nomeCompleto}</td><td>${u.login}</td><td>${u.turno}</td><td><button onclick="remover(${i})" class="btn-del">Sair</button></td></tr>`;
-            });
-        }
-
-        function remover(i) {
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.splice(i, 1);
-            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-            atualizarTabela();
+            if (usuario) { document.getElementById('nome-logado').innerText = usuario.nomeCompleto; abrir('user-panel'); alternarCampos(); }
+            else { document.getElementById('msg-erro').innerText = "Acesso Negado."; }
         }
 
         function alternarCampos() {
-            const processo = document.querySelector('input[name="processo"]:checked').value;
-            const campoC = document.getElementById('campo-C');
-            if (processo === "A+Q") {
-                campoC.style.display = 'none';
-                document.getElementById('input-C').value = "";
-            } else {
-                campoC.style.display = 'block';
-            }
+            const proc = document.querySelector('input[name="processo"]:checked').value;
+            document.getElementById('campo-C').style.display = (proc === "A+Q") ? 'none' : 'block';
+            if(proc === "A+Q") document.getElementById('input-C').value = "";
             calcular();
         }
 
@@ -230,29 +158,57 @@
 
             let m2A = 0, m2C = 0, m2Q = 0;
 
-            // Lógica para 90x90
             if (bitola === "90x90") {
-                // Cada pegada (A e C) = 5 caixas * 3 peças * 0.81m² = 12.15 m²
-                const fatorPegada = 5 * 3 * 0.81;
+                const fatorPegada = 5 * 3 * 0.81; // 12.15
                 m2A = valA * fatorPegada;
                 m2C = valC * fatorPegada;
-                // Q é por peça = 0.81m²
                 m2Q = valQ * 0.81;
-            } else {
-                // Para outras bitolas, o cálculo pode ser definido depois (atualmente 1:1)
-                m2A = valA; m2C = valC; m2Q = valQ;
             }
 
+            const totalAC = m2A + m2C;
+            const totalACQ = m2A + m2C + m2Q;
+
+            // Cálculos de porcentagem
+            const percA = totalAC > 0 ? (m2A / totalAC) * 100 : 0;
+            const percQ = totalACQ > 0 ? (m2Q / totalACQ) * 100 : 0;
+
+            // Atualiza tela
             document.getElementById('res-A').innerText = m2A.toFixed(2);
             document.getElementById('res-C').innerText = m2C.toFixed(2);
             document.getElementById('res-Q').innerText = m2Q.toFixed(2);
-            document.getElementById('total-geral').innerText = (m2A + m2C + m2Q).toFixed(2);
+            document.getElementById('total-ac').innerText = totalAC.toFixed(2);
+            document.getElementById('total-acq').innerText = totalACQ.toFixed(2);
+            document.getElementById('perc-a').innerText = percA.toFixed(2);
+            document.getElementById('perc-q').innerText = percQ.toFixed(2);
+        }
+
+        function cadastrarUsuario() {
+            const nome = document.getElementById('new-full-name').value;
+            const login = document.getElementById('new-user').value;
+            const senha = document.getElementById('new-pass').value;
+            const turno = document.getElementById('new-shift').value;
+            if (!nome || !login || !senha || !turno) return alert("Preencha tudo!");
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            lista.push({ nomeCompleto: nome, login, senha, turno });
+            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
+            atualizarTabela();
+        }
+
+        function atualizarTabela() {
+            const corpo = document.querySelector('#tabela-usuarios tbody');
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            corpo.innerHTML = lista.map((u, i) => `<tr><td>${u.nomeCompleto}</td><td>${u.login}</td><td>${u.turno}</td><td><button onclick="remover(${i})" class="btn-del">Remover</button></td></tr>`).join('');
+        }
+
+        function remover(i) {
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            lista.splice(i, 1);
+            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
+            atualizarTabela();
         }
 
         function abrir(id) {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('master-panel').style.display = 'none';
-            document.getElementById('user-panel').style.display = 'none';
+            ['login-section', 'master-panel', 'user-panel'].forEach(d => document.getElementById(d).style.display = 'none');
             document.getElementById(id).style.display = 'block';
         }
 
