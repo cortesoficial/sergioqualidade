@@ -3,56 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQUADRADRY - Sistema Qualidade</title>
+    <title>Sistema de Qualidade</title>
     <style>
-        :root { --primary: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #0f0f0f; --card: #1a1a1a; }
-        body { background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 95%; max-width: 900px; margin: 20px; }
-        .login-box { max-width: 400px; text-align: center; }
-        h2, h3 { color: var(--primary); margin-top: 0; }
+        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 450px; text-align: center; }
+        .wide-container { max-width: 850px; }
+        h2 { color: #3498db; margin-bottom: 20px; }
+        h3 { color: #ccc; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #3498db; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        button:hover { background: #2980b9; }
+        .btn-add { background: #27ae60; }
+        .btn-add:hover { background: #219150; }
+        .btn-sair { background: #e74c3c; width: auto; padding: 8px 20px; margin-bottom: 20px; float: right; }
         
-        /* Inputs e Botões */
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--primary); }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        button:hover { opacity: 0.8; }
-        .btn-green { background: var(--success); }
-        .btn-red { background: var(--danger); width: auto; padding: 8px 20px; }
-        
-        /* Tabela e Layout */
-        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #222; padding: 20px; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111; font-size: 0.9rem; }
-        th, td { padding: 12px; border: 1px solid #333; text-align: left; }
-        th { background-color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; }
+        th, td { padding: 12px; border: 1px solid #333; text-align: left; font-size: 0.85rem; }
+        th { background-color: #3498db; }
         tr:nth-child(even) { background-color: #1a1a1a; }
-        
-        .header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin-bottom: 20px; padding-bottom: 10px; }
-        .admin-only { background: #2d1a00; border: 1px solid #f39c12; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .btn-del { background: #c0392b; width: auto; padding: 4px 8px; font-size: 11px; }
+
+        .radio-group { display: flex; gap: 20px; justify-content: flex-start; margin: 15px 0; background: #252525; padding: 12px; border-radius: 6px; border: 1px solid #333; }
+        .radio-option { display: flex; align-items: center; cursor: pointer; }
+        .radio-option input { width: auto; margin: 0 8px 0 0; }
     </style>
 </head>
 <body>
 
-    <div id="login-section" class="container login-box">
-        <h2>SQUADRADRY</h2>
-        <p style="color: #888;">Gestão de Qualidade</p>
+    <div id="login-section" class="container">
+        <h2>Qualidade - Acesso</h2>
         <input type="text" id="user" placeholder="Usuário">
         <input type="password" id="pass" placeholder="Senha">
-        <button onclick="logar()">Entrar no Sistema</button>
-        <p id="msg-erro" style="color: var(--danger); margin-top: 15px;"></p>
+        <button onclick="logar()">Entrar</button>
+        <p id="msg-erro" style="color: #ff4d4d; margin-top: 15px;"></p>
     </div>
 
-    <div id="main-panel" class="container" style="display: none;">
-        <div class="header-panel">
-            <div>
-                <h2 style="margin:0">Painel de Qualidade</h2>
-                <small id="info-user" style="color: #aaa;"></small>
-            </div>
-            <button onclick="logout()" class="btn-red">Sair</button>
-        </div>
-
-        <div id="admin-area" class="admin-only" style="display: none;">
-            <h3>Gerenciamento de Equipe (Master)</h3>
-            <div class="grid-form" style="background: transparent; padding: 0;">
+    <div id="master-panel" class="container wide-container" style="display: none;">
+        <button onclick="logout()" class="btn-sair">Sair</button>
+        <h2 style="text-align: left;">Painel Master</h2>
+        
+        <div style="background: #252525; padding: 20px; border-radius: 8px; text-align: left;">
+            <h3 style="margin-top:0">Novo Usuário</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <input type="text" id="new-full-name" placeholder="Nome Completo">
                 <input type="text" id="new-user" placeholder="Login">
                 <input type="password" id="new-pass" placeholder="Senha">
@@ -61,137 +54,156 @@
                     <option value="1º Turno">1º Turno</option>
                     <option value="2º Turno">2º Turno</option>
                     <option value="3º Turno">3º Turno</option>
+                    <option value="Adm">Administrativo</option>
                 </select>
             </div>
-            <button onclick="cadastrarUsuario()" class="btn-green" style="width: 200px;">Adicionar Usuário</button>
-            <div id="lista-usuarios-log"></div>
+            <button onclick="cadastrarUsuario()" class="btn-add">Cadastrar Funcionário</button>
         </div>
 
-        <h3>Nova Inspeção</h3>
-        <div class="grid-form">
-            <div>
-                <label>Item Inspecionado:</label>
-                <select id="item-inspecao">
-                    <option value="Mancal">Mancal</option>
-                    <option value="Disco">Disco</option>
-                </select>
-            </div>
-            <div>
-                <label>Condição:</label>
-                <select id="status-inspecao">
-                    <option value="OK">✅ OK (Conforme)</option>
-                    <option value="Troca">⚠️ Necessita Troca</option>
-                    <option value="Falha">❌ Falha Crítica</option>
-                </select>
-            </div>
-            <div>
-                <label>Observação:</label>
-                <input type="text" id="obs-inspecao" placeholder="Ex: Desgaste excessivo">
-            </div>
-        </div>
-        <button onclick="salvarRegistro()" class="btn-green">Salvar Relatório</button>
-
-        <h3>Histórico de Registros</h3>
+        <h3>Contas Ativas</h3>
         <div style="overflow-x:auto;">
             <table>
                 <thead>
                     <tr>
-                        <th>Data/Hora</th>
-                        <th>Inspetor</th>
+                        <th>Nome Completo</th>
+                        <th>Login</th>
                         <th>Turno</th>
-                        <th>Item</th>
-                        <th>Status</th>
-                        <th>Observação</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody id="tabela-corpo"></tbody>
+                <tbody id="tabela-usuarios"></tbody>
             </table>
         </div>
     </div>
 
+    <div id="user-panel" class="container wide-container" style="display: none;">
+        <button onclick="logout()" class="btn-sair">Sair</button>
+        <h2 style="text-align: left;">Qualidade por Hora</h2>
+        
+        <div style="background: #252525; padding: 25px; border-radius: 8px; text-align: left; border: 1px solid #333;">
+            <p style="margin-top: 0;">Bem-vindo, <strong id="nome-logado" style="color: #3498db;"></strong></p>
+            <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+
+            <label><strong>Tipo de Processo:</strong></label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="processo" value="A+C+Q"> A+C+Q
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="processo" value="A+Q"> A+Q
+                </label>
+            </div>
+
+            <label><strong>Selecione a Bitola:</strong></label>
+            <select id="bitola">
+                <option value="">-- Clique para selecionar --</option>
+                <option value="90x90">90x90</option>
+                <option value="32x60">32x60</option>
+                <option value="30x90">30x90</option>
+                <option value="45x120">45x120</option>
+            </select>
+
+            <button class="btn-add" style="margin-top: 20px;" onclick="iniciarModulo()">Abrir Módulo de Inspeção</button>
+        </div>
+    </div>
+
     <script>
+        // CONFIGURAÇÃO MASTER
         const ADM_USER = "admin";
         const ADM_PASS = "admin123";
-        let usuarioLogado = null;
 
         function logar() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
+            const erro = document.getElementById('msg-erro');
 
+            // 1. Testa Master
             if (u === ADM_USER && p === ADM_PASS) {
-                usuarioLogado = { nomeCompleto: "Administrador", turno: "Geral", role: "admin" };
-                carregarSistema();
+                abrir('master-panel');
+                atualizarTabela();
                 return;
             }
 
+            // 2. Testa usuários do LocalStorage
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            let conta = lista.find(x => x.login === u && x.senha === p);
+            let usuario = lista.find(x => x.login === u && x.senha === p);
 
-            if (conta) {
-                usuarioLogado = { ...conta, role: "user" };
-                carregarSistema();
+            if (usuario) {
+                document.getElementById('nome-logado').innerText = usuario.nomeCompleto;
+                abrir('user-panel');
             } else {
-                document.getElementById('msg-erro').innerText = "Acesso negado!";
+                erro.innerText = "Usuário ou senha inválidos.";
             }
-        }
-
-        function carregarSistema() {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('main-panel').style.display = 'block';
-            document.getElementById('info-user').innerText = `Logado como: ${usuarioLogado.nomeCompleto} (${usuarioLogado.turno})`;
-            
-            if (usuarioLogado.role === "admin") {
-                document.getElementById('admin-area').style.display = 'block';
-            }
-            atualizarTabelaRegistros();
         }
 
         function cadastrarUsuario() {
             const nome = document.getElementById('new-full-name').value;
             const login = document.getElementById('new-user').value;
-            const pass = document.getElementById('new-pass').value;
+            const senha = document.getElementById('new-pass').value;
             const turno = document.getElementById('new-shift').value;
 
-            if (!nome || !login || !pass || !turno) return alert("Preencha tudo!");
+            if (!nome || !login || !senha || !turno) {
+                alert("Preencha todos os campos!");
+                return;
+            }
 
             let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.push({ nomeCompleto: nome, login: login, senha: pass, turno: turno });
+            lista.push({ nomeCompleto: nome, login: login, senha: senha, turno: turno });
             localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-            alert("Usuário cadastrado!");
-            location.reload();
+
+            limparForm();
+            atualizarTabela();
         }
 
-        function salvarRegistro() {
-            const registro = {
-                data: new Date().toLocaleString('pt-BR'),
-                inspetor: usuarioLogado.nomeCompleto,
-                turno: usuarioLogado.turno,
-                item: document.getElementById('item-inspecao').value,
-                status: document.getElementById('status-inspecao').value,
-                obs: document.getElementById('obs-inspecao').value || "-"
-            };
+        function atualizarTabela() {
+            const corpo = document.getElementById('tabela-usuarios');
+            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+            corpo.innerHTML = "";
 
-            let historico = JSON.parse(localStorage.getItem('historico_qualidade')) || [];
-            historico.unshift(registro);
-            localStorage.setItem('historico_qualidade', JSON.stringify(historico));
-            
-            document.getElementById('obs-inspecao').value = "";
-            atualizarTabelaRegistros();
+            lista.forEach((u, i) => {
+                corpo.innerHTML += `
+                    <tr>
+                        <td>${u.nomeCompleto}</td>
+                        <td>${u.login}</td>
+                        <td>${u.turno}</td>
+                        <td><button onclick="remover(${i})" class="btn-del">Remover</button></td>
+                    </tr>
+                `;
+            });
         }
 
-        function atualizarTabelaRegistros() {
-            const corpo = document.getElementById('tabela-corpo');
-            let historico = JSON.parse(localStorage.getItem('historico_qualidade')) || [];
-            corpo.innerHTML = historico.map(r => `
-                <tr>
-                    <td>${r.data}</td>
-                    <td>${r.inspetor}</td>
-                    <td>${r.turno}</td>
-                    <td>${r.item}</td>
-                    <td>${r.status}</td>
-                    <td>${r.obs}</td>
-                </tr>
-            `).join('');
+        function remover(i) {
+            if(confirm("Deseja excluir este usuário?")) {
+                let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
+                lista.splice(i, 1);
+                localStorage.setItem('contas_qualidade', JSON.stringify(lista));
+                atualizarTabela();
+            }
+        }
+
+        function abrir(id) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('master-panel').style.display = 'none';
+            document.getElementById('user-panel').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function limparForm() {
+            document.getElementById('new-full-name').value = "";
+            document.getElementById('new-user').value = "";
+            document.getElementById('new-pass').value = "";
+            document.getElementById('new-shift').value = "";
+        }
+
+        function iniciarModulo() {
+            const bitola = document.getElementById('bitola').value;
+            const processo = document.querySelector('input[name="processo"]:checked');
+
+            if(!bitola || !processo) {
+                alert("Por favor, selecione o processo e a bitola antes de continuar.");
+                return;
+            }
+            alert("Módulo iniciado para " + bitola + " no processo " + processo.value);
         }
 
         function logout() { window.location.reload(); }
