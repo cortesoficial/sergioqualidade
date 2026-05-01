@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Qualidade - Industrial</title>
+    <title>Sistema de Qualidade - Controle de Detalhamento</title>
     <script src="config.js"></script>
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -27,16 +27,16 @@
         .grid-painel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; text-align: left; }
         .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
         
-        .linha-defeito { display: grid; grid-template-columns: 2.5fr 1fr 40px; gap: 10px; align-items: center; margin-bottom: 5px; }
-        .btn-remove { background: #c0392b; padding: 5px; margin: 0; }
-
+        .linha-defeito { display: grid; grid-template-columns: 2fr 0.8fr 1fr 40px; gap: 10px; align-items: center; margin-bottom: 8px; background: #1a1a1a; padding: 5px; border-radius: 4px; border: 1px solid #333; }
+        .perc-defeito-label { font-size: 0.75rem; color: #f1c40f; text-align: center; font-weight: bold; }
+        
         .info-linha { font-size: 0.85rem; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #444; }
         .info-linha b { color: #3498db; }
-        .alerta-limite { color: #e74c3c; font-weight: bold; font-size: 0.75rem; display: none; margin-top: 5px; }
+        
+        .alerta-erro { color: #ff4757; font-weight: bold; font-size: 0.8rem; display: none; margin-top: 10px; padding: 10px; background: rgba(255, 71, 87, 0.1); border-radius: 5px; border: 1px solid #ff4757; }
 
-        .stats-final { margin-top: 15px; padding-top: 15px; border-top: 1px solid #444; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-box { background: #1a1a1a; padding: 10px; border-radius: 4px; border-bottom: 3px solid #3498db; }
-        .stat-box small { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; }
+        .barra-progresso-container { background: #333; height: 10px; border-radius: 5px; margin-top: 5px; overflow: hidden; }
+        .barra-progresso { height: 100%; background: #f1c40f; width: 0%; transition: 0.3s; }
 
         @media (max-width: 800px) { .grid-painel { grid-template-columns: 1fr; } }
     </style>
@@ -45,15 +45,13 @@
 
     <div id="user-panel" class="container wide-container">
         <button onclick="location.reload()" class="btn-sair">Sair</button>
-        <h2 style="text-align: left;">Apontamento de Qualidade</h2>
+        <h2 style="text-align: left;">Controle de Qualidade</h2>
         
         <div class="grid-painel">
-            <!-- COLUNA DE ENTRADA -->
             <div class="card">
                 <label>Bitola:</label>
                 <select id="select-bitola" onchange="calcular()"></select>
 
-                <label>Modo de Cálculo:</label>
                 <div class="radio-group">
                     <label><input type="radio" name="modo" value="acq" checked onclick="calcular()"> A+C+Q</label>
                     <label><input type="radio" name="modo" value="aq" onclick="calcular()"> A+Q</label>
@@ -62,30 +60,36 @@
                 <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
 
                 <label style="color: #27ae60;">A (Primeira em PEGADAS):</label>
-                <input type="number" id="input-A" placeholder="0 pegadas" oninput="calcular()">
+                <input type="number" id="input-A" placeholder="0" oninput="calcular()">
 
                 <div id="container-entrada-c">
                     <label style="color: #f1c40f;">C (Classe C em PEGADAS):</label>
-                    <input type="number" id="input-C" placeholder="0 pegadas" oninput="calcular()">
-                    <span id="msg-limit-C" class="alerta-limite">LIMITE CLASSE C EXCEDIDO!</span>
+                    <input type="number" id="input-C" placeholder="0" oninput="calcular()">
+                    
+                    <div class="barra-progresso-container">
+                        <div id="progresso-detalhe" class="barra-progresso"></div>
+                    </div>
+                    <small id="legenda-detalhe" style="font-size: 0.7rem; color: #888;">Detalhamento: 0/0 m²</small>
                 </div>
 
                 <label style="color: #e74c3c;">Q (Quebra em PEÇAS):</label>
-                <input type="number" id="input-Q" placeholder="0 peças" oninput="calcular()">
-                <span id="msg-limit-Q" class="alerta-limite">LIMITE DE QUEBRA EXCEDIDO!</span>
+                <input type="number" id="input-Q" placeholder="0" oninput="calcular()">
+
+                <div id="msg-erro-detalhe" class="alerta-erro">
+                    ⚠️ ATENÇÃO: O detalhamento em peças ultrapassou o volume de Pegadas de C! Verifique as quantidades.
+                </div>
 
                 <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
                 
                 <div id="secao-defeitos">
-                    <h3>Detalhamento de Defeitos (Peças)</h3>
+                    <h3>Detalhamento por Defeitos (Peças)</h3>
                     <div id="lista-defeitos"></div>
-                    <button onclick="adicionarLinhaDefeito()" class="btn-def">+ Vincular Defeito</button>
+                    <button onclick="adicionarLinhaDefeito()" class="btn-def">+ Adicionar Defeito</button>
                 </div>
             </div>
 
-            <!-- COLUNA DE RESULTADOS -->
             <div class="card" style="border-color: #3498db;">
-                <h3 style="color: #3498db;">Relatório Final</h3>
+                <h3 style="color: #3498db;">Resultado Final</h3>
                 
                 <div class="info-linha" style="border-left-color: #27ae60;">
                     <span>Classe A: <b id="perc-A-ind">0.00</b>%</span>
@@ -102,15 +106,9 @@
                     <small><span id="res-Q">0.00</span> m²</small>
                 </div>
 
-                <div class="stats-final">
-                    <div class="stat-box">
-                        <small id="label-prod">Total Produção</small>
-                        <strong id="total-producao">0.00</strong> m²
-                    </div>
-                    <div class="stat-box">
-                        <small>Total Geral</small>
-                        <strong id="total-geral">0.00</strong> m²
-                    </div>
+                <div style="margin-top: 20px; padding: 15px; background: #1a1a1a; border-radius: 6px;">
+                    <small style="color: #888;">TOTAL PRODUÇÃO (A+C)</small><br>
+                    <strong id="total-producao" style="font-size: 1.5rem;">0.00</strong> <span style="font-size: 0.8rem;">m²</span>
                 </div>
             </div>
         </div>
@@ -124,10 +122,7 @@
             ).join('');
         }
 
-        function verificarSessao() {
-            popularBitolas();
-            calcular();
-        }
+        function verificarSessao() { popularBitolas(); calcular(); }
 
         function adicionarLinhaDefeito() {
             const container = document.getElementById('lista-defeitos');
@@ -136,8 +131,9 @@
             let options = DEFEITOS_LISTA.map(d => `<option value="${d}">${d}</option>`).join('');
             div.innerHTML = `
                 <select>${options}</select>
-                <input type="number" class="qtd-def" value="0" oninput="calcular()">
-                <button onclick="this.parentElement.remove();calcular();" class="btn-remove">X</button>
+                <input type="number" class="qtd-def" placeholder="Pçs" oninput="calcular()">
+                <div class="perc-defeito-label">0%</div>
+                <button onclick="this.parentElement.remove();calcular();" style="background:#c0392b; width:40px; padding:5px;">X</button>
             `;
             container.appendChild(div);
         }
@@ -147,63 +143,59 @@
             const config = BANCO_BITOLAS[bitolaKey];
             const modo = document.querySelector('input[name="modo"]:checked').value;
 
-            // ENTRADAS PRINCIPAIS
-            const pegadasA = parseFloat(document.getElementById('input-A').value) || 0;
-            const pegadasC = parseFloat(document.getElementById('input-C').value) || 0;
-            const peçasQ = parseFloat(document.getElementById('input-Q').value) || 0;
+            const pegA = parseFloat(document.getElementById('input-A').value) || 0;
+            const pegC = parseFloat(document.getElementById('input-C').value) || 0;
+            const pcsQ = parseFloat(document.getElementById('input-Q').value) || 0;
 
-            // CONVERSÃO PARA M2
-            // A e C usam fator de pegada
-            const m2A = pegadasA * config.fatorPegada;
-            const m2C_base = pegadasC * config.fatorPegada;
-            
-            // Soma o detalhamento em peças ao m2 de C
-            let m2C_detalhe = 0;
-            document.querySelectorAll('.qtd-def').forEach(input => {
-                m2C_detalhe += (parseFloat(input.value) || 0) * config.m2Peca;
-            });
-            
-            const m2C = m2C_base + m2C_detalhe;
-            const m2Q = peçasQ * config.m2Peca;
+            const m2A = pegA * config.fatorPegada;
+            const m2C = pegC * config.fatorPegada;
+            const m2Q = pcsQ * config.m2Peca;
 
-            let prodBase, totalGeral, pA, pC, pQ;
+            // Cálculos de Produção
+            let prodBase = (modo === "acq") ? (m2A + m2C) : m2A;
+            let totalGeral = prodBase + m2Q;
 
-            if (modo === "acq") {
-                document.getElementById('container-entrada-c').style.display = "block";
-                document.getElementById('secao-defeitos').style.display = "block";
-                document.getElementById('box-res-c').style.display = "block";
+            // Cálculo do Detalhamento em Peças
+            let m2TotalDetalhamento = 0;
+            document.querySelectorAll('.linha-defeito').forEach(linha => {
+                const pcs = parseFloat(linha.querySelector('.qtd-def').value) || 0;
+                const m2Def = pcs * config.m2Peca;
+                m2TotalDetalhamento += m2Def;
                 
-                prodBase = m2A + m2C; 
-                totalGeral = m2A + m2C + m2Q; 
+                // % individual do defeito sobre o volume de C disponível
+                const percInd = m2C > 0 ? (m2Def / m2C) * 100 : 0;
+                linha.querySelector('.perc-defeito-label').innerText = percInd.toFixed(0) + "%";
+            });
 
-                pA = prodBase > 0 ? (m2A / prodBase) * 100 : 0;
-                pC = prodBase > 0 ? (m2C / prodBase) * 100 : 0;
-                pQ = totalGeral > 0 ? (m2Q / totalGeral) * 100 : 0;
+            // Lógica de Travamento / Alerta
+            const progressoPerc = m2C > 0 ? (m2TotalDetalhamento / m2C) * 100 : 0;
+            const barra = document.getElementById('progresso-detalhe');
+            const msgErro = document.getElementById('msg-erro-detalhe');
+            
+            barra.style.width = Math.min(progressoPerc, 100) + "%";
+            document.getElementById('legenda-detalhe').innerText = `Detalhamento: ${m2TotalDetalhamento.toFixed(2)} / ${m2C.toFixed(2)} m²`;
+
+            if (m2TotalDetalhamento > (m2C + 0.01)) { // Tolerância de arredondamento
+                barra.style.background = "#ff4757";
+                msgErro.style.display = "block";
             } else {
-                document.getElementById('container-entrada-c').style.display = "none";
-                document.getElementById('secao-defeitos').style.display = "none";
-                document.getElementById('box-res-c').style.display = "none";
-
-                prodBase = m2A;
-                totalGeral = m2A + m2Q;
-
-                pA = prodBase > 0 ? 100 : 0;
-                pC = 0;
-                pQ = totalGeral > 0 ? (m2Q / totalGeral) * 100 : 0;
+                barra.style.background = "#f1c40f";
+                msgErro.style.display = "none";
             }
 
+            // Exibição de Resultados
             document.getElementById('res-A').innerText = m2A.toFixed(2);
             document.getElementById('res-C').innerText = m2C.toFixed(2);
             document.getElementById('res-Q').innerText = m2Q.toFixed(2);
-            document.getElementById('perc-A-ind').innerText = pA.toFixed(2);
-            document.getElementById('perc-C-ind').innerText = pC.toFixed(2);
-            document.getElementById('perc-Q-ind').innerText = pQ.toFixed(2);
+            document.getElementById('perc-A-ind').innerText = (prodBase > 0 ? (m2A/prodBase)*100 : 0).toFixed(2);
+            document.getElementById('perc-C-ind').innerText = (prodBase > 0 ? (m2C/prodBase)*100 : 0).toFixed(2);
+            document.getElementById('perc-Q-ind').innerText = (totalGeral > 0 ? (m2Q/totalGeral)*100 : 0).toFixed(2);
             document.getElementById('total-producao').innerText = prodBase.toFixed(2);
-            document.getElementById('total-geral').innerText = totalGeral.toFixed(2);
 
-            // Alertas (ajuste os limites conforme necessário)
-            document.getElementById('msg-limit-C').style.display = (pC > 5) ? 'block' : 'none';
-            document.getElementById('msg-limit-Q').style.display = (pQ > 3) ? 'block' : 'none';
+            // Esconder/Mostrar C conforme o modo
+            document.getElementById('container-entrada-c').style.display = (modo === "acq") ? "block" : "none";
+            document.getElementById('secao-defeitos').style.display = (modo === "acq") ? "block" : "none";
+            document.getElementById('box-res-c').style.display = (modo === "acq") ? "block" : "none";
         }
     </script>
 </body>
