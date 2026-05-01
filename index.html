@@ -3,97 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fechamento de Qualidade</title>
+    <title>Acompanhamento da Qualidade - Retífica 2</title>
     <script src="config.js"></script>
     <style>
-        body { background-color: #0a0a0a; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; margin: 0; display: flex; padding: 20px; gap: 20px; }
+        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; min-height: 100vh; padding: 20px; gap: 20px; }
         
-        /* Painel de Controle (Esquerda) */
-        .painel-controle { width: 380px; background: #151515; padding: 25px; border-radius: 8px; border: 1px solid #333; position: sticky; top: 20px; height: fit-content; }
-        h2 { color: #3498db; font-size: 1rem; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #3498db; padding-left: 10px; }
-
-        label { display: block; margin-top: 15px; font-size: 0.75rem; color: #777; font-weight: bold; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 4px; border: 1px solid #333; background: #0f0f0f; color: #fff; font-size: 1rem; outline: none; }
-        input:focus { border-color: #3498db; }
-
-        .btn-fechar { width: 100%; padding: 15px; margin-top: 25px; border: none; border-radius: 4px; background: #2980b9; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-fechar:hover { background: #3498db; }
-
-        /* Monitor de Fechamentos (Direita) */
-        .monitor-fechamento { flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; align-content: start; }
-        .card-fechado { background: #151515; border: 1px solid #333; border-radius: 6px; padding: 15px; opacity: 0.5; transition: 0.3s; }
-        .card-fechado.ativo { opacity: 1; border-color: #27ae60; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        /* Coluna de Entrada */
+        .input-sidebar { width: 350px; display: flex; flex-direction: column; gap: 15px; position: sticky; top: 20px; height: fit-content; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 10px; border: 1px solid #333; }
+        h2 { color: #3498db; font-size: 1.1rem; margin: 0 0 15px 0; border-bottom: 1px solid #333; padding-bottom: 8px; text-transform: uppercase; }
         
-        .header-card { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
-        .header-card span { font-size: 0.8rem; font-weight: bold; }
+        label { display: block; margin-top: 10px; font-size: 0.8rem; color: #888; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; }
         
-        .status-valor { display: flex; justify-content: space-between; margin: 8px 0; }
-        .status-valor label { margin: 0; color: #888; text-transform: none; }
-        .status-valor b { font-size: 1.1rem; }
-
-        .tag-info { background: #333; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
+        /* Painel de Resultados (Simulando Caderno) */
+        .output-panel { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+        .turno-container { background: #1a1a1a; border-radius: 10px; border: 1px solid #444; overflow: hidden; }
+        .turno-header { background: #2c3e50; padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: #252525; color: #aaa; padding: 10px; text-align: center; border-bottom: 2px solid #333; }
+        td { padding: 8px; text-align: center; border-bottom: 1px solid #333; }
+        
+        .val-a { color: #27ae60; font-weight: bold; }
+        .val-c { color: #f1c40f; font-weight: bold; }
+        .val-q { color: #e74c3c; font-weight: bold; }
+        
+        .secao-detalhe { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #444; }
+        .btn-add { background: #3498db; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body onload="init()">
 
-    <div class="painel-controle">
-        <h2>Mecanismo de Fechamento</h2>
-        
-        <label>Selecione o Slot</label>
-        <select id="slot">
-            <option value="1">1ª Qualidade do Turno</option>
-            <option value="2">2ª Qualidade do Turno</option>
-            <option value="3">3ª Qualidade do Turno</option>
-            <option value="4">4ª Qualidade do Turno</option>
-        </select>
+    <div class="input-sidebar">
+        <div class="card">
+            <h2>Lançamento de Dados</h2>
+            <label>BITOLA TÉCNICA</label>
+            <select id="bitola" onchange="calcular()"></select>
 
-        <label>Bitola</label>
-        <select id="bitola"></select>
+            <label>HORA DA COLETA</label>
+            <select id="hora-coleta" onchange="calcular()">
+                <option value="21">21:00 (Turno C)</option><option value="23">23:00 (Turno C)</option>
+                <option value="01">01:00 (Turno C)</option><option value="03">03:00 (Turno C)</option>
+                <option value="05">05:00 (Turno A)</option><option value="07">07:00 (Turno A)</option>
+                <option value="09">09:00 (Turno A)</option><option value="11">11:00 (Turno A)</option>
+                <option value="13">13:00 (Turno B)</option><option value="15">15:00 (Turno B)</option>
+                <option value="17">17:00 (Turno B)</option><option value="19">19:00 (Turno B)</option>
+            </select>
 
-        <label style="color: #27ae60;">A (Pegadas)</label>
-        <input type="number" id="in-A" placeholder="0">
+            <label style="color: #27ae60;">A (PRIMEIRA - PEGADAS)</label>
+            <input type="number" id="in-A" placeholder="0" oninput="calcular()">
 
-        <label style="color: #f1c40f;">C (Pegadas)</label>
-        <input type="number" id="in-C" placeholder="0">
+            <label style="color: #f1c40f;">C (CLASSE C - PEGADAS)</label>
+            <input type="number" id="in-C" placeholder="0" oninput="calcular()">
 
-        <label style="color: #e74c3c;">Q (Peças)</label>
-        <input type="number" id="in-Q" placeholder="0">
-
-        <button class="btn-fechar" onclick="fecharQualidade()">Confirmar Fechamento</button>
+            <label style="color: #e74c3c;">Q (QUEBRA - PEÇAS)</label>
+            <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+            
+            <button class="btn-add" onclick="salvarLinha()">SALVAR NO RELATÓRIO</button>
+        </div>
     </div>
 
-    <div class="monitor-fechamento">
-        <!-- Cards Gerados Dinamicamente -->
-        <div id="res-1" class="card-fechado">
-            <div class="header-card"><span>1ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
-            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
-            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
-            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
-            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
-        </div>
+    <div class="output-panel">
+        <h1 style="font-size: 1.5rem; margin: 0; color: #3498db;">Acompanhamento da Qualidade Acumulada</h1>
         
-        <div id="res-2" class="card-fechado">
-            <div class="header-card"><span>2ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
-            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
-            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
-            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
-            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
+        <div class="turno-container">
+            <div class="turno-header"><span>TURNO A (05:00 - 13:00)</span> <span>Vigência: 04/02/2026</span></div>
+            <table>
+                <thead>
+                    <tr><th>Hora</th><th>A (m²)</th><th>C (m²)</th><th>Total (m²)</th><th>% A</th><th>Quebra (m²)</th><th>% Q</th></tr>
+                </thead>
+                <tbody id="corpo-turno-A">
+                    <tr id="row-05"><td>05:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-07"><td>07:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-09"><td>09:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-11"><td>11:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                </tbody>
+            </table>
         </div>
 
-        <div id="res-3" class="card-fechado">
-            <div class="header-card"><span>3ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
-            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
-            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
-            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
-            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
+        <div class="turno-container">
+            <div class="turno-header">TURNO B (13:00 - 21:00)</div>
+            <table>
+                <thead>
+                    <tr><th>Hora</th><th>A (m²)</th><th>C (m²)</th><th>Total (m²)</th><th>% A</th><th>Quebra (m²)</th><th>% Q</th></tr>
+                </thead>
+                <tbody id="corpo-turno-B">
+                    <tr id="row-13"><td>13:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-15"><td>15:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-17"><td>17:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-19"><td>19:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                </tbody>
+            </table>
         </div>
 
-        <div id="res-4" class="card-fechado">
-            <div class="header-card"><span>4ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
-            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
-            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
-            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
-            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
+        <div class="turno-container">
+            <div class="turno-header">TURNO C (21:00 - 05:00)</div>
+            <table>
+                <thead>
+                    <tr><th>Hora</th><th>A (m²)</th><th>C (m²)</th><th>Total (m²)</th><th>% A</th><th>Quebra (m²)</th><th>% Q</th></tr>
+                </thead>
+                <tbody id="corpo-turno-C">
+                    <tr id="row-21"><td>21:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-23"><td>23:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-01"><td>01:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr id="row-03"><td>03:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -105,26 +121,27 @@
             }
         }
 
-        function fecharQualidade() {
-            const b = (typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {padrao:{fatorPegada:0.5, m2Peca:1}})[document.getElementById('bitola').value];
-            const slotId = document.getElementById('slot').value;
-            
+        function salvarLinha() {
+            const b = BANCO_BITOLAS[document.getElementById('bitola').value];
+            const h = document.getElementById('hora-coleta').value;
             const a = (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada;
             const c = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
             const q = (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca;
-
-            const prod = a + c;
-            const totalGeral = prod + q;
             
-            const card = document.getElementById('res-' + slotId);
-            card.classList.add('ativo');
-            card.querySelector('.tag-info').innerText = "FECHADO";
-            card.querySelector('.tag-info').style.background = "#27ae60";
+            const total = a + c;
+            const percA = total > 0 ? ((a / total) * 100).toFixed(1) : "0.0";
+            const percQ = (total + q) > 0 ? ((q / (total + q)) * 100).toFixed(1) : "0.0";
 
-            card.querySelector('.v-total').innerText = prod.toFixed(2) + " m²";
-            card.querySelector('.v-a').innerText = prod > 0 ? ((a/prod)*100).toFixed(1) + "%" : "0%";
-            card.querySelector('.v-c').innerText = prod > 0 ? ((c/prod)*100).toFixed(1) + "%" : "0%";
-            card.querySelector('.v-q').innerText = totalGeral > 0 ? ((q/totalGeral)*100).toFixed(1) + "%" : "0%";
+            const row = document.getElementById('row-' + h);
+            row.innerHTML = `
+                <td>${h}:00</td>
+                <td class="val-a">${a.toFixed(2)}</td>
+                <td class="val-c">${c.toFixed(2)}</td>
+                <td>${total.toFixed(2)}</td>
+                <td class="val-a">${percA}%</td>
+                <td class="val-q">${q.toFixed(2)}</td>
+                <td class="val-q">${percQ}%</td>
+            `;
         }
     </script>
 </body>
