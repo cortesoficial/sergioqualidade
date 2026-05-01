@@ -3,34 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Qualidade Industrial</title>
+    <title>Qualidade - Operador</title>
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
         .main-column { width: 100%; max-width: 500px; display: none; flex-direction: column; gap: 20px; }
-        
-        /* LOGIN */
         #login-overlay { position: fixed; inset: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .login-box { background: #1a1a1a; padding: 30px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 300px; }
-        
-        /* CARDS */
         .card { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h2 { color: #3498db; margin-top: 0; font-size: 1rem; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; }
-        
         label { display: block; margin-top: 12px; font-size: 0.75rem; color: #888; font-weight: bold; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; font-size: 1rem; }
-        
-        /* ADMIN */
-        #secao-admin { background: #201a2b; border: 1px dashed #8e44ad; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
-        .btn-admin { background: #8e44ad; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-
-        /* RESULTADOS */
         .res-grid { display: grid; gap: 10px; margin-top: 10px; }
         .res-item { padding: 10px; border-radius: 8px; background: #252525; border-left: 4px solid #444; }
         .res-item span { font-size: 0.65rem; color: #aaa; text-transform: uppercase; }
         .res-item b { font-size: 1.1rem; display: block; }
-        
         .total-box { background: #3498db1a; border: 1px solid #3498db; padding: 15px; border-radius: 8px; text-align: center; margin-top: 15px; }
         .total-box b { font-size: 1.8rem; color: #3498db; }
+        .btn-salvar { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
         .btn-logout { background: #444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; float: right; }
     </style>
 </head>
@@ -38,10 +27,10 @@
 
     <div id="login-overlay">
         <div class="login-box">
-            <h2 style="border:none; color:#3498db;">Acesso Qualidade</h2>
+            <h2 style="border:none; color:#3498db;">Acesso Operador</h2>
             <input type="text" id="user-login" placeholder="Usuário">
             <input type="password" id="pass-login" placeholder="Senha">
-            <button class="btn-admin" style="background:#27ae60" onclick="autenticar()">Entrar</button>
+            <button class="btn-salvar" onclick="autenticar()">Entrar</button>
         </div>
     </div>
 
@@ -51,120 +40,81 @@
             <p id="txt-usuario" style="font-size:0.8rem; color:#888;">Logado como: --</p>
         </div>
 
-        <div id="secao-admin">
-            <h2 style="color: #9b59b6;">Painel Admin - Usuários</h2>
-            <input type="text" id="adm-nome" placeholder="Nome">
-            <select id="adm-turno"><option>A</option><option>B</option><option>C</option></select>
-            <input type="password" id="adm-pass" placeholder="Senha">
-            <button class="btn-admin" onclick="cadastrarUsuario()">Salvar Usuário</button>
-        </div>
-
-        <div id="card-entrada" class="card">
+        <div class="card">
             <h2>Entrada de Produção</h2>
-            
             <label>BITOLA TÉCNICA</label>
             <select id="bitola" onchange="calcular()">
-                <option value="0.4428">60x60 (Fator 0.4428)</option>
-                <option value="0.5184">70x70 (Fator 0.5184)</option>
-                <option value="0.6400">80x80 (Fator 0.6400)</option>
-                <option value="1.0000">100x100 (Fator 1.0000)</option>
+                <option value="0.4428">60x60 (0.4428)</option>
+                <option value="0.5184">70x70 (0.5184)</option>
+                <option value="0.6400">80x80 (0.6400)</option>
+                <option value="1.0000">100x100 (1.0000)</option>
             </select>
-
-            <label style="color: #27ae60;">A (PRIMEIRA - PEGADAS)</label>
+            <label style="color: #27ae60;">A (1ª QUALIDADE - PEGADAS)</label>
             <input type="number" id="in-A" placeholder="0" oninput="calcular()">
-
-            <label style="color: #f1c40f;">C (CLASSE C - PEGADAS)</label>
-            <input type="number" id="in-C" placeholder="0" oninput="inputC()">
-
+            <label style="color: #f1c40f;">2ª / 3ª QUALIDADE (PEGADAS)</label>
+            <input type="number" id="in-C" placeholder="0" oninput="calcular()">
             <label style="color: #e74c3c;">Q (QUEBRA - PEÇAS)</label>
             <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+            <button class="btn-salvar" onclick="salvarRegistro()">Registrar no Caderno</button>
         </div>
 
         <div class="card" style="border-color: #3498db;">
-            <h2>Resultado (A+C+Q)</h2>
             <div class="res-grid">
-                <div class="res-item" style="border-left-color: #27ae60;">
-                    <span>Eficiência A</span>
-                    <b id="res-per-A" style="color: #27ae60;">0.00%</b>
-                </div>
-                <div id="box-res-C" class="res-item" style="border-left-color: #f1c40f;">
-                    <span>Eficiência C</span>
-                    <b id="res-per-C" style="color: #f1c40f;">0.00%</b>
-                </div>
-                <div class="res-item" style="border-left-color: #e74c3c;">
-                    <span>Índice Quebra</span>
-                    <b id="res-per-Q" style="color: #e74c3c;">0.00%</b>
-                </div>
+                <div class="res-item" style="border-left-color: #27ae60;"><span>Eficiência A</span><b id="res-per-A">0.00%</b></div>
+                <div class="res-item" style="border-left-color: #f1c40f;"><span>Eficiência 2ª/3ª</span><b id="res-per-C">0.00%</b></div>
+                <div class="res-item" style="border-left-color: #e74c3c;"><span>Índice Quebra</span><b id="res-per-Q">0.00%</b></div>
             </div>
-            <div class="total-box">
-                <span style="color: #888; font-size: 0.7rem;">PRODUÇÃO LÍQUIDA (m²)</span><br>
-                <b id="res-total">0.00</b>
-            </div>
+            <div class="total-box"><span style="color:#888; font-size:0.7rem;">TOTAL M²</span><br><b id="res-total">0.00</b></div>
         </div>
     </div>
 
     <script>
-        let usuarios = JSON.parse(localStorage.getItem('usuarios_db')) || [
-            {user: "admin", pass: "admin", nivel: "admin", turno: "Geral"}
-        ];
+        let userLogado = null;
 
         function autenticar() {
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
-            const found = usuarios.find(x => x.user === u && x.pass === p);
-
-            if(found) {
+            const usuarios = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:"admin", pass:"admin", turno:"Geral"}];
+            
+            userLogado = usuarios.find(x => x.user === u && x.pass === p);
+            if(userLogado) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('txt-usuario').innerText = `Operador: ${found.user} | Turno: ${found.turno}`;
-                if(found.nivel === 'admin') document.getElementById('secao-admin').style.display = 'block';
-            } else { alert("Acesso negado!"); }
-        }
-
-        function cadastrarUsuario() {
-            const nome = document.getElementById('adm-nome').value;
-            const pass = document.getElementById('adm-pass').value;
-            const turno = document.getElementById('adm-turno').value;
-            if(nome && pass) {
-                usuarios.push({user: nome, pass: pass, nivel: "op", turno: turno});
-                localStorage.setItem('usuarios_db', JSON.stringify(usuarios));
-                alert("Usuário cadastrado!");
-            }
-        }
-
-        function inputC() {
-            // Se o usuário digitar algo em C, garantimos que a lógica A+C+Q seja visível
-            document.getElementById('box-res-C').style.opacity = "1";
-            calcular();
+                document.getElementById('txt-usuario').innerText = `Operador: ${userLogado.user} | Turno: ${userLogado.turno}`;
+            } else { alert("Usuário não encontrado!"); }
         }
 
         function calcular() {
             const fator = parseFloat(document.getElementById('bitola').value);
-            const valA = (parseFloat(document.getElementById('in-A').value) || 0);
-            const valC = (parseFloat(document.getElementById('in-C').value) || 0);
-            const valQ = (parseFloat(document.getElementById('in-Q').value) || 0);
+            const mA = (parseFloat(document.getElementById('in-A').value) || 0) * fator;
+            const mC = (parseFloat(document.getElementById('in-C').value) || 0) * fator;
+            const mQ = (parseFloat(document.getElementById('in-Q').value) || 0) * fator;
 
-            // Conversão para m²
-            const mA = valA * fator;
-            const mC = valC * fator;
-            const mQ = valQ * fator; // Quebra baseada na bitola
+            const prodComercial = mA + mC;
+            const baseTotal = mA + mC + mQ;
 
-            const prodComercial = mA + mC; // A + C
-            const baseTotal = mA + mC + mQ; // A + C + Q
+            document.getElementById('res-per-A').innerText = (prodComercial > 0 ? (mA / prodComercial) * 100 : 0).toFixed(2) + "%";
+            document.getElementById('res-per-C').innerText = (prodComercial > 0 ? (mC / prodComercial) * 100 : 0).toFixed(2) + "%";
+            document.getElementById('res-per-Q').innerText = (baseTotal > 0 ? (mQ / baseTotal) * 100 : 0).toFixed(2) + "%";
+            document.getElementById('res-total').innerText = prodComercial.toFixed(2);
+        }
 
-            // Percentuais
-            const pA = prodComercial > 0 ? (mA / prodComercial) * 100 : 0;
-            const pC = prodComercial > 0 ? (mC / prodComercial) * 100 : 0;
-            const pQ = baseTotal > 0 ? (mQ / baseTotal) * 100 : 0;
+        function salvarRegistro() {
+            const fator = parseFloat(document.getElementById('bitola').value);
+            const mA = (parseFloat(document.getElementById('in-A').value) || 0) * fator;
+            const mC = (parseFloat(document.getElementById('in-C').value) || 0) * fator;
+            const mQ = (parseFloat(document.getElementById('in-Q').value) || 0) * fator;
 
-            // Atualiza tela
-            document.getElementById('res-per-A').innerText = pA.toFixed(2) + "%";
-            document.getElementById('res-per-C').innerText = pC.toFixed(2) + "%";
-            document.getElementById('res-per-Q').innerText = pQ.toFixed(2) + "%";
-            document.getElementById('res-total').innerText = prodComercial.toFixed(2) + " m²";
-
-            // Se C for 0, esconde visualmente para focar em A+Q
-            document.getElementById('box-res-C').style.display = valC > 0 ? "block" : "none";
+            let registros = JSON.parse(localStorage.getItem('producao_caderno')) || [];
+            registros.push({
+                turno: userLogado.turno,
+                comercial: mA + mC,
+                quebra: mQ,
+                data: new Date().toLocaleString()
+            });
+            localStorage.setItem('producao_caderno', JSON.stringify(registros));
+            alert("Salvo!");
+            location.reload();
         }
     </script>
 </body>
