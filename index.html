@@ -3,53 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acompanhamento da Qualidade - Retífica 2</title>
+    <title>Painel de Qualidade Industrial</title>
     <script src="config.js"></script>
     <style>
-        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; min-height: 100vh; padding: 20px; gap: 20px; }
+        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: flex-start; min-height: 100vh; padding: 40px; }
         
-        /* Coluna de Entrada */
-        .input-sidebar { width: 350px; display: flex; flex-direction: column; gap: 15px; position: sticky; top: 20px; height: fit-content; }
-        .card { background: #1a1a1a; padding: 20px; border-radius: 10px; border: 1px solid #333; }
-        h2 { color: #3498db; font-size: 1.1rem; margin: 0 0 15px 0; border-bottom: 1px solid #333; padding-bottom: 8px; text-transform: uppercase; }
+        /* Layout de Coluna Única à Esquerda */
+        .main-column { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
         
-        label { display: block; margin-top: 10px; font-size: 0.8rem; color: #888; font-weight: bold; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; }
+        .card { background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Painel de Resultados (Simulando Caderno) */
-        .output-panel { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
-        .turno-container { background: #1a1a1a; border-radius: 10px; border: 1px solid #444; overflow: hidden; }
-        .turno-header { background: #2c3e50; padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; }
+        h2 { color: #3498db; margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; }
+        h3 { color: #ccc; font-size: 0.85rem; margin: 15px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        label { display: block; margin-top: 12px; font-size: 0.8rem; color: #888; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; font-size: 1rem; }
+        input:focus { border-color: #3498db; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: #252525; color: #aaa; padding: 10px; text-align: center; border-bottom: 2px solid #333; }
-        td { padding: 8px; text-align: center; border-bottom: 1px solid #333; }
+        /* Detalhamentos */
+        .secao-detalhe { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
+        .linha-defeito { display: grid; grid-template-columns: 2fr 0.8fr 1fr 40px; gap: 8px; align-items: center; margin-bottom: 8px; background: #111; padding: 6px; border-radius: 6px; }
         
-        .val-a { color: #27ae60; font-weight: bold; }
-        .val-c { color: #f1c40f; font-weight: bold; }
-        .val-q { color: #e74c3c; font-weight: bold; }
+        .btn-add { background: transparent; color: #3498db; border: 1px solid #3498db; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; margin-top: 5px; font-size: 0.8rem; }
+        .btn-add:hover { background: #3498db; color: white; }
+        .btn-del { background: #e74c3c; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 5px; height: 30px; }
+
+        /* Monitoramento */
+        .barra-fundo { background: #000; height: 6px; border-radius: 3px; margin: 8px 0; overflow: hidden; }
+        .barra-progresso { height: 100%; width: 0%; transition: 0.4s; }
+        .msg-erro { color: #ff4757; font-size: 0.7rem; font-weight: bold; display: none; margin-bottom: 10px; }
+
+        /* Cards de Resultado */
+        .res-grid { display: grid; gap: 10px; }
+        .res-item { padding: 12px; border-radius: 8px; background: #252525; border-left: 4px solid #444; }
+        .res-item span { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+        .res-item b { font-size: 1.2rem; display: block; margin-top: 2px; }
         
-        .secao-detalhe { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #444; }
-        .btn-add { background: #3498db; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
+        .total-box { background: #3498db1a; border: 1px solid #3498db; padding: 15px; border-radius: 8px; text-align: center; margin-top: 10px; }
+        .total-box b { font-size: 2rem; color: #3498db; }
     </style>
 </head>
 <body onload="init()">
 
-    <div class="input-sidebar">
+    <div class="main-column">
+        
+        <!-- CARD 1: ENTRADA DE DADOS -->
         <div class="card">
-            <h2>Lançamento de Dados</h2>
+            <h2>Entrada de Dados</h2>
+            
             <label>BITOLA TÉCNICA</label>
             <select id="bitola" onchange="calcular()"></select>
-
-            <label>HORA DA COLETA</label>
-            <select id="hora-coleta" onchange="calcular()">
-                <option value="21">21:00 (Turno C)</option><option value="23">23:00 (Turno C)</option>
-                <option value="01">01:00 (Turno C)</option><option value="03">03:00 (Turno C)</option>
-                <option value="05">05:00 (Turno A)</option><option value="07">07:00 (Turno A)</option>
-                <option value="09">09:00 (Turno A)</option><option value="11">11:00 (Turno A)</option>
-                <option value="13">13:00 (Turno B)</option><option value="15">15:00 (Turno B)</option>
-                <option value="17">17:00 (Turno B)</option><option value="19">19:00 (Turno B)</option>
-            </select>
 
             <label style="color: #27ae60;">A (PRIMEIRA - PEGADAS)</label>
             <input type="number" id="in-A" placeholder="0" oninput="calcular()">
@@ -59,89 +62,126 @@
 
             <label style="color: #e74c3c;">Q (QUEBRA - PEÇAS)</label>
             <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+
+            <!-- DETALHAMENTO C -->
+            <div class="secao-detalhe">
+                <h3 style="color: #f1c40f;">Detalhamento Classe C</h3>
+                <div class="barra-fundo"><div id="bar-C" class="barra-progresso" style="background: #f1c40f;"></div></div>
+                <div id="erro-C" class="msg-erro">⚠️ LIMITE DE C EXCEDIDO</div>
+                <div id="lista-C"></div>
+                <button class="btn-add" onclick="addLinha('lista-C')">+ DEFEITO C</button>
+            </div>
+
+            <!-- DETALHAMENTO Q -->
+            <div class="secao-detalhe">
+                <h3 style="color: #e74c3c;">Detalhamento Quebra</h3>
+                <div class="barra-fundo"><div id="bar-Q" class="barra-progresso" style="background: #e74c3c;"></div></div>
+                <div id="erro-Q" class="msg-erro">⚠️ LIMITE DE QUEBRA EXCEDIDO</div>
+                <div id="lista-Q"></div>
+                <button class="btn-add" onclick="addLinha('lista-Q')">+ MOTIVO QUEBRA</button>
+            </div>
+        </div>
+
+        <!-- CARD 2: RESULTADO FINAL (ABAIXO DA ENTRADA) -->
+        <div class="card" style="border-color: #3498db;">
+            <h2>Resultado Final</h2>
             
-            <button class="btn-add" onclick="salvarLinha()">SALVAR NO RELATÓRIO</button>
-        </div>
-    </div>
+            <div class="res-grid">
+                <div class="res-item" style="border-left-color: #27ae60;">
+                    <span>Classe A</span>
+                    <b id="res-per-A" style="color: #27ae60;">0.00%</b>
+                    <small id="res-m2-A">0.00 m²</small>
+                </div>
 
-    <div class="output-panel">
-        <h1 style="font-size: 1.5rem; margin: 0; color: #3498db;">Acompanhamento da Qualidade Acumulada</h1>
-        
-        <div class="turno-container">
-            <div class="turno-header"><span>TURNO A (05:00 - 13:00)</span> <span>Vigência: 04/02/2026</span></div>
-            <table>
-                <thead>
-                    <tr><th>Hora</th><th>A (m²)</th><th>C (m²)</th><th>Total (m²)</th><th>% A</th><th>Quebra (m²)</th><th>% Q</th></tr>
-                </thead>
-                <tbody id="corpo-turno-A">
-                    <tr id="row-05"><td>05:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-07"><td>07:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-09"><td>09:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-11"><td>11:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                </tbody>
-            </table>
-        </div>
+                <div class="res-item" style="border-left-color: #f1c40f;">
+                    <span>Classe C</span>
+                    <b id="res-per-C" style="color: #f1c40f;">0.00%</b>
+                    <small id="res-m2-C">0.00 m²</small>
+                </div>
 
-        <div class="turno-container">
-            <div class="turno-header">TURNO B (13:00 - 21:00)</div>
-            <table>
-                <thead>
-                    <tr><th>Hora</th><th>A (m²)</th><th>C (m²)</th><th>Total (m²)</th><th>% A</th><th>Quebra (m²)</th><th>% Q</th></tr>
-                </thead>
-                <tbody id="corpo-turno-B">
-                    <tr id="row-13"><td>13:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-15"><td>15:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-17"><td>17:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-19"><td>19:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                </tbody>
-            </table>
+                <div class="res-item" style="border-left-color: #e74c3c;">
+                    <span>Índice de Quebra</span>
+                    <b id="res-per-Q" style="color: #e74c3c;">0.00%</b>
+                    <small id="res-m2-Q">0.00 m²</small>
+                </div>
+            </div>
+
+            <div class="total-box">
+                <span style="color: #888; font-size: 0.7rem;">PRODUÇÃO TOTAL (A+C)</span><br>
+                <b id="res-total">0.00</b> <small style="color: #3498db;">m²</small>
+            </div>
         </div>
 
-        <div class="turno-container">
-            <div class="turno-header">TURNO C (21:00 - 05:00)</div>
-            <table>
-                <thead>
-                    <tr><th>Hora</th><th>A (m²)</th><th>C (m²)</th><th>Total (m²)</th><th>% A</th><th>Quebra (m²)</th><th>% Q</th></tr>
-                </thead>
-                <tbody id="corpo-turno-C">
-                    <tr id="row-21"><td>21:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-23"><td>23:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-01"><td>01:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr id="row-03"><td>03:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 
     <script>
         function init() {
             const sel = document.getElementById('bitola');
-            if(typeof BANCO_BITOLAS !== 'undefined') {
-                sel.innerHTML = Object.keys(BANCO_BITOLAS).map(k => `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`).join('');
-            }
+            // Mock de dados caso config.js não carregue para teste
+            const bitolas = typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {"padrao": {nome: "Padrão", fatorPegada: 0.5, m2Peca: 1}};
+            sel.innerHTML = Object.keys(bitolas).map(k => `<option value="${k}">${bitolas[k].nome}</option>`).join('');
+            calcular();
         }
 
-        function salvarLinha() {
-            const b = BANCO_BITOLAS[document.getElementById('bitola').value];
-            const h = document.getElementById('hora-coleta').value;
+        function addLinha(id) {
+            const container = document.getElementById(id);
+            const div = document.createElement('div');
+            div.className = 'linha-defeito';
+            const defeitos = typeof DEFEITOS_LISTA !== 'undefined' ? DEFEITOS_LISTA : ["Defeito 1", "Defeito 2"];
+            let options = defeitos.map(d => `<option value="${d}">${d}</option>`).join('');
+            div.innerHTML = `
+                <select onchange="calcular()">${options}</select>
+                <input type="number" class="val" placeholder="Pçs" oninput="calcular()" style="padding: 5px;">
+                <span class="perc" style="font-size:0.7rem; color:#f1c40f; font-weight:bold;">0%</span>
+                <button class="btn-del" onclick="this.parentElement.remove();calcular()">✖</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function calcular() {
+            const b = (typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {"padrao": {fatorPegada: 0.5, m2Peca: 1}})[document.getElementById('bitola').value];
+            
             const a = (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada;
             const c = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
-            const q = (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca;
-            
-            const total = a + c;
-            const percA = total > 0 ? ((a / total) * 100).toFixed(1) : "0.0";
-            const percQ = (total + q) > 0 ? ((q / (total + q)) * 100).toFixed(1) : "0.0";
+            const qPcs = parseFloat(document.getElementById('in-Q').value) || 0;
+            const qM2 = qPcs * b.m2Peca;
 
-            const row = document.getElementById('row-' + h);
-            row.innerHTML = `
-                <td>${h}:00</td>
-                <td class="val-a">${a.toFixed(2)}</td>
-                <td class="val-c">${c.toFixed(2)}</td>
-                <td>${total.toFixed(2)}</td>
-                <td class="val-a">${percA}%</td>
-                <td class="val-q">${q.toFixed(2)}</td>
-                <td class="val-q">${percQ}%</td>
-            `;
+            const prod = a + c;
+            const total = prod + qM2;
+
+            // Resultados
+            document.getElementById('res-per-A').innerText = (prod > 0 ? (a/prod)*100 : 0).toFixed(2) + "%";
+            document.getElementById('res-m2-A').innerText = a.toFixed(2) + " m²";
+            document.getElementById('res-per-C').innerText = (prod > 0 ? (c/prod)*100 : 0).toFixed(2) + "%";
+            document.getElementById('res-m2-C').innerText = c.toFixed(2) + " m²";
+            document.getElementById('res-per-Q').innerText = (total > 0 ? (qM2/total)*100 : 0).toFixed(2) + "%";
+            document.getElementById('res-m2-Q').innerText = qM2.toFixed(2) + " m²";
+            document.getElementById('res-total').innerText = prod.toFixed(2);
+
+            // Detalhamento C
+            let sumC = 0;
+            document.querySelectorAll('#lista-C .linha-defeito').forEach(l => {
+                let v = parseFloat(l.querySelector('.val').value) || 0;
+                let m2 = v * b.m2Peca;
+                sumC += m2;
+                l.querySelector('.perc').innerText = prod > 0 ? ((m2/prod)*100).toFixed(2) + "%" : "0%";
+            });
+            let rC = c > 0 ? (sumC / c) : 0;
+            document.getElementById('bar-C').style.width = Math.min(rC*100, 100) + "%";
+            document.getElementById('bar-C').style.background = rC > 1.001 ? "#ff4757" : "#f1c40f";
+            document.getElementById('erro-C').style.display = rC > 1.001 ? "block" : "none";
+
+            // Detalhamento Q
+            let sumQ = 0;
+            document.querySelectorAll('#lista-Q .linha-defeito').forEach(l => {
+                let v = parseFloat(l.querySelector('.val').value) || 0;
+                sumQ += v;
+                l.querySelector('.perc').innerText = v + " pç";
+            });
+            let rQ = qPcs > 0 ? (sumQ / qPcs) : 0;
+            document.getElementById('bar-Q').style.width = Math.min(rQ*100, 100) + "%";
+            document.getElementById('bar-Q').style.background = rQ > 1.001 ? "#ff4757" : "#e74c3c";
+            document.getElementById('erro-Q').style.display = rQ > 1.001 ? "block" : "none";
         }
     </script>
 </body>
