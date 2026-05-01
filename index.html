@@ -3,223 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Qualidade Industrial</title>
+    <title>Sistema de Qualidade - Admin</title>
     <script src="config.js"></script>
     <style>
-        /* Estilos do Login */
-        #login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0a0a0a; display: flex; justify-content: center; align-items: center;
-            z-index: 999; transition: 0.5s;
-        }
-        .login-box {
-            background: #1a1a1a; padding: 40px; border-radius: 12px;
-            border: 1px solid #333; text-align: center; width: 300px;
-        }
-        .login-box h1 { color: #3498db; font-size: 1.5rem; margin-bottom: 20px; }
-        .btn-login { 
-            background: #3498db; color: white; border: none; padding: 12px; 
-            width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;
-        }
-
-        /* Layout Original */
-        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: flex-start; min-height: 100vh; padding: 40px; }
-        #conteudo-principal { display: none; opacity: 0; transition: 1s; width: 100%; }
+        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        .main-column { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { color: #3498db; margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; }
-        h3 { color: #ccc; font-size: 0.85rem; margin: 15px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
-
-        label { display: block; margin-top: 12px; font-size: 0.8rem; color: #888; font-weight: bold; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; font-size: 1rem; }
+        /* LOGIN */
+        #login-overlay { position: fixed; inset: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: #1a1a1a; padding: 40px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 320px; }
         
-        .secao-detalhe { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
-        .linha-defeito { display: grid; grid-template-columns: 2fr 0.8fr 1fr 40px; gap: 8px; align-items: center; margin-bottom: 8px; background: #111; padding: 6px; border-radius: 6px; }
-        .btn-add { background: transparent; color: #3498db; border: 1px solid #3498db; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; margin-top: 5px; font-size: 0.8rem; }
-        .btn-del { background: #e74c3c; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 5px; height: 30px; }
+        /* LAYOUT */
+        #conteudo-principal { display: none; width: 100%; display: flex; }
+        .col-esquerda { width: 400px; background: #161616; padding: 20px; border-right: 1px solid #333; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+        .col-monitor { flex-grow: 1; padding: 30px; background: #0a0a0a; overflow-y: auto; height: 100vh; box-sizing: border-box; }
 
-        .barra-fundo { background: #000; height: 6px; border-radius: 3px; margin: 8px 0; overflow: hidden; }
-        .barra-progresso { height: 100%; width: 0%; transition: 0.4s; }
-        .msg-erro { color: #ff4757; font-size: 0.7rem; font-weight: bold; display: none; margin-bottom: 10px; }
+        h2 { color: #3498db; font-size: 0.9rem; text-transform: uppercase; margin: 20px 0 10px 0; border-left: 4px solid #3498db; padding-left: 10px; }
+        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #888; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 4px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; }
 
-        .res-grid { display: grid; gap: 10px; }
-        .res-item { padding: 12px; border-radius: 8px; background: #252525; border-left: 4px solid #444; }
-        .res-item span { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
-        .res-item b { font-size: 1.2rem; display: block; margin-top: 2px; }
-        .total-box { background: #3498db1a; border: 1px solid #3498db; padding: 15px; border-radius: 8px; text-align: center; margin-top: 10px; }
-        .total-box b { font-size: 2rem; color: #3498db; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
+        .btn-reg { background: #27ae60; color: white; }
+        .btn-admin { background: #8e44ad; color: white; font-size: 0.7rem; }
+
+        /* ADMIN PANEL */
+        #painel-admin { background: #202020; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #8e44ad; display: none; }
         
-        .badge-turno { background: #3498db; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; float: right; }
+        /* MONITOR */
+        .grid-resultados { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .card { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 8px; position: relative; border-top: 4px solid #3498db; }
+        .log-admin { font-size: 0.65rem; color: #8e44ad; margin-top: 10px; border-top: 1px solid #222; padding-top: 5px; }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="login-overlay">
         <div class="login-box">
-            <h1>Acesso Restrito</h1>
-            <input type="password" id="senha" placeholder="Digite a senha">
-            <button class="btn-login" onclick="autenticar()">ENTRAR NO SISTEMA</button>
-            <p id="erro-login" style="color: #ff4757; font-size: 0.8rem; margin-top: 10px; display: none;">Senha Incorreta!</p>
+            <h2>Acesso ao Sistema</h2>
+            <input type="text" id="user-login" placeholder="Usuário">
+            <input type="password" id="pass-login" placeholder="Senha">
+            <button class="btn btn-reg" onclick="autenticar()">Entrar</button>
         </div>
     </div>
 
-    <!-- CONTEÚDO DO PAINEL -->
     <div id="conteudo-principal">
-        <div class="main-column">
-            
-            <div class="card">
-                <span class="badge-turno" id="txt-turno">Turno: --</span>
-                <h2>Entrada de Dados</h2>
-                
-                <label>BITOLA TÉCNICA</label>
-                <select id="bitola" onchange="calcular()"></select>
-
-                <label style="color: #27ae60;">A (PRIMEIRA - PEGADAS)</label>
-                <input type="number" id="in-A" placeholder="0" oninput="calcular()">
-
-                <label style="color: #f1c40f;">C (CLASSE C - PEGADAS)</label>
-                <input type="number" id="in-C" placeholder="0" oninput="calcular()">
-
-                <label style="color: #e74c3c;">Q (QUEBRA - PEÇAS)</label>
-                <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
-
-                <div class="secao-detalhe">
-                    <h3 style="color: #f1c40f;">Detalhamento Classe C</h3>
-                    <div class="barra-fundo"><div id="bar-C" class="barra-progresso" style="background: #f1c40f;"></div></div>
-                    <div id="erro-C" class="msg-erro">⚠️ LIMITE DE C EXCEDIDO</div>
-                    <div id="lista-C"></div>
-                    <button class="btn-add" onclick="addLinha('lista-C')">+ DEFEITO C</button>
-                </div>
-
-                <div class="secao-detalhe">
-                    <h3 style="color: #e74c3c;">Detalhamento Quebra</h3>
-                    <div class="barra-fundo"><div id="bar-Q" class="barra-progresso" style="background: #e74c3c;"></div></div>
-                    <div id="erro-Q" class="msg-erro">⚠️ LIMITE DE QUEBRA EXCEDIDO</div>
-                    <div id="lista-Q"></div>
-                    <button class="btn-add" onclick="addLinha('lista-Q')">+ MOTIVO QUEBRA</button>
-                </div>
+        <div class="col-esquerda">
+            <!-- PAINEL EXCLUSIVO ADMIN -->
+            <div id="painel-admin">
+                <h2 style="color: #9b59b6; border-color: #9b59b6;">Gerenciar Usuários</h2>
+                <input type="text" id="adm-nome" placeholder="Nome do Operador">
+                <select id="adm-turno">
+                    <option value="A">Turno A</option>
+                    <option value="B">Turno B</option>
+                    <option value="C">Turno C</option>
+                </select>
+                <input type="password" id="adm-pass" placeholder="Definir Senha">
+                <button class="btn btn-admin" onclick="cadastrarUsuario()">Adicionar Usuário</button>
             </div>
 
-            <div class="card" style="border-color: #3498db;">
-                <h2>Resultado Final</h2>
-                <div class="res-grid">
-                    <div class="res-item" style="border-left-color: #27ae60;">
-                        <span>Classe A</span>
-                        <b id="res-per-A" style="color: #27ae60;">0.00%</b>
-                        <small id="res-m2-A">0.00 m²</small>
-                    </div>
-                    <div class="res-item" style="border-left-color: #f1c40f;">
-                        <span>Classe C</span>
-                        <b id="res-per-C" style="color: #f1c40f;">0.00%</b>
-                        <small id="res-m2-C">0.00 m²</small>
-                    </div>
-                    <div class="res-item" style="border-left-color: #e74c3c;">
-                        <span>Índice de Quebra</span>
-                        <b id="res-per-Q" style="color: #e74c3c;">0.00%</b>
-                        <small id="res-m2-Q">0.00 m²</small>
-                    </div>
-                </div>
-                <div class="total-box">
-                    <span style="color: #888; font-size: 0.7rem;">PRODUÇÃO TOTAL (A+C)</span><br>
-                    <b id="res-total">0.00</b> <small style="color: #3498db;">m²</small>
-                </div>
+            <h2>Registrar Qualidade</h2>
+            <label>ORDEM</label>
+            <select id="ordem">
+                <option>1ª Qualidade</option><option>2ª Qualidade</option>
+                <option>3ª Qualidade</option><option>4ª Qualidade</option>
+            </select>
+
+            <label>BITOLA</label>
+            <select id="bitola"></select>
+
+            <label style="color:#27ae60">A (PEGADAS)</label>
+            <input type="number" id="in-A">
+
+            <label style="color:#f1c40f">C (PEGADAS)</label>
+            <input type="number" id="in-C">
+
+            <label style="color:#e74c3c">Q (PEÇAS)</label>
+            <input type="number" id="in-Q">
+
+            <label>OBSERVAÇÕES (DEFEITOS/MOTIVOS)</label>
+            <textarea id="obs" style="width:100%; height:60px; background:#252525; color:white; border:1px solid #333;"></textarea>
+
+            <button class="btn btn-reg" onclick="registrarQualidade()">Registrar no Turno</button>
+        </div>
+
+        <div class="col-monitor">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>Monitor de Qualidade Realizado</h2>
+                <div id="user-logado" style="color:#8e44ad; font-size:0.8rem; font-weight:bold;"></div>
             </div>
+            <div id="lista-cards" class="grid-resultados"></div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DE ACESSO
-        const SENHA_CORRETA = "123"; // Mude sua senha aqui
+        // Banco de dados em memória (simulado)
+        let usuarios = [
+            {user: "admin", pass: "admin", turno: "Geral", nivel: "admin"},
+            {user: "op1", pass: "123", turno: "A", nivel: "op"}
+        ];
+
+        let usuarioAtivo = null;
 
         function autenticar() {
-            const senhaDigitada = document.getElementById('senha').value;
-            if(senhaDigitada === SENHA_CORRETA) {
+            const u = document.getElementById('user-login').value;
+            const p = document.getElementById('pass-login').value;
+
+            const encontrou = usuarios.find(user => user.user === u && user.pass === p);
+
+            if (encontrou) {
+                usuarioAtivo = encontrou;
                 document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('conteudo-principal').style.display = 'block';
-                setTimeout(() => { document.getElementById('conteudo-principal').style.opacity = '1'; }, 50);
+                document.getElementById('conteudo-principal').style.display = 'flex';
+                document.getElementById('user-logado').innerText = `Operador: ${usuarioAtivo.user} | Turno: ${usuarioAtivo.turno}`;
+                
+                if (usuarioAtivo.nivel === 'admin') {
+                    document.getElementById('painel-admin').style.display = 'block';
+                }
                 init();
             } else {
-                document.getElementById('erro-login').style.display = 'block';
+                alert("Usuário ou senha inválidos!");
             }
         }
 
-        function definirTurno() {
-            const hora = new Date().getHours();
-            let turno = "";
-            if (hora >= 5 && hora < 13) turno = "Turno A (Manhã)";
-            else if (hora >= 13 && hora < 21) turno = "Turno B (Tarde)";
-            else turno = "Turno C (Noite)";
-            document.getElementById('txt-turno').innerText = "Turno: " + turno;
+        function cadastrarUsuario() {
+            const nome = document.getElementById('adm-nome').value;
+            const turno = document.getElementById('adm-turno').value;
+            const pass = document.getElementById('adm-pass').value;
+
+            if(nome && pass) {
+                usuarios.push({user: nome, pass: pass, turno: turno, nivel: "op"});
+                alert(`Usuário ${nome} cadastrado para o Turno ${turno}`);
+                document.getElementById('adm-nome').value = "";
+                document.getElementById('adm-pass').value = "";
+            }
         }
 
         function init() {
-            definirTurno();
             const sel = document.getElementById('bitola');
             const bitolas = typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {"padrao": {nome: "Padrão", fatorPegada: 0.5, m2Peca: 1}};
             sel.innerHTML = Object.keys(bitolas).map(k => `<option value="${k}">${bitolas[k].nome}</option>`).join('');
-            calcular();
         }
 
-        function addLinha(id) {
-            const container = document.getElementById(id);
-            const div = document.createElement('div');
-            div.className = 'linha-defeito';
-            const defeitos = typeof DEFEITOS_LISTA !== 'undefined' ? DEFEITOS_LISTA : ["Defeito 1", "Defeito 2"];
-            let options = defeitos.map(d => `<option value="${d}">${d}</option>`).join('');
-            div.innerHTML = `
-                <select onchange="calcular()">${options}</select>
-                <input type="number" class="val" placeholder="Pçs" oninput="calcular()" style="padding: 5px;">
-                <span class="perc" style="font-size:0.7rem; color:#f1c40f; font-weight:bold;">0%</span>
-                <button class="btn-del" onclick="this.parentElement.remove();calcular()">✖</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function calcular() {
+        function registrarQualidade() {
             const b = (typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {"padrao": {fatorPegada: 0.5, m2Peca: 1}})[document.getElementById('bitola').value];
             
             const a = (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada;
             const c = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
-            const qPcs = parseFloat(document.getElementById('in-Q').value) || 0;
-            const qM2 = qPcs * b.m2Peca;
+            const q = (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca;
 
             const prod = a + c;
-            const total = prod + qM2;
+            const totalGeral = a + c + q;
 
-            document.getElementById('res-per-A').innerText = (prod > 0 ? (a/prod)*100 : 0).toFixed(2) + "%";
-            document.getElementById('res-m2-A').innerText = a.toFixed(2) + " m²";
-            document.getElementById('res-per-C').innerText = (prod > 0 ? (c/prod)*100 : 0).toFixed(2) + "%";
-            document.getElementById('res-m2-C').innerText = c.toFixed(2) + " m²";
-            document.getElementById('res-per-Q').innerText = (total > 0 ? (qM2/total)*100 : 0).toFixed(2) + "%";
-            document.getElementById('res-m2-Q').innerText = qM2.toFixed(2) + " m²";
-            document.getElementById('res-total').innerText = prod.toFixed(2);
+            const pA = prod > 0 ? ((a/prod)*100).toFixed(2) : 0;
+            const pC = prod > 0 ? ((c/prod)*100).toFixed(2) : 0;
+            const pQ = totalGeral > 0 ? ((q/totalGeral)*100).toFixed(2) : 0;
 
-            // Detalhamento C
-            let sumC = 0;
-            document.querySelectorAll('#lista-C .linha-defeito').forEach(l => {
-                let v = parseFloat(l.querySelector('.val').value) || 0;
-                let m2 = v * b.m2Peca;
-                sumC += m2;
-                l.querySelector('.perc').innerText = prod > 0 ? ((m2/prod)*100).toFixed(2) + "%" : "0%";
-            });
-            let rC = c > 0 ? (sumC / c) : 0;
-            document.getElementById('bar-C').style.width = Math.min(rC*100, 100) + "%";
-            document.getElementById('bar-C').style.background = rC > 1.001 ? "#ff4757" : "#f1c40f";
-            document.getElementById('erro-C').style.display = rC > 1.001 ? "block" : "none";
+            const lista = document.getElementById('lista-cards');
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const agora = new Date().toLocaleTimeString();
 
-            // Detalhamento Q
-            let sumQ = 0;
-            document.querySelectorAll('#lista-Q .linha-defeito').forEach(l => {
-                let v = parseFloat(l.querySelector('.val').value) || 0;
-                sumQ += v;
-                l.querySelector('.perc').innerText = v + " pç";
-            });
-            let rQ = qPcs > 0 ? (sumQ / qPcs) : 0;
-            document.getElementById('bar-Q').style.width = Math.min(rQ*100, 100) + "%";
-            document.getElementById('bar-Q').style.background = rQ > 1.001 ? "#ff4757" : "#e74c3c";
-            document.getElementById('erro-Q').style.display = rQ > 1.001 ? "block" : "none";
+            card.innerHTML = `
+                <div style="font-size:0.7rem; color:#888;">${document.getElementById('ordem').value} | ${agora}</div>
+                <div style="font-size:1.4rem; color:#3498db; margin:5px 0;">${prod.toFixed(2)} m²</div>
+                <div style="font-size:0.8rem;">
+                    A: <span style="color:#27ae60">${pA}%</span> | 
+                    C: <span style="color:#f1c40f">${pC}%</span> | 
+                    Q: <span style="color:#e74c3c">${pQ}%</span>
+                </div>
+                <div class="log-admin">
+                    Rastreador: Lançado por <b>${usuarioAtivo.user}</b> no Turno <b>${usuarioAtivo.turno}</b>
+                </div>
+            `;
+
+            lista.prepend(card);
+            
+            // Limpa campos
+            document.getElementById('in-A').value = "";
+            document.getElementById('in-C').value = "";
+            document.getElementById('in-Q').value = "";
         }
     </script>
 </body>
