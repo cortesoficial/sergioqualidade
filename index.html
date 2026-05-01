@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Qualidade - Admin</title>
+    <title>Sistema de Qualidade - Controle de Acesso</title>
     <script src="config.js"></script>
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -25,9 +25,9 @@
         .btn-reg { background: #27ae60; color: white; }
         .btn-admin { background: #8e44ad; color: white; font-size: 0.7rem; }
 
-        /* ADMIN PANEL */
-        #painel-admin { background: #202020; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #8e44ad; display: none; }
-        
+        /* SEÇÕES OCULTÁVEIS */
+        #secao-operador, #secao-admin { display: none; }
+
         /* MONITOR */
         .grid-resultados { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
         .card { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 8px; position: relative; border-top: 4px solid #3498db; }
@@ -36,68 +36,81 @@
 </head>
 <body>
 
+    <!-- TELA DE LOGIN -->
     <div id="login-overlay">
         <div class="login-box">
-            <h2>Acesso ao Sistema</h2>
+            <h2 style="border:none; text-align:center; color:#3498db;">Portal de Qualidade</h2>
             <input type="text" id="user-login" placeholder="Usuário">
             <input type="password" id="pass-login" placeholder="Senha">
-            <button class="btn btn-reg" onclick="autenticar()">Entrar</button>
+            <button class="btn btn-reg" onclick="autenticar()">Acessar Sistema</button>
         </div>
     </div>
 
     <div id="conteudo-principal">
         <div class="col-esquerda">
-            <!-- PAINEL EXCLUSIVO ADMIN -->
-            <div id="painel-admin">
-                <h2 style="color: #9b59b6; border-color: #9b59b6;">Gerenciar Usuários</h2>
-                <input type="text" id="adm-nome" placeholder="Nome do Operador">
+            
+            <!-- PAINEL EXCLUSIVO ADMIN (Adicionar Usuários) -->
+            <div id="secao-admin">
+                <h2 style="color: #9b59b6; border-color: #9b59b6;">Painel Administrativo</h2>
+                <label>NOVO OPERADOR</label>
+                <input type="text" id="adm-nome" placeholder="Nome">
+                <label>TURNO</label>
                 <select id="adm-turno">
                     <option value="A">Turno A</option>
                     <option value="B">Turno B</option>
                     <option value="C">Turno C</option>
                 </select>
-                <input type="password" id="adm-pass" placeholder="Definir Senha">
-                <button class="btn btn-admin" onclick="cadastrarUsuario()">Adicionar Usuário</button>
+                <label>SENHA DE ACESSO</label>
+                <input type="password" id="adm-pass" placeholder="Senha">
+                <button class="btn btn-admin" onclick="cadastrarUsuario()">Salvar Novo Usuário</button>
+                <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
             </div>
 
-            <h2>Registrar Qualidade</h2>
-            <label>ORDEM</label>
-            <select id="ordem">
-                <option>1ª Qualidade</option><option>2ª Qualidade</option>
-                <option>3ª Qualidade</option><option>4ª Qualidade</option>
-            </select>
+            <!-- PAINEL EXCLUSIVO OPERADOR (Lançamentos) -->
+            <div id="secao-operador">
+                <h2>Lançamento de Produção</h2>
+                <label>ORDEM</label>
+                <select id="ordem">
+                    <option>1ª Qualidade</option><option>2ª Qualidade</option>
+                    <option>3ª Qualidade</option><option>4ª Qualidade</option>
+                </select>
 
-            <label>BITOLA</label>
-            <select id="bitola"></select>
+                <label>BITOLA</label>
+                <select id="bitola"></select>
 
-            <label style="color:#27ae60">A (PEGADAS)</label>
-            <input type="number" id="in-A">
+                <label style="color:#27ae60">A (PEGADAS)</label>
+                <input type="number" id="in-A">
 
-            <label style="color:#f1c40f">C (PEGADAS)</label>
-            <input type="number" id="in-C">
+                <label style="color:#f1c40f">C (PEGADAS)</label>
+                <input type="number" id="in-C">
 
-            <label style="color:#e74c3c">Q (PEÇAS)</label>
-            <input type="number" id="in-Q">
+                <label style="color:#e74c3c">Q (PEÇAS)</label>
+                <input type="number" id="in-Q">
 
-            <label>OBSERVAÇÕES (DEFEITOS/MOTIVOS)</label>
-            <textarea id="obs" style="width:100%; height:60px; background:#252525; color:white; border:1px solid #333;"></textarea>
+                <label>DETALHAMENTO / MOTIVOS</label>
+                <textarea id="obs" style="width:100%; height:60px; background:#252525; color:white; border:1px solid #333; padding:5px; box-sizing:border-box;"></textarea>
 
-            <button class="btn btn-reg" onclick="registrarQualidade()">Registrar no Turno</button>
+                <button class="btn btn-reg" onclick="registrarQualidade()">Finalizar Registro</button>
+            </div>
+
+            <button class="btn" style="background:#444; color:white; margin-top:30px;" onclick="location.reload()">Sair / Logoff</button>
         </div>
 
         <div class="col-monitor">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2>Monitor de Qualidade Realizado</h2>
-                <div id="user-logado" style="color:#8e44ad; font-size:0.8rem; font-weight:bold;"></div>
+                <h2 style="margin:0;">Monitor de Resultados em Tempo Real</h2>
+                <div id="user-logado" style="color:#aaa; font-size:0.75rem;"></div>
             </div>
-            <div id="lista-cards" class="grid-resultados"></div>
+            <div id="lista-cards" class="grid-resultados">
+                <!-- Os registros aparecerão aqui para ambos os níveis -->
+            </div>
         </div>
     </div>
 
     <script>
-        // Banco de dados em memória (simulado)
+        // Usuários iniciais
         let usuarios = [
-            {user: "admin", pass: "admin", turno: "Geral", nivel: "admin"},
+            {user: "admin", pass: "admin", turno: "Sistema", nivel: "admin"},
             {user: "op1", pass: "123", turno: "A", nivel: "op"}
         ];
 
@@ -106,21 +119,25 @@
         function autenticar() {
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
-
             const encontrou = usuarios.find(user => user.user === u && user.pass === p);
 
             if (encontrou) {
                 usuarioAtivo = encontrou;
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('conteudo-principal').style.display = 'flex';
-                document.getElementById('user-logado').innerText = `Operador: ${usuarioAtivo.user} | Turno: ${usuarioAtivo.turno}`;
+                document.getElementById('user-logado').innerText = `Logado como: ${usuarioAtivo.user} (${usuarioAtivo.turno})`;
                 
+                // Lógica de visualização por nível
                 if (usuarioAtivo.nivel === 'admin') {
-                    document.getElementById('painel-admin').style.display = 'block';
+                    document.getElementById('secao-admin').style.display = 'block';
+                    document.getElementById('secao-operador').style.display = 'none';
+                } else {
+                    document.getElementById('secao-admin').style.display = 'none';
+                    document.getElementById('secao-operador').style.display = 'block';
                 }
                 init();
             } else {
-                alert("Usuário ou senha inválidos!");
+                alert("Dados de acesso incorretos!");
             }
         }
 
@@ -131,14 +148,17 @@
 
             if(nome && pass) {
                 usuarios.push({user: nome, pass: pass, turno: turno, nivel: "op"});
-                alert(`Usuário ${nome} cadastrado para o Turno ${turno}`);
+                alert(`Sucesso: Operador ${nome} adicionado ao Turno ${turno}`);
                 document.getElementById('adm-nome').value = "";
                 document.getElementById('adm-pass').value = "";
+            } else {
+                alert("Preencha todos os campos do novo usuário.");
             }
         }
 
         function init() {
             const sel = document.getElementById('bitola');
+            // Mock de dados caso o config.js não esteja presente
             const bitolas = typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {"padrao": {nome: "Padrão", fatorPegada: 0.5, m2Peca: 1}};
             sel.innerHTML = Object.keys(bitolas).map(k => `<option value="${k}">${bitolas[k].nome}</option>`).join('');
         }
@@ -150,38 +170,36 @@
             const c = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
             const q = (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca;
 
-            const prod = a + c;
-            const totalGeral = a + c + q;
+            const prodComercial = a + c;
+            const totalComQuebra = a + c + q;
 
-            const pA = prod > 0 ? ((a/prod)*100).toFixed(2) : 0;
-            const pC = prod > 0 ? ((c/prod)*100).toFixed(2) : 0;
-            const pQ = totalGeral > 0 ? ((q/totalGeral)*100).toFixed(2) : 0;
+            const pA = prodComercial > 0 ? ((a/prodComercial)*100).toFixed(2) : "0.00";
+            const pC = prodComercial > 0 ? ((c/prodComercial)*100).toFixed(2) : "0.00";
+            const pQ = totalComQuebra > 0 ? ((q/totalComQuebra)*100).toFixed(2) : "0.00";
 
-            const lista = document.getElementById('lista-cards');
             const card = document.createElement('div');
             card.className = 'card';
-            
-            const agora = new Date().toLocaleTimeString();
+            const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             card.innerHTML = `
-                <div style="font-size:0.7rem; color:#888;">${document.getElementById('ordem').value} | ${agora}</div>
-                <div style="font-size:1.4rem; color:#3498db; margin:5px 0;">${prod.toFixed(2)} m²</div>
-                <div style="font-size:0.8rem;">
-                    A: <span style="color:#27ae60">${pA}%</span> | 
-                    C: <span style="color:#f1c40f">${pC}%</span> | 
-                    Q: <span style="color:#e74c3c">${pQ}%</span>
+                <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:#888;">
+                    <span>${document.getElementById('ordem').value}</span>
+                    <span>${hora}</span>
                 </div>
-                <div class="log-admin">
-                    Rastreador: Lançado por <b>${usuarioAtivo.user}</b> no Turno <b>${usuarioAtivo.turno}</b>
+                <div style="font-size:1.5rem; color:#3498db; font-weight:bold; margin:8px 0;">${prodComercial.toFixed(2)} m²</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; font-size:0.8rem; text-align:center; background:#111; padding:5px; border-radius:4px;">
+                    <div><small>A</small><br><b style="color:#27ae60">${pA}%</b></div>
+                    <div><small>C</small><br><b style="color:#f1c40f">${pC}%</b></div>
+                    <div><small>Q</small><br><b style="color:#e74c3c">${pQ}%</b></div>
                 </div>
+                <div style="font-size:0.7rem; margin-top:8px; color:#ccc; font-style:italic;">"${document.getElementById('obs').value || 'Sem obs.'}"</div>
+                <div class="log-admin">Registrado por: <b>${usuarioAtivo.user}</b></div>
             `;
 
-            lista.prepend(card);
+            document.getElementById('lista-cards').prepend(card);
             
-            // Limpa campos
-            document.getElementById('in-A').value = "";
-            document.getElementById('in-C').value = "";
-            document.getElementById('in-Q').value = "";
+            // Limpar formulário
+            ["in-A", "in-C", "in-Q", "obs"].forEach(id => document.getElementById(id).value = "");
         }
     </script>
 </body>
