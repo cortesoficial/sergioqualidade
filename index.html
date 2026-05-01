@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Qualidade - Industrial</title>
-    <!-- O arquivo config.js deve estar na mesma pasta ou no GitHub -->
+    <!-- O config.js deve conter BANCO_BITOLAS e DEFEITOS_LISTA -->
     <script src="config.js"></script>
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -19,17 +19,12 @@
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #2980b9; }
         
-        .btn-add { background: #27ae60; }
         .btn-def { background: #8e44ad; margin-bottom: 10px; font-size: 0.8rem; padding: 8px; width: auto; }
         .btn-sair { background: #e74c3c; width: auto; padding: 8px 20px; margin-bottom: 20px; float: right; }
         
         .radio-group { display: flex; justify-content: space-around; background: #252525; padding: 10px; border-radius: 6px; margin: 10px 0; border: 1px solid #333; }
         .radio-group label { font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; }
-        th, td { padding: 12px; border: 1px solid #333; text-align: left; font-size: 0.85rem; }
-        th { background-color: #3498db; }
-        
         .grid-painel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; text-align: left; }
         .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
         
@@ -49,23 +44,13 @@
 </head>
 <body onload="verificarSessao()">
 
-    <!-- LOGIN (Omitido para focar no cálculo, mas funcional) -->
-    <div id="login-section" class="container">
-        <h2>Qualidade - Acesso</h2>
-        <input type="text" id="user" placeholder="Usuário">
-        <input type="password" id="pass" placeholder="Senha">
-        <button onclick="logar()">Entrar</button>
-    </div>
-
-    <!-- PAINEL OPERACIONAL -->
-    <div id="user-panel" class="container wide-container" style="display: none;">
-        <button onclick="logout()" class="btn-sair">Sair</button>
+    <div id="user-panel" class="container wide-container">
+        <button onclick="location.reload()" class="btn-sair">Sair</button>
         <h2 style="text-align: left;">Apontamento de Qualidade</h2>
         
         <div class="grid-painel">
+            <!-- COLUNA DE ENTRADA -->
             <div class="card">
-                <p>Operador: <strong id="nome-logado" style="color: #3498db;"></strong></p>
-                
                 <label>Bitola:</label>
                 <select id="select-bitola" onchange="calcular()"></select>
 
@@ -80,20 +65,24 @@
                 <label>A (Pegadas):</label>
                 <input type="number" id="input-A" placeholder="0" oninput="calcular()">
 
+                <label id="label-C">C (Classe C em Peças):</label>
+                <input type="number" id="input-C" placeholder="0" oninput="calcular()">
+                <span id="msg-limit-C" class="alerta-limite">LIMITE CLASSE C EXCEDIDO!</span>
+
                 <label>Q (Quebra em Peças):</label>
                 <input type="number" id="input-Q" placeholder="0" oninput="calcular()">
                 <span id="msg-limit-Q" class="alerta-limite">LIMITE DE QUEBRA EXCEDIDO!</span>
 
                 <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
                 
-                <div id="bloco-classe-c">
-                    <h3>Defeitos Classe C (Peças)</h3>
+                <div id="secao-defeitos">
+                    <h3>Detalhamento de Defeitos (C)</h3>
                     <div id="lista-defeitos"></div>
-                    <button onclick="adicionarLinhaDefeito()" class="btn-def">+ Adicionar Defeito</button>
-                    <span id="msg-limit-C" class="alerta-limite">LIMITE CLASSE C EXCEDIDO!</span>
+                    <button onclick="adicionarLinhaDefeito()" class="btn-def">+ Vincular Defeito</button>
                 </div>
             </div>
 
+            <!-- COLUNA DE RESULTADOS -->
             <div class="card" style="border-color: #3498db;">
                 <h3 style="color: #3498db;">Resultados</h3>
                 
@@ -102,9 +91,9 @@
                     <small><span id="res-A">0.00</span> m²</small>
                 </div>
 
-                <div id="res-linha-c" class="info-linha" style="border-left-color: #f1c40f;">
+                <div id="box-res-c" class="info-linha" style="border-left-color: #f1c40f;">
                     <span>Classe C: <b id="perc-C-ind">0.00</b>%</span>
-                    <small><span id="res-C">0.00</span> m² | Peças: <b id="total-pcs-c">0</b></small>
+                    <small><span id="res-C">0.00</span> m²</small>
                 </div>
 
                 <div class="info-linha" style="border-left-color: #e74c3c;">
@@ -113,14 +102,21 @@
                 </div>
 
                 <div class="stats-final">
-                    <div class="stat-box"><small id="label-prod">Prod. (A+C)</small><strong id="total-ac">0.00</strong> m²</div>
-                    <div class="stat-box"><small>Total Geral</small><strong id="total-acq">0.00</strong> m²</div>
+                    <div class="stat-box">
+                        <small id="label-prod">Prod. (A+C)</small>
+                        <strong id="total-producao">0.00</strong> m²
+                    </div>
+                    <div class="stat-box">
+                        <small>Total (A+C+Q)</small>
+                        <strong id="total-geral">0.00</strong> m²
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Carrega bitolas do config.js
         function popularBitolas() {
             const select = document.getElementById('select-bitola');
             select.innerHTML = Object.keys(BANCO_BITOLAS).map(key => 
@@ -130,10 +126,7 @@
 
         function verificarSessao() {
             popularBitolas();
-            // Lógica de sessão mantida...
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('user-panel').style.display = 'block';
-            document.getElementById('nome-logado').innerText = "OPERADOR";
+            calcular();
         }
 
         function adicionarLinhaDefeito() {
@@ -141,8 +134,21 @@
             const div = document.createElement('div');
             div.className = 'linha-defeito';
             let options = DEFEITOS_LISTA.map(d => `<option value="${d}">${d}</option>`).join('');
-            div.innerHTML = `<select>${options}</select><input type="number" class="qtd-def" value="0" oninput="calcular()"><button onclick="this.parentElement.remove();calcular();" class="btn-remove">X</button>`;
+            div.innerHTML = `
+                <select>${options}</select>
+                <input type="number" class="qtd-def" value="0" oninput="sincronizarC()">
+                <button onclick="this.parentElement.remove();sincronizarC();" class="btn-remove">X</button>
+            `;
             container.appendChild(div);
+        }
+
+        // Soma os defeitos da lista e joga no input principal de C
+        function sincronizarC() {
+            let somaDefeitos = 0;
+            document.querySelectorAll('.qtd-def').forEach(input => {
+                somaDefeitos += parseFloat(input.value) || 0;
+            });
+            document.getElementById('input-C').value = somaDefeitos;
             calcular();
         }
 
@@ -152,54 +158,60 @@
             const modo = document.querySelector('input[name="modo"]:checked').value;
 
             const valA = parseFloat(document.getElementById('input-A').value) || 0;
+            const valC = parseFloat(document.getElementById('input-C').value) || 0;
             const valQ = parseFloat(document.getElementById('input-Q').value) || 0;
-            let totalPcsC = 0;
-            document.querySelectorAll('.qtd-def').forEach(input => totalPcsC += parseFloat(input.value) || 0);
 
-            let m2A = valA * config.fatorPegada;
-            let m2Q = valQ * config.m2Peca;
-            let m2C = totalPcsC * config.m2Peca;
+            const m2A = valA * config.fatorPegada;
+            const m2C = valC * config.m2Peca;
+            const m2Q = valQ * config.m2Peca;
 
-            let totalBase, totalGeral, pA, pC, pQ;
+            let prodBase, totalGeral, pA, pC, pQ;
 
             if (modo === "acq") {
-                // Modo A+C+Q
-                document.getElementById('bloco-classe-c').style.opacity = "1";
-                document.getElementById('res-linha-c').style.display = "block";
+                // VISUAL
+                document.getElementById('input-C').style.display = "block";
+                document.getElementById('label-C').style.display = "block";
+                document.getElementById('secao-defeitos').style.display = "block";
+                document.getElementById('box-res-c').style.display = "block";
                 document.getElementById('label-prod').innerText = "Prod. (A+C)";
-                
-                totalBase = m2A + m2C; // Base para A e C
-                totalGeral = m2A + m2C + m2Q; // Base para Q
-                
-                pA = totalBase > 0 ? (m2A / totalBase) * 100 : 0;
-                pC = totalBase > 0 ? (m2C / totalBase) * 100 : 0;
+
+                // CÁLCULO
+                prodBase = m2A + m2C; // Divisor para A e C
+                totalGeral = m2A + m2C + m2Q; // Divisor para Q
+
+                pA = prodBase > 0 ? (m2A / prodBase) * 100 : 0;
+                pC = prodBase > 0 ? (m2C / prodBase) * 100 : 0;
                 pQ = totalGeral > 0 ? (m2Q / totalGeral) * 100 : 0;
             } else {
-                // Modo A+Q
-                document.getElementById('bloco-classe-c').style.opacity = "0.3";
-                document.getElementById('res-linha-c').style.display = "none";
+                // MODO A + Q (C é ignorado no cálculo de rendimento)
+                document.getElementById('input-C').style.display = "none";
+                document.getElementById('label-C').style.display = "none";
+                document.getElementById('secao-defeitos').style.display = "none";
+                document.getElementById('box-res-c').style.display = "none";
                 document.getElementById('label-prod').innerText = "Prod. (A)";
-                
-                totalBase = m2A;
+
+                prodBase = m2A;
                 totalGeral = m2A + m2Q;
-                
-                pA = totalBase > 0 ? 100 : 0;
+
+                pA = prodBase > 0 ? 100 : 0;
                 pC = 0;
                 pQ = totalGeral > 0 ? (m2Q / totalGeral) * 100 : 0;
             }
 
+            // ATUALIZA TELA
             document.getElementById('res-A').innerText = m2A.toFixed(2);
             document.getElementById('res-C').innerText = m2C.toFixed(2);
             document.getElementById('res-Q').innerText = m2Q.toFixed(2);
             document.getElementById('perc-A-ind').innerText = pA.toFixed(2);
             document.getElementById('perc-C-ind').innerText = pC.toFixed(2);
             document.getElementById('perc-Q-ind').innerText = pQ.toFixed(2);
-            document.getElementById('total-ac').innerText = totalBase.toFixed(2);
-            document.getElementById('total-acq').innerText = totalGeral.toFixed(2);
-            document.getElementById('total-pcs-c').innerText = totalPcsC;
-        }
+            document.getElementById('total-producao').innerText = prodBase.toFixed(2);
+            document.getElementById('total-geral').innerText = totalGeral.toFixed(2);
 
-        function logout() { location.reload(); }
+            // Alertas (Exemplo de limites fixos, pode ser vindo do admin)
+            document.getElementById('msg-limit-C').style.display = (pC > 5) ? 'block' : 'none';
+            document.getElementById('msg-limit-Q').style.display = (pQ > 3) ? 'block' : 'none';
+        }
     </script>
 </body>
 </html>
