@@ -3,128 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Qualidade - Direto</title>
+    <title>Fechamento de Qualidade</title>
+    <script src="config.js"></script>
     <style>
-        body { background-color: #0d0d0d; font-family: 'Segoe UI', sans-serif; color: #fff; margin: 0; display: flex; height: 100vh; }
+        body { background-color: #0a0a0a; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; margin: 0; display: flex; padding: 20px; gap: 20px; }
         
-        /* Lado Esquerdo: Lançamento */
-        .col-esquerda { width: 380px; background: #161616; padding: 25px; border-right: 1px solid #333; overflow-y: auto; }
-        h2 { color: #3498db; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #3498db; padding-left: 10px; }
+        /* Painel de Controle (Esquerda) */
+        .painel-controle { width: 380px; background: #151515; padding: 25px; border-radius: 8px; border: 1px solid #333; position: sticky; top: 20px; height: fit-content; }
+        h2 { color: #3498db; font-size: 1rem; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #3498db; padding-left: 10px; }
 
-        label { display: block; margin-top: 15px; font-size: 0.75rem; color: #888; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 5px 0; border-radius: 4px; border: 1px solid #333; background: #0f0f0f; color: #fff; box-sizing: border-box; }
+        label { display: block; margin-top: 15px; font-size: 0.75rem; color: #777; font-weight: bold; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 4px; border: 1px solid #333; background: #0f0f0f; color: #fff; font-size: 1rem; outline: none; }
+        input:focus { border-color: #3498db; }
+
+        .btn-fechar { width: 100%; padding: 15px; margin-top: 25px; border: none; border-radius: 4px; background: #2980b9; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-fechar:hover { background: #3498db; }
+
+        /* Monitor de Fechamentos (Direita) */
+        .monitor-fechamento { flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; align-content: start; }
+        .card-fechado { background: #151515; border: 1px solid #333; border-radius: 6px; padding: 15px; opacity: 0.5; transition: 0.3s; }
+        .card-fechado.ativo { opacity: 1; border-color: #27ae60; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
-        .btn-registrar { width: 100%; padding: 15px; margin-top: 25px; border: none; border-radius: 4px; background: #27ae60; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-
-        /* Lado Direito: Histórico do Turno */
-        .col-direita { flex-grow: 1; padding: 30px; background: #0a0a0a; overflow-y: auto; }
-        .topo-turno { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 15px; }
-        .status-turno { background: #3498db; padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
-
-        .grid-fechados { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .header-card { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
+        .header-card span { font-size: 0.8rem; font-weight: bold; }
         
-        /* Card de Qualidade */
-        .card-final { background: #1a1a1a; border: 1px solid #333; padding: 20px; border-radius: 8px; border-top: 4px solid #27ae60; }
-        .card-final h3 { margin: 0 0 10px 0; font-size: 1rem; color: #3498db; }
-        .dado-linha { display: flex; justify-content: space-between; margin-bottom: 5px; padding: 5px 0; border-bottom: 1px solid #252525; }
-        .dado-linha span { color: #777; font-size: 0.85rem; }
-        .detalhe-box { margin-top: 10px; padding: 10px; background: #0f0f0f; border-radius: 4px; font-size: 0.8rem; color: #aaa; }
+        .status-valor { display: flex; justify-content: space-between; margin: 8px 0; }
+        .status-valor label { margin: 0; color: #888; text-transform: none; }
+        .status-valor b { font-size: 1.1rem; }
+
+        .tag-info { background: #333; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
     </style>
 </head>
-<body onload="verificarTurno()">
+<body onload="init()">
 
-    <div class="col-esquerda">
-        <h2>Registrar Qualidade</h2>
+    <div class="painel-controle">
+        <h2>Mecanismo de Fechamento</h2>
         
-        <label>ORDEM / TURNO</label>
-        <select id="ordem">
-            <option value="1ª Qualidade">1ª Qualidade</option>
-            <option value="2ª Qualidade">2ª Qualidade</option>
-            <option value="3ª Qualidade">3ª Qualidade</option>
-            <option value="4ª Qualidade">4ª Qualidade</option>
+        <label>Selecione o Slot</label>
+        <select id="slot">
+            <option value="1">1ª Qualidade do Turno</option>
+            <option value="2">2ª Qualidade do Turno</option>
+            <option value="3">3ª Qualidade do Turno</option>
+            <option value="4">4ª Qualidade do Turno</option>
         </select>
 
-        <label>BITOLA</label>
-        <input type="text" id="bitola" placeholder="Ex: 2280">
+        <label>Bitola</label>
+        <select id="bitola"></select>
 
-        <label style="color: #27ae60;">A (PRIMEIRA)</label>
-        <input type="number" id="val-a" placeholder="0">
+        <label style="color: #27ae60;">A (Pegadas)</label>
+        <input type="number" id="in-A" placeholder="0">
 
-        <label style="color: #f1c40f;">C (CLASSE C)</label>
-        <input type="number" id="val-c" placeholder="0">
+        <label style="color: #f1c40f;">C (Pegadas)</label>
+        <input type="number" id="in-C" placeholder="0">
 
-        <label style="color: #e74c3c;">Q (QUEBRA)</label>
-        <input type="number" id="val-q" placeholder="0">
+        <label style="color: #e74c3c;">Q (Peças)</label>
+        <input type="number" id="in-Q" placeholder="0">
 
-        <label>DETALHAMENTO C (DEFEITOS)</label>
-        <textarea id="det-c" rows="2" placeholder="Ex: CAL=0,4; DIM=0,3"></textarea>
-
-        <label>DETALHAMENTO Q (MOTIVOS)</label>
-        <textarea id="det-q" rows="2" placeholder="Ex: PQ; PA"></textarea>
-
-        <button class="btn-registrar" onclick="salvarQualidade()">REGISTRAR QUALIDADE</button>
+        <button class="btn-fechar" onclick="fecharQualidade()">Confirmar Fechamento</button>
     </div>
 
-    <div class="col-direita">
-        <div class="topo-turno">
-            <h1 style="font-size: 1.2rem; margin: 0;">Qualidades Fechadas</h1>
-            <div id="display-turno" class="status-turno">---</div>
+    <div class="monitor-fechamento">
+        <!-- Cards Gerados Dinamicamente -->
+        <div id="res-1" class="card-fechado">
+            <div class="header-card"><span>1ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
+            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
+            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
+            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
+            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
+        </div>
+        
+        <div id="res-2" class="card-fechado">
+            <div class="header-card"><span>2ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
+            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
+            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
+            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
+            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
         </div>
 
-        <div id="lista-cards" class="grid-fechados">
-            <!-- Os registros de A, C e Q aparecerão aqui -->
+        <div id="res-3" class="card-fechado">
+            <div class="header-card"><span>3ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
+            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
+            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
+            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
+            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
+        </div>
+
+        <div id="res-4" class="card-fechado">
+            <div class="header-card"><span>4ª QUALIDADE</span> <span class="tag-info">AGUARDANDO</span></div>
+            <div class="status-valor"><label>Prod. Total:</label> <b class="v-total">---</b></div>
+            <div class="status-valor"><label>Índice A:</label> <b class="v-a" style="color:#27ae60">---</b></div>
+            <div class="status-valor"><label>Índice C:</label> <b class="v-c" style="color:#f1c40f">---</b></div>
+            <div class="status-valor"><label>Quebra:</label> <b class="v-q" style="color:#e74c3c">---</b></div>
         </div>
     </div>
 
     <script>
-        function verificarTurno() {
-            const h = new Date().getHours();
-            let turno = "";
-            if (h >= 5 && h < 13) turno = "TURNO A (05h - 13h)";
-            else if (h >= 13 && h < 21) turno = "TURNO B (13h - 21h)";
-            else turno = "TURNO C (21h - 05h)";
-            document.getElementById('display-turno').innerText = turno;
+        function init() {
+            const sel = document.getElementById('bitola');
+            if(typeof BANCO_BITOLAS !== 'undefined') {
+                sel.innerHTML = Object.keys(BANCO_BITOLAS).map(k => `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`).join('');
+            }
         }
 
-        function salvarQualidade() {
-            const lista = document.getElementById('lista-cards');
-            const card = document.createElement('div');
-            card.className = 'card-final';
+        function fecharQualidade() {
+            const b = (typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {padrao:{fatorPegada:0.5, m2Peca:1}})[document.getElementById('bitola').value];
+            const slotId = document.getElementById('slot').value;
             
-            const agora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            // Pega os valores exatamente como digitados
-            const b = document.getElementById('bitola').value;
-            const a = document.getElementById('val-a').value || "0";
-            const c = document.getElementById('val-c').value || "0";
-            const q = document.getElementById('val-q').value || "0";
-            const detC = document.getElementById('det-c').value;
-            const detQ = document.getElementById('det-q').value;
-            const ord = document.getElementById('ordem').value;
+            const a = (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada;
+            const c = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
+            const q = (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca;
 
-            card.innerHTML = `
-                <h3>${ord} - ${agora}</h3>
-                <div class="dado-linha"><span>Bitola:</span> <b>${b}</b></div>
-                <div class="dado-linha"><span>A (Primeira):</span> <b style="color:#27ae60">${a}</b></div>
-                <div class="dado-linha"><span>C (Classe C):</span> <b style="color:#f1c40f">${c}</b></div>
-                <div class="dado-linha"><span>Q (Quebra):</span> <b style="color:#e74c3c">${q}</b></div>
-                
-                <div class="detalhe-box">
-                    <strong>Defeitos (C):</strong><br>${detC || 'Nenhum'}
-                </div>
-                <div class="detalhe-box" style="border-top: 1px solid #222;">
-                    <strong>Motivos (Q):</strong><br>${detQ || 'Nenhum'}
-                </div>
-            `;
-
-            lista.prepend(card);
+            const prod = a + c;
+            const totalGeral = prod + q;
             
-            // Limpa os campos para o próximo registro
-            document.getElementById('val-a').value = "";
-            document.getElementById('val-c').value = "";
-            document.getElementById('val-q').value = "";
-            document.getElementById('det-c').value = "";
-            document.getElementById('det-q').value = "";
+            const card = document.getElementById('res-' + slotId);
+            card.classList.add('ativo');
+            card.querySelector('.tag-info').innerText = "FECHADO";
+            card.querySelector('.tag-info').style.background = "#27ae60";
+
+            card.querySelector('.v-total').innerText = prod.toFixed(2) + " m²";
+            card.querySelector('.v-a').innerText = prod > 0 ? ((a/prod)*100).toFixed(1) + "%" : "0%";
+            card.querySelector('.v-c').innerText = prod > 0 ? ((c/prod)*100).toFixed(1) + "%" : "0%";
+            card.querySelector('.v-q').innerText = totalGeral > 0 ? ((q/totalGeral)*100).toFixed(1) + "%" : "0%";
         }
     </script>
 </body>
