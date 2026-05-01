@@ -3,46 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Qualidade - Controle de Detalhamento</title>
-    <!-- O arquivo config.js deve conter BANCO_BITOLAS e DEFEITOS_LISTA -->
+    <title>Sistema de Qualidade - Controle Total</title>
     <script src="config.js"></script>
     <style>
-        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 1000px; }
+        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 95%; max-width: 1100px; }
         
-        h2 { color: #3498db; margin-top: 0; }
-        h3 { color: #ccc; font-size: 1rem; margin-bottom: 10px; }
+        h2 { color: #3498db; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        h3 { color: #ccc; font-size: 1rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
 
         .grid-painel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
-        .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
+        .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; height: fit-content; }
         
         label { display: block; margin-top: 10px; font-size: 0.9rem; color: #aaa; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: white; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #3498db; }
         
-        .radio-group { display: flex; justify-content: space-around; background: #1a1a1a; padding: 10px; border-radius: 6px; margin: 10px 0; border: 1px solid #333; }
-        .radio-group label { margin: 0; color: white; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-add { background: #34495e; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; transition: 0.2s; }
+        .btn-add:hover { background: #2c3e50; border: 1px solid #3498db; }
 
-        .btn-add { background: #8e44ad; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        .btn-add:hover { background: #7d3c98; }
-
-        /* Estilo da Lista de Defeitos */
         .linha-defeito { display: grid; grid-template-columns: 2fr 0.8fr 1fr 45px; gap: 10px; align-items: center; margin-bottom: 8px; background: #1a1a1a; padding: 8px; border-radius: 6px; border: 1px solid #333; }
         .perc-label { color: #f1c40f; font-weight: bold; font-size: 0.85rem; text-align: center; }
         .btn-del { background: #e74c3c; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 5px; }
 
-        /* Resultados */
+        /* Barras de Monitoramento */
+        .monitor-container { margin-top: 5px; background: #333; height: 8px; border-radius: 4px; overflow: hidden; }
+        .barra-fill { height: 100%; width: 0%; transition: 0.4s; }
+        .msg-erro { background: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; color: #ff7675; padding: 8px; border-radius: 6px; margin-top: 10px; display: none; font-size: 0.8rem; }
+
         .info-res { margin-bottom: 15px; padding-left: 12px; border-left: 4px solid #444; }
-        .info-res span { display: block; font-size: 0.8rem; color: #888; }
-        .info-res strong { font-size: 1.1rem; }
-        .val-perc { color: #3498db; }
+        .val-perc { color: #3498db; font-size: 1.2rem; }
 
-        /* Barra de Alerta */
-        .monitor-c { margin-top: 5px; background: #333; height: 8px; border-radius: 4px; overflow: hidden; }
-        .barra-preenchimento { height: 100%; width: 0%; background: #f1c40f; transition: 0.4s; }
-        .msg-erro { background: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; color: #ff7675; padding: 10px; border-radius: 6px; margin-top: 10px; display: none; font-size: 0.85rem; font-weight: bold; }
-
-        @media (max-width: 800px) { .grid-painel { grid-template-columns: 1fr; } }
+        @media (max-width: 850px) { .grid-painel { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body onload="inicializar()">
@@ -50,94 +41,86 @@
     <div class="container">
         <div class="grid-painel">
             
-            <!-- ENTRADA DE DADOS -->
+            <!-- COLUNA DE ENTRADA -->
             <div class="card">
-                <h2>Apontamento</h2>
+                <h2>Entrada de Dados</h2>
                 
-                <label>Bitola Técnica:</label>
+                <label>Bitola:</label>
                 <select id="select-bitola" onchange="calcular()"></select>
 
-                <div class="radio-group">
-                    <label><input type="radio" name="modo" value="acq" checked onclick="calcular()"> A+C+Q</label>
-                    <label><input type="radio" name="modo" value="aq" onclick="calcular()"> A+Q</label>
-                </div>
-
                 <label>A (Primeira - PEGADAS):</label>
-                <input type="number" id="input-A" placeholder="Ex: 40" oninput="calcular()">
+                <input type="number" id="input-A" placeholder="0" oninput="calcular()">
 
-                <div id="campo-c-container">
-                    <label>C (Classe C - PEGADAS):</label>
-                    <input type="number" id="input-C" placeholder="Ex: 1" oninput="calcular()">
+                <!-- BLOCO C -->
+                <div style="margin-top: 20px; padding: 10px; border: 1px solid #f1c40f22; border-radius: 8px;">
+                    <label style="color: #f1c40f;">C (Classe C - PEGADAS):</label>
+                    <input type="number" id="input-C" placeholder="0" oninput="calcular()">
                     
-                    <div class="monitor-c">
-                        <div id="barra-detalhe" class="barra-preenchimento"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #888; margin-top: 3px;">
-                        <span>Uso do limite de C:</span>
-                        <span id="txt-progresso">0%</span>
-                    </div>
+                    <div class="monitor-container"><div id="barra-C" class="barra-fill" style="background: #f1c40f;"></div></div>
+                    <div id="erro-C" class="msg-erro">⚠️ Detalhamento de C excedido!</div>
+
+                    <h3 style="margin-top: 15px;">Detalhamento C <small id="txt-C">0/0 m²</small></h3>
+                    <div id="lista-C"></div>
+                    <button onclick="adicionarLinha('lista-C')" class="btn-add">+ Defeito C</button>
                 </div>
 
-                <label>Q (Quebra - PEÇAS):</label>
-                <input type="number" id="input-Q" placeholder="Ex: 2" oninput="calcular()">
+                <!-- BLOCO Q -->
+                <div style="margin-top: 20px; padding: 10px; border: 1px solid #e74c3c22; border-radius: 8px;">
+                    <label style="color: #e74c3c;">Q (Quebra Total - PEÇAS):</label>
+                    <input type="number" id="input-Q" placeholder="0" oninput="calcular()">
+                    
+                    <div class="monitor-container"><div id="barra-Q" class="barra-fill" style="background: #e74c3c;"></div></div>
+                    <div id="erro-Q" class="msg-erro">⚠️ Detalhamento de Quebra excedido!</div>
 
-                <div id="alerta-trava" class="msg-erro">
-                    ⚠️ BLOQUEIO: O detalhamento ultrapassou o limite de C!
+                    <h3 style="margin-top: 15px;">Detalhamento Q <small id="txt-Q">0/0 pçs</small></h3>
+                    <div id="lista-Q"></div>
+                    <button onclick="adicionarLinha('lista-Q')" class="btn-add">+ Motivo Quebra</button>
                 </div>
-
-                <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-                
-                <h3>Detalhamento (Peças)</h3>
-                <div id="lista-defeitos"></div>
-                <button onclick="adicionarLinha()" class="btn-add">+ Adicionar Defeito Detalhado</button>
             </div>
 
-            <!-- RESULTADOS EM TEMPO REAL -->
-            <div class="card" style="border-color: #3498db;">
+            <!-- COLUNA DE RESULTADOS -->
+            <div class="card" style="border-color: #3498db; position: sticky; top: 20px;">
                 <h2>Resultado Final</h2>
                 
                 <div class="info-res" style="border-left-color: #27ae60;">
-                    <span>Classe A</span>
+                    <span>Classe A</span><br>
                     <strong id="out-per-A" class="val-perc">0.00%</strong> | <strong id="out-m2-A">0.00</strong> m²
                 </div>
 
-                <div id="res-c-box" class="info-res" style="border-left-color: #f1c40f;">
-                    <span>Classe C</span>
+                <div class="info-res" style="border-left-color: #f1c40f;">
+                    <span>Classe C (Meta: <span id="meta-C">0.00</span>%)</span><br>
                     <strong id="out-per-C" class="val-perc">0.00%</strong> | <strong id="out-m2-C">0.00</strong> m²
                 </div>
 
                 <div class="info-res" style="border-left-color: #e74c3c;">
-                    <span>Quebra Q</span>
+                    <span>Quebra Q</span><br>
                     <strong id="out-per-Q" class="val-perc">0.00%</strong> | <strong id="out-m2-Q">0.00</strong> m²
                 </div>
 
                 <div style="margin-top: 30px; padding: 20px; background: #1a1a1a; border-radius: 8px; text-align: center;">
-                    <span style="color: #888; font-size: 0.8rem; text-transform: uppercase;">Volume Total (Produção)</span><br>
-                    <strong id="out-total-prod" style="font-size: 2rem; color: #3498db;">0.00</strong> <small>m²</small>
+                    <span style="color: #888;">PRODUÇÃO TOTAL (A+C)</span><br>
+                    <strong id="out-total-prod" style="font-size: 2.2rem; color: #3498db;">0.00</strong> <small>m²</small>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
         function inicializar() {
             const select = document.getElementById('select-bitola');
-            select.innerHTML = Object.keys(BANCO_BITOLAS).map(k => 
-                `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`
-            ).join('');
+            select.innerHTML = Object.keys(BANCO_BITOLAS).map(k => `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`).join('');
             calcular();
         }
 
-        function adicionarLinha() {
-            const container = document.getElementById('lista-defeitos');
+        function adicionarLinha(containerId) {
+            const container = document.getElementById(containerId);
             const div = document.createElement('div');
             div.className = 'linha-defeito';
             let options = DEFEITOS_LISTA.map(d => `<option value="${d}">${d}</option>`).join('');
             div.innerHTML = `
                 <select onchange="calcular()">${options}</select>
                 <input type="number" class="qtd-pcs" placeholder="Pçs" oninput="calcular()">
-                <div class="perc-label">0.00%</div>
+                <div class="perc-label">0%</div>
                 <button onclick="this.parentElement.remove();calcular();" class="btn-del">✖</button>
             `;
             container.appendChild(div);
@@ -145,68 +128,55 @@
 
         function calcular() {
             const bitola = BANCO_BITOLAS[document.getElementById('select-bitola').value];
-            const modo = document.querySelector('input[name="modo"]:checked').value;
-
-            // ENTRADAS
             const pegA = parseFloat(document.getElementById('input-A').value) || 0;
             const pegC = parseFloat(document.getElementById('input-C').value) || 0;
-            const pcsQ = parseFloat(document.getElementById('input-Q').value) || 0;
+            const pcsQ_Total = parseFloat(document.getElementById('input-Q').value) || 0;
 
-            // CONVERSÃO M2
             const m2A = pegA * bitola.fatorPegada;
             const m2C = pegC * bitola.fatorPegada;
-            const m2Q = pcsQ * bitola.m2Peca;
+            const m2Q = pcsQ_Total * bitola.m2Peca;
 
-            // BASE DE CÁLCULO
-            let prodBase = (modo === "acq") ? (m2A + m2C) : m2A;
-            let totalMovimentado = prodBase + m2Q;
+            const prodBase = m2A + m2C;
+            const totalMov = prodBase + m2Q;
 
-            // PORCENTAGENS GERAIS
-            const perA = prodBase > 0 ? (m2A / prodBase) * 100 : 0;
-            const perC = prodBase > 0 ? (m2C / prodBase) * 100 : 0;
-            const perQ = totalMovimentado > 0 ? (m2Q / totalMovimentado) * 100 : 0;
-
-            // DETALHAMENTO (TRAVA LÓGICA)
-            let somaM2Detalhe = 0;
-            document.querySelectorAll('.linha-defeito').forEach(linha => {
+            // --- LÓGICA BLOCO C (LIMITADO POR %) ---
+            let m2DetC = 0;
+            document.querySelectorAll('#lista-C .linha-defeito').forEach(linha => {
                 const qtd = parseFloat(linha.querySelector('.qtd-pcs').value) || 0;
-                const m2Def = qtd * bitola.m2Peca;
-                somaM2Detalhe += m2Def;
-                
-                const pIndiv = prodBase > 0 ? (m2Def / prodBase) * 100 : 0;
-                linha.querySelector('.perc-label').innerText = pIndiv.toFixed(2) + "%";
+                const m2 = qtd * bitola.m2Peca;
+                m2DetC += m2;
+                linha.querySelector('.perc-label').innerText = prodBase > 0 ? ((m2/prodBase)*100).toFixed(2) + "%" : "0%";
             });
 
-            // GESTÃO DA BARRA E ALERTA
-            const progressoRatio = m2C > 0 ? (somaM2Detalhe / m2C) : 0;
-            const barra = document.getElementById('barra-detalhe');
-            const alerta = document.getElementById('alerta-trava');
-            
-            barra.style.width = Math.min(progressoRatio * 100, 100) + "%";
-            document.getElementById('txt-progresso').innerText = (progressoRatio * 100).toFixed(0) + "%";
+            const ratioC = m2C > 0 ? (m2DetC / m2C) : 0;
+            document.getElementById('barra-C').style.width = Math.min(ratioC * 100, 100) + "%";
+            document.getElementById('barra-C').style.background = ratioC > 1.001 ? "#ff4757" : "#f1c40f";
+            document.getElementById('erro-C').style.display = ratioC > 1.001 ? "block" : "none";
+            document.getElementById('txt-C').innerText = `${m2DetC.toFixed(2)} / ${m2C.toFixed(2)} m²`;
 
-            // Se o m2 detalhado ultrapassar o m2 das pegadas de C (com pequena margem de erro)
-            if (somaM2Detalhe > (m2C + 0.001)) {
-                barra.style.background = "#e74c3c";
-                alerta.style.display = "block";
-            } else {
-                barra.style.background = "#f1c40f";
-                alerta.style.display = "none";
-            }
+            // --- LÓGICA BLOCO Q (LIMITADO POR PEÇAS) ---
+            let pcsDetQ = 0;
+            document.querySelectorAll('#lista-Q .linha-defeito').forEach(linha => {
+                const qtd = parseFloat(linha.querySelector('.qtd-pcs').value) || 0;
+                pcsDetQ += qtd;
+                linha.querySelector('.perc-label').innerText = qtd + " pç";
+            });
 
-            // ATUALIZAÇÃO DA TELA
-            document.getElementById('out-per-A').innerText = perA.toFixed(2) + "%";
+            const ratioQ = pcsQ_Total > 0 ? (pcsDetQ / pcsQ_Total) : 0;
+            document.getElementById('barra-Q').style.width = Math.min(ratioQ * 100, 100) + "%";
+            document.getElementById('barra-Q').style.background = ratioQ > 1.001 ? "#ff4757" : "#e74c3c";
+            document.getElementById('erro-Q').style.display = ratioQ > 1.001 ? "block" : "none";
+            document.getElementById('txt-Q').innerText = `${pcsDetQ} / ${pcsQ_Total} pçs`;
+
+            // --- ATUALIZAÇÃO RESULTADOS ---
+            document.getElementById('out-per-A').innerText = (prodBase > 0 ? (m2A/prodBase)*100 : 0).toFixed(2) + "%";
             document.getElementById('out-m2-A').innerText = m2A.toFixed(2);
-            document.getElementById('out-per-C').innerText = perC.toFixed(2) + "%";
+            document.getElementById('out-per-C').innerText = (prodBase > 0 ? (m2C/prodBase)*100 : 0).toFixed(2) + "%";
+            document.getElementById('meta-C').innerText = (prodBase > 0 ? (m2C/prodBase)*100 : 0).toFixed(2);
             document.getElementById('out-m2-C').innerText = m2C.toFixed(2);
-            document.getElementById('out-per-Q').innerText = perQ.toFixed(2) + "%";
+            document.getElementById('out-per-Q').innerText = (totalMov > 0 ? (m2Q/totalMov)*100 : 0).toFixed(2) + "%";
             document.getElementById('out-m2-Q').innerText = m2Q.toFixed(2);
             document.getElementById('out-total-prod').innerText = prodBase.toFixed(2);
-
-            // Interface do Modo A+Q
-            document.getElementById('campo-c-container').style.display = (modo === "acq") ? "block" : "none";
-            document.getElementById('res-c-box').style.display = (modo === "acq") ? "block" : "none";
-            document.getElementById('secao-defeitos').style.display = (modo === "acq") ? "block" : "none";
         }
     </script>
 </body>
