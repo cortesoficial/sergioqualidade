@@ -3,40 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Qualidade Unificado</title>
-    <!-- IMPORTANTE: O arquivo config.js deve estar na mesma pasta -->
+    <title>Painel de Qualidade Unificado</title>
     <script src="config.js"></script>
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
         .main-column { width: 100%; max-width: 500px; display: none; flex-direction: column; gap: 20px; }
-        
         #login-overlay { position: fixed; inset: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .login-box { background: #1a1a1a; padding: 30px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 300px; }
-        
         .card { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
         h2 { color: #3498db; margin-top: 0; font-size: 1rem; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; }
-        h3 { font-size: 0.8rem; color: #f1c40f; margin-top: 15px; text-transform: uppercase; }
-
-        label { display: block; margin-top: 12px; font-size: 0.75rem; color: #888; font-weight: bold; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; font-size: 1rem; }
+        .input-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .input-group { flex: 1; }
+        .perc-tag { background: #222; padding: 10px; border-radius: 6px; min-width: 60px; text-align: center; font-weight: bold; font-size: 0.9rem; border: 1px solid #333; }
         
-        .tabela-caderno { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; }
-        .tabela-caderno th, .tabela-caderno td { border: 1px solid #333; padding: 8px; text-align: center; }
-        .tabela-caderno th { background: #222; color: #3498db; }
-
-        .btn-acao { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        .btn-add { background: transparent; color: #3498db; border: 1px solid #3498db; padding: 5px; font-size: 0.7rem; cursor: pointer; border-radius: 4px; width: 100%; margin-top: 5px; }
-        .btn-logout { background: #444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; float: right; }
+        label { display: block; font-size: 0.7rem; color: #888; font-weight: bold; text-transform: uppercase; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; font-size: 1rem; }
         
-        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 5px; }
-        .btn-del { background: #e74c3c; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 8px; }
+        .btn-add { background: transparent; color: #3498db; border: 1px solid #3498db; padding: 8px; cursor: pointer; width: 100%; border-radius: 6px; margin-top: 10px; font-size: 0.8rem; }
+        .btn-acao { background: #27ae60; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; font-size: 1rem; }
+        .status-msg { font-size: 0.75rem; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box">
-            <h2 style="border:none; color:#3498db;">Acesso ao Sistema</h2>
+            <h2>Acesso Qualidade</h2>
             <input type="text" id="user-login" placeholder="Usuário">
             <input type="password" id="pass-login" placeholder="Senha">
             <button class="btn-acao" onclick="autenticar()">Entrar</button>
@@ -44,143 +38,146 @@
     </div>
 
     <div class="main-column" id="app-content">
-        <div style="overflow: hidden;">
-            <button class="btn-logout" onclick="location.reload()">Sair</button>
-            <p id="txt-usuario" style="font-size:0.8rem; color:#888;">Usuário: --</p>
-        </div>
+        <div class="card">
+            <h2>Entrada de Dados</h2>
+            
+            <label>Bitola Técnica</label>
+            <select id="bitola" onchange="calcular()"></select>
 
-        <!-- VISÃO ADMIN -->
-        <div id="visao-admin" style="display: none;">
-            <div class="card">
-                <h2 style="color: #9b59b6;">Novo Operador</h2>
-                <input type="text" id="adm-nome" placeholder="Nome">
-                <select id="adm-turno"><option>A</option><option>B</option><option>C</option></select>
-                <input type="password" id="adm-pass" placeholder="Senha">
-                <button class="btn-acao" style="background:#8e44ad" onclick="cadastrarUsuario()">Salvar</button>
+            <!-- CAMPO A -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label style="color:#27ae60">A (Pegadas)</label>
+                    <input type="number" id="in-A" placeholder="0" oninput="calcular()">
+                </div>
+                <div class="perc-tag" id="tag-A" style="color:#27ae60">0%</div>
             </div>
-            <div class="card" style="margin-top:20px">
-                <h2 style="color: #f1c40f;">Resumo de Turnos</h2>
-                <table class="tabela-caderno"><thead id="head-resumo"></thead><tbody id="corpo-fechamento"></tbody></table>
+
+            <!-- CAMPO C -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label style="color:#f1c40f">C (Pegadas)</label>
+                    <input type="number" id="in-C" placeholder="0" oninput="calcular()">
+                </div>
+                <div class="perc-tag" id="tag-C" style="color:#f1c40f">0%</div>
             </div>
-        </div>
-
-        <!-- VISÃO OPERADOR -->
-        <div id="visao-operador" style="display: none;">
-            <div class="card">
-                <h2>Lançamento</h2>
-                <label>BITOLA TÉCNICA</label>
-                <select id="bitola" onchange="calcular()"></select>
-
-                <label style="color: #27ae60;">A (PRIMEIRA - PEGADAS)</label>
-                <input type="number" id="in-A" placeholder="0" oninput="calcular()">
-
-                <label style="color: #f1c40f;">C (CLASSE C - PEGADAS)</label>
-                <input type="number" id="in-C" placeholder="0" oninput="calcular()">
-                
-                <!-- Detalhamento C -->
-                <h3>Defeitos Classe C</h3>
+            
+            <div style="background: #111; padding: 10px; border-radius: 8px; margin-top: 10px;">
+                <label>Detalhamento Classe C</label>
                 <div id="lista-C"></div>
                 <button class="btn-add" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Adicionar Defeito</button>
+                <div id="msg-valid-C" class="status-msg"></div>
+            </div>
 
-                <label style="color: #e74c3c; margin-top:20px;">Q (QUEBRA - PEÇAS)</label>
-                <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+            <!-- CAMPO Q -->
+            <div class="input-row" style="margin-top:20px">
+                <div class="input-group">
+                    <label style="color:#e74c3c">Q (Quebra - Peças)</label>
+                    <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+                </div>
+                <div class="perc-tag" id="tag-Q" style="color:#e74c3c">0%</div>
+            </div>
 
-                <!-- Detalhamento Q -->
-                <h3>Motivos de Quebra</h3>
+            <div style="background: #111; padding: 10px; border-radius: 8px; margin-top: 10px;">
+                <label>Detalhamento Quebra</label>
                 <div id="lista-Q"></div>
                 <button class="btn-add" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Adicionar Motivo</button>
-
-                <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-                <div style="text-align: center; background: #000; padding: 15px; border-radius: 8px;">
-                    <span style="color:#888; font-size:0.7rem;">PRODUÇÃO TOTAL (A+C)</span><br>
-                    <b id="res-total" style="font-size: 2rem; color:#3498db">0.00</b> <small>m²</small>
-                </div>
-
-                <button class="btn-acao" onclick="salvarNoCaderno()">Registrar no Caderno</button>
             </div>
+
+            <div style="text-align: center; margin-top: 25px; padding: 15px; background: #000; border-radius: 10px; border: 1px solid #3498db;">
+                <span style="color:#888; font-size:0.7rem;">PRODUÇÃO TOTAL LÍQUIDA</span><br>
+                <b id="res-total" style="font-size: 2.2rem; color:#3498db">0.00</b> <small>m²</small>
+            </div>
+
+            <button class="btn-acao" id="btn-registrar" onclick="salvarNoCaderno()">Registrar no Caderno</button>
         </div>
     </div>
 
     <script>
         let usuarios = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:"admin", pass:"admin", nivel:"admin", turno:"Geral"}];
-        let registros = JSON.parse(localStorage.getItem('producao_caderno')) || [];
         let usuarioAtivo = null;
 
         function autenticar() {
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
             usuarioAtivo = usuarios.find(x => x.user === u && x.pass === p);
-
-            if (usuarioAtivo) {
+            if(usuarioAtivo) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('txt-usuario').innerText = `Operador: ${usuarioAtivo.user} | Turno: ${usuarioAtivo.turno}`;
-                
-                if (usuarioAtivo.nivel === 'admin') {
-                    document.getElementById('visao-admin').style.display = 'block';
-                    atualizarTabelaAdmin();
-                } else {
-                    document.getElementById('visao-operador').style.display = 'block';
-                    carregarBitolas();
-                }
-            } else { alert("Login incorreto!"); }
+                carregarBitolas();
+            } else { alert("Acesso negado!"); }
         }
 
-        // Busca bitolas do config.js
         function carregarBitolas() {
             const sel = document.getElementById('bitola');
-            sel.innerHTML = Object.keys(BANCO_BITOLAS).map(k => 
-                `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`
-            ).join('');
+            sel.innerHTML = Object.keys(BANCO_BITOLAS).map(k => `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`).join('');
             calcular();
         }
 
-        // Adiciona linhas de defeitos/quebra usando as listas do config.js
         function addLinha(containerId, listaOpcoes) {
             const container = document.getElementById(containerId);
             const div = document.createElement('div');
             div.className = 'linha-detalhe';
-            
-            let options = listaOpcoes.map(item => `<option value="${item}">${item}</option>`).join('');
-            
             div.innerHTML = `
-                <select style="flex:2">${options}</select>
-                <input type="number" placeholder="Qtd" style="flex:1">
-                <button class="btn-del" onclick="this.parentElement.remove()">✕</button>
+                <select style="flex:2">${listaOpcoes.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                <input type="number" class="detalhe-qtd" placeholder="Qtd" style="flex:1" oninput="calcular()">
+                <button onclick="this.parentElement.remove(); calcular()" style="background:none; border:none; color:#e74c3c; cursor:pointer;">✕</button>
             `;
             container.appendChild(div);
+            calcular();
         }
 
         function calcular() {
-            const bitolaChave = document.getElementById('bitola').value;
-            const b = BANCO_BITOLAS[bitolaChave];
-            
-            const mA = (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada;
-            const mC = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
-            
-            document.getElementById('res-total').innerText = (mA + mC).toFixed(2);
+            const b = BANCO_BITOLAS[document.getElementById('bitola').value];
+            const pegA = parseFloat(document.getElementById('in-A').value) || 0;
+            const pegC = parseFloat(document.getElementById('in-C').value) || 0;
+            const pecQ = parseFloat(document.getElementById('in-Q').value) || 0;
+
+            // Metragens
+            const mA = pegA * b.fatorPegada;
+            const mC = pegC * b.fatorPegada;
+            const mQ = pecQ * b.m2Peca; // Quebra usa m2 por peça
+
+            const prodComercial = mA + mC;
+            const totalGeral = mA + mC + mQ;
+
+            // Porcentagens laterais
+            document.getElementById('tag-A').innerText = (prodComercial > 0 ? (mA/prodComercial*100).toFixed(1) : 0) + "%";
+            document.getElementById('tag-C').innerText = (prodComercial > 0 ? (mC/prodComercial*100).toFixed(1) : 0) + "%";
+            document.getElementById('tag-Q').innerText = (totalGeral > 0 ? (mQ/totalGeral*100).toFixed(1) : 0) + "%";
+
+            // Total m²
+            document.getElementById('res-total').innerText = prodComercial.toFixed(2);
+
+            // Validação de Detalhamento C
+            validarDetalhamento('lista-C', pegC, 'msg-valid-C');
         }
 
-        function salvarNoCaderno() {
-            // Lógica de salvar similar à anterior, mas agora no localStorage
-            alert("Registrado com sucesso!");
-            location.reload();
-        }
+        function validarDetalhamento(containerId, totalEsperado, msgId) {
+            const inputs = document.querySelectorAll(`#${containerId} .detalhe-qtd`);
+            let soma = 0;
+            inputs.forEach(i => soma += parseFloat(i.value) || 0);
 
-        function cadastrarUsuario() {
-            const nome = document.getElementById('adm-nome').value;
-            const pass = document.getElementById('adm-pass').value;
-            const turno = document.getElementById('adm-turno').value;
-            if(nome && pass) {
-                usuarios.push({user: nome, pass: pass, nivel: "op", turno: turno});
-                localStorage.setItem('usuarios_db', JSON.stringify(usuarios));
-                alert("Operador salvo!");
+            const msgElement = document.getElementById(msgId);
+            const btn = document.getElementById('btn-registrar');
+
+            if (soma !== totalEsperado && totalEsperado > 0) {
+                msgElement.innerText = `⚠️ Detalhado: ${soma} / Total: ${totalEsperado}`;
+                msgElement.style.color = "#f1c40f";
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
+            } else {
+                msgElement.innerText = totalEsperado > 0 ? "✅ Detalhamento OK" : "";
+                msgElement.style.color = "#27ae60";
+                btn.disabled = false;
+                btn.style.opacity = "1";
             }
         }
 
-        function atualizarTabelaAdmin() {
-            // Lógica para preencher a tabela do Admin
-            document.getElementById('corpo-fechamento').innerHTML = "<tr><td colspan='3'>Aguardando lançamentos...</td></tr>";
+        function salvarNoCaderno() {
+            // Aqui entra sua lógica de salvar no LocalStorage
+            alert("Lançamento realizado com sucesso!");
+            location.reload();
         }
     </script>
 </body>
