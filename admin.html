@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Administrativo</title>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: sans-serif; padding: 40px; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333; max-width: 600px; margin: 0 auto 20px; }
+        h1 { color: #8e44ad; text-align: center; }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #333; background: #222; color: white; }
+        button { background: #8e44ad; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: center; }
+        th { background: #222; color: #3498db; }
+        .btn-limpar { background: #c0392b; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Gerenciar Sistema</h1>
+        <label>Novo Operador:</label>
+        <input type="text" id="nome" placeholder="Nome do usuário">
+        <select id="turno"><option>A</option><option>B</option><option>C</option></select>
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="add()">Cadastrar Operador</button>
+    </div>
+
+    <div class="card">
+        <h1>Fechamento por Turno (m²)</h1>
+        <table>
+            <thead><tr><th>Turno</th><th>Produção (1ª/2ª/3ª)</th><th>Quebra</th></tr></thead>
+            <tbody id="lista"></tbody>
+        </table>
+        <button class="btn-limpar" onclick="limpar()">Limpar Todo o Caderno</button>
+    </div>
+
+    <script>
+        function render() {
+            const registros = JSON.parse(localStorage.getItem('producao_caderno')) || [];
+            let resumo = { A: {p:0, q:0}, B: {p:0, q:0}, C: {p:0, q:0} };
+            
+            registros.forEach(r => {
+                if(resumo[r.turno]) {
+                    resumo[r.turno].p += r.comercial;
+                    resumo[r.turno].q += r.quebra;
+                }
+            });
+
+            document.getElementById('lista').innerHTML = Object.keys(resumo).map(t => `
+                <tr><td>${t}</td><td>${resumo[t].p.toFixed(2)}</td><td>${resumo[t].q.toFixed(2)}</td></tr>
+            `).join('');
+        }
+
+        function add() {
+            let users = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:"admin", pass:"admin", turno:"Geral"}];
+            users.push({
+                user: document.getElementById('nome').value,
+                pass: document.getElementById('senha').value,
+                turno: document.getElementById('turno').value
+            });
+            localStorage.setItem('usuarios_db', JSON.stringify(users));
+            alert("Operador cadastrado!");
+        }
+
+        function limpar() {
+            if(confirm("Deseja apagar todos os registros do caderno?")) {
+                localStorage.removeItem('producao_caderno');
+                render();
+            }
+        }
+        render();
+    </script>
+</body>
+</html>
