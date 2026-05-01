@@ -7,276 +7,226 @@
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 450px; text-align: center; }
-        .wide-container { max-width: 950px; }
+        .wide-container { max-width: 1000px; }
         h2 { color: #3498db; margin-bottom: 20px; }
-        h3 { color: #ccc; margin-bottom: 15px; }
+        h3 { color: #ccc; margin-bottom: 15px; font-size: 1rem; }
         
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
         input:focus { border-color: #3498db; }
-        input:disabled { background: #111; color: #555; cursor: not-allowed; border-color: #e74c3c; }
         
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #2980b9; }
         
         .btn-add { background: #27ae60; }
+        .btn-def { background: #8e44ad; margin-bottom: 10px; font-size: 0.8rem; padding: 8px; }
         .btn-sair { background: #e74c3c; width: auto; padding: 8px 20px; margin-bottom: 20px; float: right; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; }
-        th, td { padding: 12px; border: 1px solid #333; text-align: left; font-size: 0.85rem; }
-        th { background-color: #3498db; }
-        
-        .grid-painel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .grid-painel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; text-align: left; }
         .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
         
-        .info-linha { font-size: 0.85rem; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #444; position: relative; }
-        .info-linha span { display: block; color: #aaa; margin-top: 2px; }
+        /* Estilo dos Defeitos */
+        .linha-defeito { display: grid; grid-template-columns: 2fr 1fr 40px; gap: 10px; align-items: center; margin-bottom: 5px; }
+        .btn-remove { background: #c0392b; padding: 5px; margin: 0; }
+
+        .info-linha { font-size: 0.85rem; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #444; }
         .info-linha b { color: #3498db; }
-        .alerta-limite { color: #e74c3c; font-weight: bold; font-size: 0.75rem; display: none; }
+        .alerta-limite { color: #e74c3c; font-weight: bold; font-size: 0.75rem; display: none; margin-top: 5px; }
 
         .stats-final { margin-top: 15px; padding-top: 15px; border-top: 1px solid #444; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .stat-box { background: #1a1a1a; padding: 10px; border-radius: 4px; border-bottom: 3px solid #3498db; }
-        .stat-box.critico { border-bottom-color: #e74c3c; }
         .stat-box small { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; }
 
-        .remember-me { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-size: 0.9rem; color: #bbb; }
-        .remember-me input { width: auto; margin: 0; }
-
-        @media (max-width: 600px) { .grid-painel { grid-template-columns: 1fr; } }
+        @media (max-width: 800px) { .grid-painel { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body onload="verificarSessao()">
 
-    <!-- TELA DE LOGIN -->
+    <!-- LOGIN -->
     <div id="login-section" class="container">
         <h2>Qualidade - Acesso</h2>
         <input type="text" id="user" placeholder="Usuário">
         <input type="password" id="pass" placeholder="Senha">
-        <label class="remember-me">
-            <input type="checkbox" id="keep-connected"> Manter-me conectado
-        </label>
         <button onclick="logar()">Entrar</button>
-        <p id="msg-erro" style="color: #ff4d4d; margin-top: 15px;"></p>
+        <p id="msg-erro" style="color: #ff4d4d;"></p>
     </div>
 
     <!-- PAINEL MASTER -->
     <div id="master-panel" class="container wide-container" style="display: none;">
         <button onclick="logout()" class="btn-sair">Sair</button>
-        <h2 style="text-align: left;">Painel Master</h2>
+        <h2>Configurações Master</h2>
         <div class="card">
-            <h3>Limites de Tolerância (%)</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <div>
-                    <label>Limite Classe C (%):</label>
-                    <input type="number" id="limit-C" value="5" step="0.1">
-                </div>
-                <div>
-                    <label>Limite Quebra Q (%):</label>
-                    <input type="number" id="limit-Q" value="3" step="0.1">
-                </div>
-            </div>
-            <h3>Cadastrar Funcionário</h3>
+            <h3>Limites de Tolerância</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input type="text" id="new-full-name" placeholder="Nome Completo">
-                <input type="text" id="new-user" placeholder="Login">
-                <input type="password" id="new-pass" placeholder="Senha">
-                <select id="new-shift">
-                    <option value="">Turno...</option>
-                    <option value="1º Turno">1º Turno</option>
-                    <option value="2º Turno">2º Turno</option>
-                    <option value="3º Turno">3º Turno</option>
-                </select>
+                <div><label>Limite C (%)</label><input type="number" id="limit-C" value="5"></div>
+                <div><label>Limite Q (%)</label><input type="number" id="limit-Q" value="3"></div>
             </div>
-            <button onclick="cadastrarUsuario()" class="btn-add">Salvar</button>
         </div>
-        <table id="tabela-usuarios">
-            <thead><tr><th>Nome</th><th>Login</th><th>Turno</th><th>Ações</th></tr></thead>
-            <tbody></tbody>
-        </table>
     </div>
 
     <!-- PAINEL OPERACIONAL -->
     <div id="user-panel" class="container wide-container" style="display: none;">
         <button onclick="logout()" class="btn-sair">Sair</button>
-        <h2 style="text-align: left;">Qualidade por Hora</h2>
+        <h2 style="text-align: left;">Apontamento de Produção</h2>
         
         <div class="grid-painel">
+            <!-- BLOCO DE ENTRADA -->
             <div class="card">
                 <p>Operador: <strong id="nome-logado" style="color: #3498db;"></strong></p>
-                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
                 
-                <label><strong>Tipo de Processo:</strong></label>
-                <div class="radio-group">
-                    <label class="radio-option"><input type="radio" name="processo" value="A+C+Q" checked onclick="alternarCampos()"> A+C+Q</label>
-                    <label class="radio-option"><input type="radio" name="processo" value="A+Q" onclick="alternarCampos()"> A+Q</label>
-                </div>
-
-                <label><strong>Bitola:</strong></label>
+                <label>Bitola:</label>
                 <select id="bitola" onchange="calcular()">
-                    <option value="">-- Selecione --</option>
                     <option value="90x90">90x90</option>
                     <option value="32x60">32x60</option>
-                    <option value="30x90">30x90</option>
-                    <option value="45x120">45x120</option>
                 </select>
+
+                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+
+                <label>A (Pegadas):</label>
+                <input type="number" id="input-A" placeholder="0" oninput="calcular()">
+
+                <label>Q (Quebra em Peças):</label>
+                <input type="number" id="input-Q" placeholder="0" oninput="calcular()">
+                <span id="msg-limit-Q" class="alerta-limite">LIMITE DE QUEBRA EXCEDIDO!</span>
+
+                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+                
+                <h3>Defeitos Classe C (Peças)</h3>
+                <div id="lista-defeitos">
+                    <!-- Linhas de defeitos entram aqui -->
+                </div>
+                <button onclick="adicionarLinhaDefeito()" class="btn-def">+ Adicionar Defeito</button>
+                <span id="msg-limit-C" class="alerta-limite">LIMITE CLASSE C EXCEDIDO!</span>
             </div>
 
+            <!-- BLOCO DE RESULTADOS -->
             <div class="card" style="border-color: #3498db;">
-                <h3 style="margin-top:0; font-size: 1.1rem; color: #3498db;">Lançamento em Tempo Real</h3>
+                <h3 style="color: #3498db;">Resumo do Cálculo</h3>
                 
-                <!-- Entrada A -->
                 <div class="info-linha" style="border-left-color: #27ae60;">
-                    <label>A (Pegadas):</label>
-                    <input type="number" id="input-A" placeholder="0" oninput="calcular()">
-                    <span>Área: <b id="res-A">0.00</b> m²</span>
+                    <span>Classe A: <b id="perc-A-ind">0.00</b>%</span>
+                    <small><span id="res-A">0.00</span> m²</small>
                 </div>
 
-                <!-- Entrada C (Agora em PEÇAS) -->
-                <div id="campo-C" class="info-linha" style="border-left-color: #f1c40f;">
-                    <label>C (Defeitos em Peças):</label>
-                    <input type="number" id="input-C" placeholder="0" oninput="calcular()">
-                    <span id="msg-limit-C" class="alerta-limite">LIMITE DE C ATINGIDO!</span>
-                    <span>Área: <b id="res-C">0.00</b> m² | Perc: <b id="perc-C-ind">0.00</b>%</span>
+                <div class="info-linha" style="border-left-color: #f1c40f;">
+                    <span>Classe C (Total): <b id="perc-C-ind">0.00</b>%</span>
+                    <small><span id="res-C">0.00</span> m² | Total Peças: <b id="total-pcs-c">0</b></small>
                 </div>
 
-                <!-- Entrada Q (Peças) -->
                 <div class="info-linha" style="border-left-color: #e74c3c;">
-                    <label>Q (Quebra em Peças):</label>
-                    <input type="number" id="input-Q" placeholder="0" oninput="calcular()">
-                    <span id="msg-limit-Q" class="alerta-limite">LIMITE DE QUEBRA ATINGIDO!</span>
-                    <span>Área: <b id="res-Q">0.00</b> m² | Perc: <b id="perc-Q-ind">0.00</b>%</span>
+                    <span>Quebra (Q): <b id="perc-Q-ind">0.00</b>%</span>
+                    <small><span id="res-Q">0.00</span> m²</small>
                 </div>
 
                 <div class="stats-final">
-                    <div class="stat-box"><small>Total A+C</small><strong id="total-ac">0.00</strong> m²</div>
-                    <div class="stat-box"><small>Total Geral</small><strong id="total-acq">0.00</strong> m²</div>
+                    <div class="stat-box"><small>Prod. (A+C)</small><strong id="total-ac">0.00</strong> m²</div>
+                    <div class="stat-box"><small>Total (A+C+Q)</small><strong id="total-acq">0.00</strong> m²</div>
                 </div>
-                <button id="btn-salvar" class="btn-add" style="margin-top: 20px;">Salvar Registro</button>
+                <button class="btn-add">Salvar Turno</button>
             </div>
         </div>
     </div>
 
     <script>
-        const ADM_USER = "admin";
-        const ADM_PASS = "admin123";
+        // Lista de defeitos que você pode expandir
+        const DEFEITOS_LISTA = ["Mancha", "Trinca", "Ponta Quebrada", "Empeno", "Tonalidade", "Risco"];
 
         function verificarSessao() {
             const logado = JSON.parse(localStorage.getItem('sessao_qualidade')) || JSON.parse(sessionStorage.getItem('sessao_qualidade'));
             if (logado) {
-                if (logado.tipo === 'admin') { abrir('master-panel'); atualizarTabela(); }
-                else { document.getElementById('nome-logado').innerText = logado.nome; abrir('user-panel'); alternarCampos(); }
+                if (logado.tipo === 'admin') abrir('master-panel');
+                else { document.getElementById('nome-logado').innerText = logado.nome; abrir('user-panel'); }
             }
         }
 
         function logar() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            const keep = document.getElementById('keep-connected').checked;
-            
-            let dados = null;
-            if (u === ADM_USER && p === ADM_PASS) dados = { tipo: 'admin', nome: 'Administrador' };
-            else {
-                let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-                let user = lista.find(x => x.login === u && x.senha === p);
-                if (user) dados = { tipo: 'user', nome: user.nomeCompleto };
-            }
-
-            if (dados) {
-                if (keep) localStorage.setItem('sessao_qualidade', JSON.stringify(dados));
-                else sessionStorage.setItem('sessao_qualidade', JSON.stringify(dados));
+            if ((u === "admin" && p === "admin123") || u === "op") {
+                const dados = { tipo: u === "admin" ? 'admin' : 'user', nome: u.toUpperCase() };
+                sessionStorage.setItem('sessao_qualidade', JSON.stringify(dados));
                 location.reload();
-            } else document.getElementById('msg-erro').innerText = "Usuário ou senha incorretos.";
+            }
         }
 
-        function alternarCampos() {
-            const proc = document.querySelector('input[name="processo"]:checked').value;
-            document.getElementById('campo-C').style.display = (proc === "A+Q") ? 'none' : 'block';
+        // --- LÓGICA DOS DEFEITOS DINÂMICOS ---
+
+        function adicionarLinhaDefeito() {
+            const container = document.getElementById('lista-defeitos');
+            const div = document.createElement('div');
+            div.className = 'linha-defeito';
+            
+            let options = DEFEITOS_LISTA.map(d => `<option value="${d}">${d}</option>`).join('');
+            
+            div.innerHTML = `
+                <select class="select-def">${options}</select>
+                <input type="number" class="qtd-def" placeholder="Qtd" value="0" oninput="calcular()">
+                <button onclick="removerDefeito(this)" class="btn-remove">X</button>
+            `;
+            container.appendChild(div);
+            calcular();
+        }
+
+        function removerDefeito(btn) {
+            btn.parentElement.remove();
             calcular();
         }
 
         function calcular() {
             const bitola = document.getElementById('bitola').value;
             const valA = parseFloat(document.getElementById('input-A').value) || 0;
-            const valC = parseFloat(document.getElementById('input-C').value) || 0; // Peças
-            const valQ = parseFloat(document.getElementById('input-Q').value) || 0; // Peças
+            const valQ = parseFloat(document.getElementById('input-Q').value) || 0;
+            
+            // Soma todos os campos de defeitos C
+            let totalPcsC = 0;
+            document.querySelectorAll('.qtd-def').forEach(input => {
+                totalPcsC += parseFloat(input.value) || 0;
+            });
 
-            // Limites pegos do Master (padrão 5% e 3%)
-            const limitPercC = parseFloat(document.getElementById('limit-C').value) || 5;
-            const limitPercQ = parseFloat(document.getElementById('limit-Q').value) || 3;
+            const limitC = parseFloat(document.getElementById('limit-C').value) || 5;
+            const limitQ = parseFloat(document.getElementById('limit-Q').value) || 3;
 
-            let m2A = 0, m2C = 0, m2Q = 0;
-            let m2PorPeca = 0;
+            let m2Peca = 0, fatorPegada = 0;
+            if (bitola === "90x90") { m2Peca = 0.81; fatorPegada = 12.15; }
+            else if (bitola === "32x60") { m2Peca = 0.192; fatorPegada = 3.84; }
 
-            if (bitola === "90x90") {
-                const fatorPegada = 5 * 3 * 0.81; // 12.15
-                m2PorPeca = 0.81;
-                m2A = valA * fatorPegada;
-                m2C = valC * m2PorPeca;
-                m2Q = valQ * m2PorPeca;
-            }
+            let m2A = valA * fatorPegada;
+            let m2C = totalPcsC * m2Peca;
+            let m2Q = valQ * m2Peca;
 
-            const totalACQ = m2A + m2C + m2Q;
-            const percC = totalACQ > 0 ? (m2C / totalACQ) * 100 : 0;
-            const percQ = totalACQ > 0 ? (m2Q / totalACQ) * 100 : 0;
+            const totalAC = m2A + m2C;
+            const totalGeral = m2A + m2C + m2Q;
 
-            // Atualiza UI
+            // Porcentagens conforme sua regra
+            const pA = totalAC > 0 ? (m2A / totalAC) * 100 : 0;
+            const pC = totalAC > 0 ? (m2C / totalAC) * 100 : 0;
+            const pQ = totalGeral > 0 ? (m2Q / totalGeral) * 100 : 0;
+
+            // UI
+            document.getElementById('total-pcs-c').innerText = totalPcsC;
             document.getElementById('res-A').innerText = m2A.toFixed(2);
             document.getElementById('res-C').innerText = m2C.toFixed(2);
             document.getElementById('res-Q').innerText = m2Q.toFixed(2);
-            document.getElementById('perc-C-ind').innerText = percC.toFixed(2);
-            document.getElementById('perc-Q-ind').innerText = percQ.toFixed(2);
-            document.getElementById('total-ac').innerText = (m2A + m2C).toFixed(2);
-            document.getElementById('total-acq').innerText = totalACQ.toFixed(2);
+            
+            document.getElementById('perc-A-ind').innerText = pA.toFixed(2);
+            document.getElementById('perc-C-ind').innerText = pC.toFixed(2);
+            document.getElementById('perc-Q-ind').innerText = pQ.toFixed(2);
 
-            // Lógica de Bloqueio/Aviso
-            verificarLimite('input-C', 'msg-limit-C', percC, limitPercC);
-            verificarLimite('input-Q', 'msg-limit-Q', percQ, limitPercQ);
-        }
+            document.getElementById('total-ac').innerText = totalAC.toFixed(2);
+            document.getElementById('total-acq').innerText = totalGeral.toFixed(2);
 
-        function verificarLimite(inputId, msgId, atual, limite) {
-            const input = document.getElementById(inputId);
-            const msg = document.getElementById(msgId);
-            if (atual > limite) {
-                msg.style.display = 'block';
-                input.style.borderColor = '#e74c3c';
-            } else {
-                msg.style.display = 'none';
-                input.style.borderColor = '#333';
-            }
-        }
-
-        function cadastrarUsuario() {
-            const nome = document.getElementById('new-full-name').value;
-            const login = document.getElementById('new-user').value;
-            const senha = document.getElementById('new-pass').value;
-            const turno = document.getElementById('new-shift').value;
-            if (!nome || !login || !senha || !turno) return alert("Preencha tudo!");
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.push({ nomeCompleto: nome, login, senha, turno });
-            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-            atualizarTabela();
-        }
-
-        function atualizarTabela() {
-            const corpo = document.querySelector('#tabela-usuarios tbody');
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            corpo.innerHTML = lista.map((u, i) => `<tr><td>${u.nomeCompleto}</td><td>${u.login}</td><td>${u.turno}</td><td><button onclick="remover(${i})" style="background:#c0392b; color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;">Excluir</button></td></tr>`).join('');
-        }
-
-        function remover(i) {
-            let lista = JSON.parse(localStorage.getItem('contas_qualidade')) || [];
-            lista.splice(i, 1);
-            localStorage.setItem('contas_qualidade', JSON.stringify(lista));
-            atualizarTabela();
+            // Avisos de Limite
+            document.getElementById('msg-limit-C').style.display = (pC > limitC) ? 'block' : 'none';
+            document.getElementById('msg-limit-Q').style.display = (pQ > limitQ) ? 'block' : 'none';
         }
 
         function abrir(id) {
-            ['login-section', 'master-panel', 'user-panel'].forEach(d => document.getElementById(d).style.display = 'none');
+            document.getElementById('login-section').style.display = 'none';
             document.getElementById(id).style.display = 'block';
         }
 
         function logout() {
+            sessionStorage.clear();
             localStorage.removeItem('sessao_qualidade');
-            sessionStorage.removeItem('sessao_qualidade');
             location.reload();
         }
     </script>
