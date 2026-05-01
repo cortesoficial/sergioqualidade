@@ -3,180 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Qualidade - Industrial</title>
+    <title>Painel de Qualidade Industrial</title>
     <script src="config.js"></script>
     <style>
         body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 1050px; }
+        .container { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 95%; max-width: 1100px; }
         
-        h2 { color: #3498db; margin-bottom: 20px; text-align: left; }
-        h3 { color: #ccc; margin-bottom: 15px; font-size: 1rem; text-align: left; }
+        h2 { color: #3498db; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        h3 { color: #ccc; font-size: 0.9rem; margin: 15px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        .grid-painel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; align-items: start; }
+        .card { background: #252525; padding: 25px; border-radius: 10px; border: 1px solid #333; }
         
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; }
+        label { display: block; margin-top: 12px; font-size: 0.85rem; color: #888; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: white; box-sizing: border-box; outline: none; font-size: 1rem; }
         input:focus { border-color: #3498db; }
         
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #3498db; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        button:hover { background: #2980b9; }
+        /* Blocos de Detalhamento */
+        .secao-detalhe { margin-top: 25px; padding-top: 20px; border-top: 2px dashed #333; }
+        .linha-defeito { display: grid; grid-template-columns: 2fr 0.8fr 1fr 40px; gap: 10px; align-items: center; margin-bottom: 10px; background: #1a1a1a; padding: 8px; border-radius: 6px; border: 1px solid #333; }
         
-        .btn-def { background: #34495e; margin-bottom: 10px; font-size: 0.8rem; padding: 8px; width: auto; }
-        .btn-sair { background: #e74c3c; width: auto; padding: 8px 20px; margin-bottom: 20px; float: right; }
+        .btn-add { background: #2c3e50; color: #3498db; border: 1px solid #3498db; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; margin-bottom: 20px; }
+        .btn-add:hover { background: #3498db; color: white; }
+        .btn-del { background: #e74c3c; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 8px; font-weight: bold; }
+
+        /* Barras e Alertas */
+        .barra-fundo { background: #111; height: 8px; border-radius: 4px; margin: 8px 0; overflow: hidden; border: 1px solid #333; }
+        .barra-progresso { height: 100%; width: 0%; transition: 0.4s; }
+        .msg-erro { color: #ff4757; font-size: 0.75rem; font-weight: bold; display: none; margin-bottom: 10px; }
+
+        /* Resultados */
+        .res-item { margin-bottom: 20px; padding: 15px; border-radius: 8px; background: #1f1f1f; border-left: 5px solid #444; }
+        .res-item span { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
+        .res-item b { font-size: 1.4rem; display: block; margin-top: 5px; }
         
-        .grid-painel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; text-align: left; }
-        .card { background: #252525; padding: 20px; border-radius: 8px; border: 1px solid #333; }
-        
-        /* Estilo das Linhas de Defeito */
-        .linha-defeito { display: grid; grid-template-columns: 2fr 0.8fr 1fr 40px; gap: 10px; align-items: center; margin-bottom: 8px; background: #1a1a1a; padding: 5px; border-radius: 4px; border: 1px solid #333; }
-        .label-detalhe { font-size: 0.75rem; color: #f1c40f; text-align: center; font-weight: bold; }
-        .btn-remove { background: #c0392b; padding: 5px; margin: 0; width: 30px; }
+        .total-box { background: #3498db1a; border: 1px solid #3498db; padding: 25px; border-radius: 10px; text-align: center; }
 
-        .info-linha { font-size: 0.85rem; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #444; }
-        .info-linha b { color: #3498db; font-size: 1.1rem; }
-
-        /* Barras de Monitoramento */
-        .barra-bg { background: #333; height: 8px; border-radius: 4px; margin: 5px 0 15px 0; overflow: hidden; }
-        .barra-fill { height: 100%; width: 0%; transition: 0.3s; }
-        .alerta-erro { color: #e74c3c; font-weight: bold; font-size: 0.75rem; display: none; margin-bottom: 10px; }
-
-        @media (max-width: 800px) { .grid-painel { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .grid-painel { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body onload="inicializar()">
+<body onload="init()">
 
     <div class="container">
-        <button onclick="location.reload()" class="btn-sair">Sair</button>
-        <h2>Painel de Produção</h2>
-        
         <div class="grid-painel">
-            <!-- COLUNA DE ENTRADA (O QUE VOCÊ JÁ TINHA) -->
+            
+            <!-- COLUNA ESQUERDA: ENTRADAS LINEARES -->
             <div class="card">
-                <label>Bitola Técnica:</label>
-                <select id="select-bitola" onchange="calcular()"></select>
-
-                <label style="color: #27ae60; margin-top: 15px;">A (Primeira em PEGADAS):</label>
-                <input type="number" id="input-A" placeholder="0" oninput="calcular()">
-
-                <!-- SEÇÃO C -->
-                <div style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
-                    <label style="color: #f1c40f;">C (Classe C em PEGADAS):</label>
-                    <input type="number" id="input-C" placeholder="0" oninput="calcular()">
-                    
-                    <div class="barra-bg"><div id="barra-C" class="barra-fill" style="background: #f1c40f;"></div></div>
-                    <span id="msg-erro-C" class="alerta-erro">⚠️ DETALHAMENTO DE C EXCEDIDO!</span>
-                    
-                    <h3>Detalhamento de C (Peças)</h3>
-                    <div id="lista-C"></div>
-                    <button onclick="adicionarLinha('lista-C')" class="btn-def">+ Adicionar Defeito C</button>
-                </div>
-
-                <!-- SEÇÃO Q (NOVO BLOCO ADICIONADO) -->
-                <div style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
-                    <label style="color: #e74c3c;">Q (Quebra em PEÇAS TOTAL):</label>
-                    <input type="number" id="input-Q" placeholder="0" oninput="calcular()">
-                    
-                    <div class="barra-bg"><div id="barra-Q" class="barra-fill" style="background: #e74c3c;"></div></div>
-                    <span id="msg-erro-Q" class="alerta-erro">⚠️ DETALHAMENTO DE QUEBRA EXCEDIDO!</span>
-                    
-                    <h3>Detalhamento de Quebra (Peças)</h3>
-                    <div id="lista-Q"></div>
-                    <button onclick="adicionarLinha('lista-Q')" class="btn-def">+ Motivo da Quebra</button>
-                </div>
-            </div>
-
-            <!-- COLUNA DE RESULTADOS (O QUE VOCÊ JÁ TINHA) -->
-            <div class="card" style="border-color: #3498db;">
-                <h3 style="color: #3498db;">Relatório de Qualidade</h3>
+                <h2>Entrada de Dados</h2>
                 
-                <div class="info-linha" style="border-left-color: #27ae60;">
-                    <span>Classe A: <b id="perc-A">0.00</b>%</span><br>
-                    <small><span id="m2-A">0.00</span> m²</small>
+                <label>BITOLA TÉCNICA</label>
+                <select id="bitola" onchange="calcular()"></select>
+
+                <label style="color: #27ae60;">A (PRIMEIRA - PEGADAS)</label>
+                <input type="number" id="in-A" placeholder="0" oninput="calcular()">
+
+                <label style="color: #f1c40f;">C (CLASSE C - PEGADAS)</label>
+                <input type="number" id="in-C" placeholder="0" oninput="calcular()">
+
+                <label style="color: #e74c3c;">Q (QUEBRA - PEÇAS)</label>
+                <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+
+                <!-- DETALHAMENTO C -->
+                <div class="secao-detalhe">
+                    <h3 style="color: #f1c40f;">Detalhamento Classe C</h3>
+                    <div class="barra-fundo"><div id="bar-C" class="barra-progresso" style="background: #f1c40f;"></div></div>
+                    <div id="erro-C" class="msg-erro">⚠️ LIMITE DE CLASSE C EXCEDIDO NO DETALHAMENTO</div>
+                    <div id="lista-C"></div>
+                    <button class="btn-add" onclick="addLinha('lista-C')">+ DEFEITO C</button>
                 </div>
 
-                <div class="info-linha" style="border-left-color: #f1c40f;">
-                    <span>Classe C: <b id="perc-C">0.00</b>%</span><br>
-                    <small><span id="m2-C">0.00</span> m²</small>
-                </div>
-
-                <div class="info-linha" style="border-left-color: #e74c3c;">
-                    <span>Quebra Q: <b id="perc-Q">0.00</b>%</span><br>
-                    <small><span id="m2-Q">0.00</span> m²</small>
-                </div>
-
-                <div style="margin-top: 20px; padding: 15px; background: #1a1a1a; border-radius: 6px; text-align: center;">
-                    <small style="color: #888;">PRODUÇÃO TOTAL (A+C)</small><br>
-                    <strong id="total-producao" style="font-size: 1.8rem; color: #3498db;">0.00</strong> <small>m²</small>
+                <!-- DETALHAMENTO Q -->
+                <div class="secao-detalhe">
+                    <h3 style="color: #e74c3c;">Detalhamento Quebra</h3>
+                    <div class="barra-fundo"><div id="bar-Q" class="barra-progresso" style="background: #e74c3c;"></div></div>
+                    <div id="erro-Q" class="msg-erro">⚠️ QUANTIDADE DE PEÇAS EXCEDEU A QUEBRA TOTAL</div>
+                    <div id="lista-Q"></div>
+                    <button class="btn-add" onclick="addLinha('lista-Q')">+ MOTIVO QUEBRA</button>
                 </div>
             </div>
+
+            <!-- COLUNA DIREITA: RESULTADOS -->
+            <div class="card" style="border-color: #3498db; position: sticky; top: 20px;">
+                <h2>Resultado Final</h2>
+                
+                <div class="res-item" style="border-left-color: #27ae60;">
+                    <span>Classe A (Primeira)</span>
+                    <b id="res-per-A" style="color: #27ae60;">0.00%</b>
+                    <small id="res-m2-A">0.00 m²</small>
+                </div>
+
+                <div class="res-item" style="border-left-color: #f1c40f;">
+                    <span>Classe C (Segunda)</span>
+                    <b id="res-per-C" style="color: #f1c40f;">0.00%</b>
+                    <small id="res-m2-C">0.00 m²</small>
+                </div>
+
+                <div class="res-item" style="border-left-color: #e74c3c;">
+                    <span>Índice de Quebra</span>
+                    <b id="res-per-Q" style="color: #e74c3c;">0.00%</b>
+                    <small id="res-m2-Q">0.00 m²</small>
+                </div>
+
+                <div class="total-box">
+                    <span style="color: #888; font-size: 0.8rem;">VOLUME TOTAL PRODUZIDO (A+C)</span>
+                    <b id="res-total" style="font-size: 2.5rem; color: #3498db; margin-top: 10px;">0.00</b>
+                    <span style="color: #3498db;">m²</span>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        function inicializar() {
-            const select = document.getElementById('select-bitola');
-            select.innerHTML = Object.keys(BANCO_BITOLAS).map(k => `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`).join('');
+        function init() {
+            const sel = document.getElementById('bitola');
+            sel.innerHTML = Object.keys(BANCO_BITOLAS).map(k => `<option value="${k}">${BANCO_BITOLAS[k].nome}</option>`).join('');
             calcular();
         }
 
-        function adicionarLinha(containerId) {
-            const container = document.getElementById(containerId);
+        function addLinha(id) {
+            const container = document.getElementById(id);
             const div = document.createElement('div');
             div.className = 'linha-defeito';
             let options = DEFEITOS_LISTA.map(d => `<option value="${d}">${d}</option>`).join('');
             div.innerHTML = `
                 <select onchange="calcular()">${options}</select>
-                <input type="number" class="qtd-val" placeholder="Pçs" oninput="calcular()">
-                <div class="label-detalhe">0%</div>
-                <button onclick="this.parentElement.remove();calcular();" class="btn-remove">X</button>
+                <input type="number" class="val" placeholder="Pçs" oninput="calcular()">
+                <span class="perc" style="font-size:0.8rem; color:#f1c40f; font-weight:bold;">0%</span>
+                <button class="btn-del" onclick="this.parentElement.remove();calcular()">✖</button>
             `;
             container.appendChild(div);
         }
 
         function calcular() {
-            const bitola = BANCO_BITOLAS[document.getElementById('select-bitola').value];
-            
-            const pegA = parseFloat(document.getElementById('input-A').value) || 0;
-            const pegC = parseFloat(document.getElementById('input-C').value) || 0;
-            const pcsQ = parseFloat(document.getElementById('input-Q').value) || 0;
+            const b = BANCO_BITOLAS[document.getElementById('bitola').value];
+            const a = (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada;
+            const c = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
+            const qPcs = parseFloat(document.getElementById('in-Q').value) || 0;
+            const qM2 = qPcs * b.m2Peca;
 
-            const m2A = pegA * bitola.fatorPegada;
-            const m2C = pegC * bitola.fatorPegada;
-            const m2Q = pcsQ * bitola.m2Peca;
+            const prod = a + c;
+            const total = prod + qM2;
 
-            const prodTotal = m2A + m2C;
-            const movTotal = prodTotal + m2Q;
+            // Resultados lado direito
+            document.getElementById('res-per-A').innerText = (prod > 0 ? (a/prod)*100 : 0).toFixed(2) + "%";
+            document.getElementById('res-m2-A').innerText = a.toFixed(2) + " m²";
+            document.getElementById('res-per-C').innerText = (prod > 0 ? (c/prod)*100 : 0).toFixed(2) + "%";
+            document.getElementById('res-m2-C').innerText = c.toFixed(2) + " m²";
+            document.getElementById('res-per-Q').innerText = (total > 0 ? (qM2/total)*100 : 0).toFixed(2) + "%";
+            document.getElementById('res-m2-Q').innerText = qM2.toFixed(2) + " m²";
+            document.getElementById('res-total').innerText = prod.toFixed(2);
 
-            // --- PROCESSAMENTO DETALHAMENTO C ---
-            let m2UsadoC = 0;
-            document.querySelectorAll('#lista-C .linha-defeito').forEach(linha => {
-                const qtd = parseFloat(linha.querySelector('.qtd-val').value) || 0;
-                const m2Def = qtd * bitola.m2Peca;
-                m2UsadoC += m2Def;
-                linha.querySelector('.label-detalhe').innerText = prodTotal > 0 ? ((m2Def/prodTotal)*100).toFixed(2) + "%" : "0%";
+            // Detalhamento C
+            let sumC = 0;
+            document.querySelectorAll('#lista-C .linha-defeito').forEach(l => {
+                let v = parseFloat(l.querySelector('.val').value) || 0;
+                let m2 = v * b.m2Peca;
+                sumC += m2;
+                l.querySelector('.perc').innerText = prod > 0 ? ((m2/prod)*100).toFixed(2) + "%" : "0%";
             });
+            let rC = c > 0 ? (sumC / c) : 0;
+            document.getElementById('bar-C').style.width = Math.min(rC*100, 100) + "%";
+            document.getElementById('bar-C').style.background = rC > 1.01 ? "#ff4757" : "#f1c40f";
+            document.getElementById('erro-C').style.display = rC > 1.01 ? "block" : "none";
 
-            const ratioC = m2C > 0 ? (m2UsadoC / m2C) : 0;
-            document.getElementById('barra-C').style.width = Math.min(ratioC * 100, 100) + "%";
-            document.getElementById('msg-erro-C').style.display = ratioC > 1.001 ? "block" : "none";
-
-            // --- PROCESSAMENTO DETALHAMENTO Q ---
-            let pcsUsadoQ = 0;
-            document.querySelectorAll('#lista-Q .linha-defeito').forEach(linha => {
-                const qtd = parseFloat(linha.querySelector('.qtd-val').value) || 0;
-                pcsUsadoQ += qtd;
-                linha.querySelector('.label-detalhe').innerText = qtd + " pç";
+            // Detalhamento Q
+            let sumQ = 0;
+            document.querySelectorAll('#lista-Q .linha-defeito').forEach(l => {
+                let v = parseFloat(l.querySelector('.val').value) || 0;
+                sumQ += v;
+                l.querySelector('.perc').innerText = v + " pç";
             });
-
-            const ratioQ = pcsQ > 0 ? (pcsUsadoQ / pcsQ) : 0;
-            document.getElementById('barra-Q').style.width = Math.min(ratioQ * 100, 100) + "%";
-            document.getElementById('msg-erro-Q').style.display = ratioQ > 1.001 ? "block" : "none";
-
-            // --- ATUALIZAÇÃO RESULTADOS ---
-            document.getElementById('m2-A').innerText = m2A.toFixed(2);
-            document.getElementById('m2-C').innerText = m2C.toFixed(2);
-            document.getElementById('m2-Q').innerText = m2Q.toFixed(2);
-            document.getElementById('perc-A').innerText = (prodTotal > 0 ? (m2A/prodTotal)*100 : 0).toFixed(2);
-            document.getElementById('perc-C').innerText = (prodTotal > 0 ? (m2C/prodTotal)*100 : 0).toFixed(2);
-            document.getElementById('perc-Q').innerText = (movTotal > 0 ? (m2Q/movTotal)*100 : 0).toFixed(2);
-            document.getElementById('total-producao').innerText = prodTotal.toFixed(2);
+            let rQ = qPcs > 0 ? (sumQ / qPcs) : 0;
+            document.getElementById('bar-Q').style.width = Math.min(rQ*100, 100) + "%";
+            document.getElementById('bar-Q').style.background = rQ > 1.01 ? "#ff4757" : "#e74c3c";
+            document.getElementById('erro-Q').style.display = rQ > 1.01 ? "block" : "none";
         }
     </script>
 </body>
