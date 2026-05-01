@@ -3,232 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Qualidade Industrial</title>
+    <title>Painel de Qualidade - Fechamento</title>
     <style>
-        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 40px; }
+        body { background-color: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
+        .main-column { width: 100%; max-width: 600px; display: none; flex-direction: column; gap: 20px; }
         
-        /* LOGIN OVERLAY */
+        /* LOGIN */
         #login-overlay { position: fixed; inset: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: #1a1a1a; padding: 40px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 320px; }
+        .login-box { background: #1a1a1a; padding: 30px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 300px; }
         
-        /* LAYOUT */
-        .main-column { width: 100%; max-width: 500px; display: none; flex-direction: column; gap: 20px; }
-        .card { background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        /* CARDS */
+        .card { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: #3498db; margin-top: 0; font-size: 1rem; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; }
         
-        h2 { color: #3498db; margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; }
-        h3 { color: #ccc; font-size: 0.85rem; margin: 15px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
-
-        label { display: block; margin-top: 12px; font-size: 0.8rem; color: #888; font-weight: bold; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; outline: none; font-size: 1rem; }
-        input:focus { border-color: #3498db; }
+        label { display: block; margin-top: 12px; font-size: 0.75rem; color: #888; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; font-size: 1rem; }
         
-        /* ADMIN PANEL */
-        #secao-admin { background: #201a2b; border: 1px dashed #8e44ad; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
-        .btn-admin { background: #8e44ad; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-
-        /* TABELA DE RESULTADOS (MODO ADMIN) */
-        #monitor-admin { display: none; }
-        .log-item { background: #111; padding: 10px; border-radius: 6px; margin-bottom: 5px; font-size: 0.8rem; border-left: 3px solid #3498db; }
-
-        /* BOTOES E AUXILIARES */
-        .btn-add { background: transparent; color: #3498db; border: 1px solid #3498db; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; margin-top: 5px; font-size: 0.8rem; }
-        .btn-add:hover { background: #3498db; color: white; }
-        .btn-del { background: #e74c3c; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 5px; height: 30px; }
-        .btn-logout { background: #444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; float: right; font-size: 0.7rem; }
-
-        /* MONITORAMENTO */
-        .barra-fundo { background: #000; height: 6px; border-radius: 3px; margin: 8px 0; overflow: hidden; }
-        .barra-progresso { height: 100%; width: 0%; transition: 0.4s; }
-        .msg-erro { color: #ff4757; font-size: 0.7rem; font-weight: bold; display: none; margin-bottom: 10px; }
-
-        /* CARDS DE RESULTADO */
-        .res-grid { display: grid; gap: 10px; }
-        .res-item { padding: 12px; border-radius: 8px; background: #252525; border-left: 4px solid #444; }
-        .res-item span { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
-        .res-item b { font-size: 1.2rem; display: block; margin-top: 2px; }
+        /* TABELA ESTILO CADERNO */
+        .tabela-caderno { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .tabela-caderno th, .tabela-caderno td { border: 1px solid #333; padding: 10px; text-align: center; }
+        .tabela-caderno th { background: #222; color: #3498db; }
+        .tabela-caderno tr:nth-child(even) { background: #161616; }
         
-        .total-box { background: #3498db1a; border: 1px solid #3498db; padding: 15px; border-radius: 8px; text-align: center; margin-top: 10px; }
-        .total-box b { font-size: 2rem; color: #3498db; }
+        .turno-badge { padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+        .badge-A { background: #2980b9; }
+        .badge-B { background: #8e44ad; }
+        .badge-C { background: #d35400; }
+
+        .btn-salvar { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        .btn-logout { background: #444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; float: right; }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="login-overlay">
         <div class="login-box">
-            <h2 style="border:none; color:#3498db;">Acesso Restrito</h2>
+            <h2 style="border:none; color:#3498db;">Acesso Sistema</h2>
             <input type="text" id="user-login" placeholder="Usuário">
             <input type="password" id="pass-login" placeholder="Senha">
-            <button class="btn-admin" style="background:#27ae60" onclick="autenticar()">Entrar</button>
+            <button class="btn-salvar" onclick="autenticar()">Entrar</button>
         </div>
     </div>
 
     <div class="main-column" id="app-content">
-        
-        <!-- CABEÇALHO -->
-        <div style="margin-bottom: 10px; overflow: hidden;">
+        <div>
             <button class="btn-logout" onclick="location.reload()">Sair</button>
-            <span id="txt-usuario" style="color:#888; font-size: 0.8rem; font-weight: bold;">Usuário: --</span>
+            <p id="txt-usuario" style="font-size:0.8rem; color:#888;">Operador: --</p>
         </div>
 
-        <!-- SEÇÃO ADMIN: ADICIONAR USUÁRIOS -->
-        <div id="secao-admin">
-            <h2 style="color: #9b59b6; border-color: #9b59b6; font-size: 1rem;">Gerenciar Operadores</h2>
-            <input type="text" id="adm-nome" placeholder="Nome do Operador">
-            <select id="adm-turno">
-                <option value="A">Turno A</option>
-                <option value="B">Turno B</option>
-                <option value="C">Turno C</option>
+        <!-- PAINEL DO OPERADOR -->
+        <div id="painel-operador" class="card">
+            <h2>Lançamento de Produção</h2>
+            <label>BITOLA</label>
+            <select id="bitola">
+                <option value="0.5">PADRÃO 0.5</option>
+                <option value="0.44">60x60 (0.44)</option>
+                <option value="0.64">80x80 (0.64)</option>
             </select>
-            <input type="password" id="adm-pass" placeholder="Senha">
-            <button class="btn-admin" onclick="cadastrarUsuario()">Adicionar Usuário</button>
+            <label>1ª QUALIDADE (PEGADAS)</label>
+            <input type="number" id="in-1" placeholder="0">
+            <label>2ª QUALIDADE (PEGADAS)</label>
+            <input type="number" id="in-2" placeholder="0">
+            <label>3ª QUALIDADE (PEGADAS)</label>
+            <input type="number" id="in-3" placeholder="0">
+            <label>QUEBRA (PEÇAS)</label>
+            <input type="number" id="in-Q" placeholder="0">
+            <button class="btn-salvar" onclick="registrarDados()">Salvar no Caderno</button>
         </div>
 
-        <!-- CARD 1: ENTRADA DE DADOS (APARECE PARA OPERADOR) -->
-        <div id="card-entrada" class="card">
-            <h2>Entrada de Dados</h2>
-            
-            <label>BITOLA TÉCNICA</label>
-            <select id="bitola" onchange="calcular()"></select>
+        <!-- PAINEL DO ADMIN (ESTILO CADERNO) -->
+        <div id="painel-admin" class="card" style="display:none; max-width: 100%;">
+            <h2>Caderno de Produção (Geral)</h2>
+            <table class="tabela-caderno" id="tabela-logs">
+                <thead>
+                    <tr>
+                        <th>Turno</th>
+                        <th>1ª Qual.</th>
+                        <th>2ª Qual.</th>
+                        <th>3ª Qual.</th>
+                        <th>Quebra</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Linhas entram aqui -->
+                </tbody>
+            </table>
 
-            <label style="color: #27ae60;">A (PRIMEIRA - PEGADAS)</label>
-            <input type="number" id="in-A" placeholder="0" oninput="calcular()">
-
-            <label style="color: #f1c40f;">C (CLASSE C - PEGADAS)</label>
-            <input type="number" id="in-C" placeholder="0" oninput="calcular()">
-
-            <label style="color: #e74c3c;">Q (QUEBRA - PEÇAS)</label>
-            <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
-
-            <div class="secao-detalhe">
-                <h3 style="color: #f1c40f;">Detalhamento Classe C</h3>
-                <div id="lista-C"></div>
-                <button class="btn-add" onclick="addLinha('lista-C')">+ DEFEITO C</button>
-            </div>
-
-            <div class="secao-detalhe">
-                <h3 style="color: #e74c3c;">Detalhamento Quebra</h3>
-                <div id="lista-Q"></div>
-                <button class="btn-add" onclick="addLinha('lista-Q')">+ MOTIVO QUEBRA</button>
-            </div>
+            <h2 style="margin-top:30px; color:#f1c40f;">Fechamento de Turno</h2>
+            <table class="tabela-caderno">
+                <thead>
+                    <tr>
+                        <th>TURNO</th>
+                        <th>TOTAL M² (1ª+2ª+3ª)</th>
+                        <th>TOTAL QUEBRA</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-fechamento">
+                    <tr><td>A</td><td id="f-A">0.00</td><td id="q-A">0.00</td></tr>
+                    <tr><td>B</td><td id="f-B">0.00</td><td id="q-B">0.00</td></tr>
+                    <tr><td>C</td><td id="f-C">0.00</td><td id="q-C">0.00</td></tr>
+                </tbody>
+            </table>
         </div>
-
-        <!-- CARD 2: RESULTADO FINAL -->
-        <div class="card" style="border-color: #3498db;">
-            <h2>Cálculo em Tempo Real</h2>
-            <div class="res-grid">
-                <div class="res-item" style="border-left-color: #27ae60;">
-                    <span>Classe A</span>
-                    <b id="res-per-A" style="color: #27ae60;">0.00%</b>
-                    <small id="res-m2-A">0.00 m²</small>
-                </div>
-                <div class="res-item" style="border-left-color: #f1c40f;">
-                    <span>Classe C</span>
-                    <b id="res-per-C" style="color: #f1c40f;">0.00%</b>
-                    <small id="res-m2-C">0.00 m²</small>
-                </div>
-                <div class="res-item" style="border-left-color: #e74c3c;">
-                    <span>Índice de Quebra</span>
-                    <b id="res-per-Q" style="color: #e74c3c;">0.00%</b>
-                    <small id="res-m2-Q">0.00 m²</small>
-                </div>
-            </div>
-            <div class="total-box">
-                <span style="color: #888; font-size: 0.7rem;">PRODUÇÃO TOTAL (A+C)</span><br>
-                <b id="res-total">0.00</b> <small style="color: #3498db;">m²</small>
-            </div>
-        </div>
-
     </div>
 
     <script>
-        // BANCO DE USUARIOS NO LOCALSTORAGE
         let usuarios = JSON.parse(localStorage.getItem('usuarios_db')) || [
-            {user: "admin", pass: "admin", turno: "Geral", nivel: "admin"}
+            {user: "admin", pass: "admin", nivel: "admin", turno: "Geral"}
         ];
-
+        
+        // Histórico de produção (o "caderno")
+        let registros = JSON.parse(localStorage.getItem('producao_caderno')) || [];
         let usuarioAtivo = null;
 
         function autenticar() {
-            const u = document.getElementById('user-login').value.trim();
-            const p = document.getElementById('pass-login').value.trim();
-            const encontrou = usuarios.find(user => user.user === u && user.pass === p);
+            const u = document.getElementById('user-login').value;
+            const p = document.getElementById('pass-login').value;
+            usuarioAtivo = usuarios.find(x => x.user === u && x.pass === p);
 
-            if (encontrou) {
-                usuarioAtivo = encontrou;
+            if(usuarioAtivo) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('txt-usuario').innerText = `Operador: ${usuarioAtivo.user} (${usuarioAtivo.turno})`;
+                document.getElementById('txt-usuario').innerText = `Logado: ${usuarioAtivo.user} | Turno: ${usuarioAtivo.turno}`;
                 
-                // Se for admin, mostra painel de usuários e oculta entrada de dados (conforme pedido)
-                if (usuarioAtivo.nivel === 'admin') {
-                    document.getElementById('secao-admin').style.display = 'block';
-                    document.getElementById('card-entrada').style.display = 'none';
+                if(usuarioAtivo.nivel === 'admin') {
+                    document.getElementById('painel-admin').style.display = 'block';
+                    atualizarCaderno();
                 } else {
-                    document.getElementById('secao-admin').style.display = 'none';
-                    document.getElementById('card-entrada').style.display = 'block';
+                    document.getElementById('painel-operador').style.display = 'block';
                 }
-                init();
-            } else {
-                alert("Usuário ou senha incorretos!");
-            }
+            } else { alert("Acesso inválido!"); }
         }
 
-        function cadastrarUsuario() {
-            const nome = document.getElementById('adm-nome').value.trim();
-            const turno = document.getElementById('adm-turno').value;
-            const pass = document.getElementById('adm-pass').value.trim();
+        function registrarDados() {
+            const fator = parseFloat(document.getElementById('bitola').value);
+            const m1 = (parseFloat(document.getElementById('in-1').value) || 0) * fator;
+            const m2 = (parseFloat(document.getElementById('in-2').value) || 0) * fator;
+            const m3 = (parseFloat(document.getElementById('in-3').value) || 0) * fator;
+            const mQ = (parseFloat(document.getElementById('in-Q').value) || 0) * fator;
 
-            if(nome && pass) {
-                usuarios.push({user: nome, pass: pass, turno: turno, nivel: "op"});
-                localStorage.setItem('usuarios_db', JSON.stringify(usuarios));
-                alert(`Usuário ${nome} cadastrado com sucesso!`);
-                document.getElementById('adm-nome').value = "";
-                document.getElementById('adm-pass').value = "";
-            } else {
-                alert("Preencha todos os campos!");
-            }
-        }
+            const novoRegistro = {
+                turno: usuarioAtivo.turno,
+                q1: m1, q2: m2, q3: m3, quebra: mQ,
+                timestamp: new Date().toLocaleTimeString()
+            };
 
-        function init() {
-            const sel = document.getElementById('bitola');
-            const bitolas = typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {"padrao": {nome: "Bitola 0.5", fatorPegada: 0.5, m2Peca: 1}};
-            sel.innerHTML = Object.keys(bitolas).map(k => `<option value="${k}">${bitolas[k].nome}</option>`).join('');
-            calcular();
-        }
-
-        function addLinha(id) {
-            const container = document.getElementById(id);
-            const div = document.createElement('div');
-            div.className = 'linha-defeito';
-            const defeitos = typeof DEFEITOS_LISTA !== 'undefined' ? DEFEITOS_LISTA : ["Defeito 1", "Defeito 2"];
-            let options = defeitos.map(d => `<option value="${d}">${d}</option>`).join('');
-            div.innerHTML = `
-                <select onchange="calcular()">${options}</select>
-                <input type="number" class="val" placeholder="Pçs" oninput="calcular()" style="padding: 5px;">
-                <button class="btn-del" onclick="this.parentElement.remove();calcular()">✖</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function calcular() {
-            const b = (typeof BANCO_BITOLAS !== 'undefined' ? BANCO_BITOLAS : {"padrao": {fatorPegada: 0.5, m2Peca: 1}})[document.getElementById('bitola').value];
+            registros.push(novoRegistro);
+            localStorage.setItem('producao_caderno', JSON.stringify(registros));
+            alert("Registrado com sucesso!");
             
-            const a = (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada;
-            const c = (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada;
-            const qPcs = parseFloat(document.getElementById('in-Q').value) || 0;
-            const qM2 = qPcs * b.m2Peca;
+            // Limpa campos
+            document.querySelectorAll('input[type="number"]').forEach(i => i.value = "");
+        }
 
-            const prod = a + c;
-            const total = prod + qM2;
+        function atualizarCaderno() {
+            const tbody = document.querySelector('#tabela-logs tbody');
+            tbody.innerHTML = "";
+            
+            let totais = { A: 0, B: 0, C: 0, qA: 0, qB: 0, qC: 0 };
 
-            document.getElementById('res-per-A').innerText = (prod > 0 ? (a/prod)*100 : 0).toFixed(2) + "%";
-            document.getElementById('res-m2-A').innerText = a.toFixed(2) + " m²";
-            document.getElementById('res-per-C').innerText = (prod > 0 ? (c/prod)*100 : 0).toFixed(2) + "%";
-            document.getElementById('res-m2-C').innerText = c.toFixed(2) + " m²";
-            document.getElementById('res-per-Q').innerText = (total > 0 ? (qM2/total)*100 : 0).toFixed(2) + "%";
-            document.getElementById('res-m2-Q').innerText = qM2.toFixed(2) + " m²";
-            document.getElementById('res-total').innerText = prod.toFixed(2);
+            registros.forEach(r => {
+                const row = `<tr>
+                    <td><span class="turno-badge badge-${r.turno}">${r.turno}</span></td>
+                    <td>${r.q1.toFixed(2)}</td>
+                    <td>${r.q2.toFixed(2)}</td>
+                    <td>${r.q3.toFixed(2)}</td>
+                    <td>${r.quebra.toFixed(2)}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+
+                // Soma para o fechamento
+                if(totais.hasOwnProperty(r.turno)) {
+                    totais[r.turno] += (r.q1 + r.q2 + r.q3);
+                    totais['q' + r.turno] += r.quebra;
+                }
+            });
+
+            // Atualiza Tabela de Fechamento embaixo
+            document.getElementById('f-A').innerText = totais.A.toFixed(2) + " m²";
+            document.getElementById('q-A').innerText = totais.qA.toFixed(2) + " m²";
+            document.getElementById('f-B').innerText = totais.B.toFixed(2) + " m²";
+            document.getElementById('q-B').innerText = totais.qB.toFixed(2) + " m²";
+            document.getElementById('f-C').innerText = totais.C.toFixed(2) + " m²";
+            document.getElementById('q-C').innerText = totais.qC.toFixed(2) + " m²";
         }
     </script>
 </body>
