@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Qualidade - Master</title>
+    <title>Sistema de Qualidade Industrial</title>
     <script src="config.js"></script>
     <style>
         :root {
@@ -18,35 +18,36 @@
         .login-box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid var(--border); text-align: center; width: 280px; }
         
         .card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; }
-        h2 { font-size: 0.85rem; color: var(--primary); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-top: 0; letter-spacing: 1px; }
+        h2 { font-size: 0.85rem; color: var(--primary); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-top: 0; }
         
         label { display: block; font-size: 0.65rem; color: #888; font-weight: bold; margin-top: 10px; text-transform: uppercase; }
         input, select, button { width: 100%; padding: 12px; margin-top: 5px; border-radius: 6px; border: 1px solid var(--border); background: #1f1f1f; color: #fff; box-sizing: border-box; font-size: 0.9rem; }
         
-        .admin-nav { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .btn-tab { background: #1a1a1a; padding: 10px; font-size: 0.7rem; cursor: pointer; border: 1px solid var(--border); white-space: nowrap; flex: 1; color: #888; }
-        .btn-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        /* Detalhamento */
+        .detalhe-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px dashed #333; }
+        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 8px; }
+        .btn-add { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px; cursor: pointer; width: 100%; border-radius: 6px; margin-top: 5px; font-size: 0.75rem; }
+        
+        .admin-nav { display: flex; gap: 5px; margin-bottom: 15px; }
+        .btn-tab { background: #1a1a1a; padding: 10px; font-size: 0.7rem; cursor: pointer; border: 1px solid var(--border); flex: 1; color: #888; }
+        .btn-tab.active { background: var(--primary); color: white; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
         th, td { border: 1px solid var(--border); padding: 10px; text-align: center; }
-        th { background: #111; color: var(--primary); }
         
         .btn-acao { background: var(--success); font-weight: bold; cursor: pointer; border: none; margin-top: 10px; color: white; }
-        .btn-add-bitola { background: transparent; border: 1px dashed var(--primary); color: var(--primary); margin-bottom: 20px; cursor: pointer; }
         .btn-logout { background: #333; width: auto; float: right; font-size: 0.65rem; padding: 5px 10px; border: none; cursor: pointer; }
-        
-        .bitola-edit-card { border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #1a1a1a; position: relative; }
-        .btn-del { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--danger); cursor: pointer; width: auto; padding: 0; }
         
         .flex-row { display: flex; gap: 10px; }
         .perc-tag { background: #111; padding: 12px; border-radius: 6px; min-width: 55px; text-align: center; font-size: 0.8rem; border: 1px solid var(--border); align-self: flex-end; }
+        .status-msg { font-size: 0.7rem; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box">
-            <h2 style="border:none">SISTEMA QUALIDADE</h2>
+            <h2>SISTEMA QUALIDADE</h2>
             <input type="text" id="user-login" placeholder="Usuário">
             <input type="password" id="pass-login" placeholder="Senha">
             <button class="btn-acao" onclick="autenticar()">ENTRAR</button>
@@ -54,37 +55,48 @@
     </div>
 
     <div class="container" id="app-content">
-        <header style="margin-bottom: 20px;">
+        <header>
             <button class="btn-logout" onclick="location.reload()">SAIR</button>
-            <span id="txt-user" style="font-size: 0.7rem; color: var(--primary); font-weight: bold;"></span>
+            <span id="txt-user" style="font-size: 0.7rem; color: var(--primary);"></span>
         </header>
 
         <div id="view-op" style="display:none;">
             <div class="card">
-                <h2>Lançamento de Produção</h2>
-                <label>Bitola Selecionada</label>
+                <h2>Lançamento Diário</h2>
+                <label>Bitola</label>
                 <select id="bitola" onchange="calcular()"></select>
                 
                 <div class="flex-row">
-                    <div style="flex:1"><label>A (1ª Qualidade - Pegadas)</label><input type="number" id="in-A" oninput="calcular()"></div>
+                    <div style="flex:1"><label>A (1ª - Pegadas)</label><input type="number" id="in-A" oninput="calcular()"></div>
                     <div class="perc-tag" id="tag-A" style="color:var(--success)">0%</div>
                 </div>
                 
                 <div class="flex-row">
-                    <div style="flex:1"><label>C (2ª/3ª - Pegadas)</label><input type="number" id="in-C" oninput="calcular()"></div>
+                    <div style="flex:1"><label>C (Classe C - Pegadas)</label><input type="number" id="in-C" oninput="calcular()"></div>
                     <div class="perc-tag" id="tag-C" style="color:var(--warning)">0%</div>
                 </div>
+                <div class="detalhe-box">
+                    <label>Detalhamento de Defeitos (C)</label>
+                    <div id="lista-C"></div>
+                    <button class="btn-add" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Adicionar Defeito</button>
+                    <div id="msg-valid-C" class="status-msg"></div>
+                </div>
 
-                <div class="flex-row">
-                    <div style="flex:1"><label>Quebra (Peças Soltas)</label><input type="number" id="in-Q" oninput="calcular()"></div>
+                <div class="flex-row" style="margin-top:15px">
+                    <div style="flex:1"><label>Q (Quebra - Peças)</label><input type="number" id="in-Q" oninput="calcular()"></div>
                     <div class="perc-tag" id="tag-Q" style="color:var(--danger)">0%</div>
+                </div>
+                <div class="detalhe-box">
+                    <label>Motivos da Quebra (Q)</label>
+                    <div id="lista-Q"></div>
+                    <button class="btn-add" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Adicionar Motivo</button>
                 </div>
 
                 <div style="text-align:center; padding:20px; background:#000; margin-top:20px; border-radius:8px; border: 1px solid #333">
-                    <small style="color:#666">PRODUÇÃO COMERCIAL TOTAL</small><br>
-                    <b id="res-total" style="font-size:2.2rem; color:var(--primary)">0.00</b> <small>m²</small>
+                    <small style="color:#666">PRODUÇÃO TOTAL (m²)</small><br>
+                    <b id="res-total" style="font-size:2.2rem; color:var(--primary)">0.00</b>
                 </div>
-                <button class="btn-acao" onclick="salvar()">FINALIZAR LANÇAMENTO</button>
+                <button class="btn-acao" id="btn-registrar" onclick="salvar()">REGISTRAR NO CADERNO</button>
             </div>
         </div>
 
@@ -92,35 +104,21 @@
             <div class="admin-nav">
                 <button class="btn-tab active" onclick="switchTab('tab-caderno')">CADERNO</button>
                 <button class="btn-tab" onclick="switchTab('tab-users')">USUÁRIOS</button>
-                <button class="btn-tab" onclick="switchTab('tab-config')">CONFIG. BITOLAS</button>
+                <button class="btn-tab" onclick="switchTab('tab-config')">BITOLAS</button>
             </div>
-
             <div id="tab-caderno" class="admin-content">
                 <div class="card"><input type="date" id="filtro-data" onchange="renderCaderno()"></div>
-                <div class="card" style="overflow-x:auto">
-                    <table>
-                        <thead>
-                            <tr><th>DATA/HORA</th><th>TURNO</th><th>BITOLA</th><th>A (m²)</th><th>C (m²)</th><th>Q (m²)</th><th>TOTAL</th></tr>
-                        </thead>
-                        <tbody id="corpo-caderno"></tbody>
-                    </table>
-                </div>
+                <div class="card" style="overflow-x:auto"><table id="tabela-caderno"><thead><tr><th>DATA/HORA</th><th>TURNO</th><th>BITOLA</th><th>A (m²)</th><th>C (m²)</th><th>Q (m²)</th><th>TOTAL</th></tr></thead><tbody id="corpo-caderno"></tbody></table></div>
             </div>
-
+            
             <div id="tab-users" class="admin-content" style="display:none;">
-                <div class="card">
-                    <h2>Cadastrar Novo Operador</h2>
-                    <input type="text" id="new-user" placeholder="Login do Funcionário">
-                    <input type="password" id="new-pass" placeholder="Senha">
-                    <select id="new-turno"><option>A</option><option>B</option><option>C</option></select>
-                    <button class="btn-acao" onclick="addUsuario()">CADASTRAR</button>
-                </div>
+                <div class="card"><h2>Novo Operador</h2><input type="text" id="new-user" placeholder="Login"><input type="password" id="new-pass" placeholder="Senha"><select id="new-turno"><option>A</option><option>B</option><option>C</option></select><button class="btn-acao" onclick="addUsuario()">CADASTRAR</button></div>
             </div>
 
             <div id="tab-config" class="admin-content" style="display:none;">
-                <button class="btn-add-bitola" onclick="addNovaBitola()">+ ADICIONAR NOVA BITOLA</button>
+                <button class="btn-add" style="border: 1px dashed var(--primary); margin-bottom: 10px;" onclick="addNovaBitola()">+ NOVA BITOLA</button>
                 <div id="editor-bitolas"></div>
-                <button class="btn-acao" style="background:var(--primary)" onclick="salvarConfigBitolas()">SALVAR TODAS AS ALTERAÇÕES</button>
+                <button class="btn-acao" onclick="salvarConfigBitolas()">SALVAR PARÂMETROS</button>
             </div>
         </div>
     </div>
@@ -139,27 +137,38 @@
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
             const db_users = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
-            
             userAtivo = db_users.find(x => x.user === u && x.pass === p);
             if(userAtivo) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('txt-user').innerText = `SESSÃO: ${userAtivo.user.toUpperCase()}`;
-                
+                document.getElementById('txt-user').innerText = `LOGADO: ${userAtivo.user.toUpperCase()}`;
                 if(userAtivo.nivel === 'admin') {
                     document.getElementById('view-admin').style.display = 'block';
-                    renderCaderno();
-                    renderEditorBitolas();
+                    renderCaderno(); renderEditorBitolas();
                 } else {
                     document.getElementById('view-op').style.display = 'block';
                     carregarSelectBitolas();
                 }
-            } else { alert("Acesso Negado."); }
+            } else { alert("Erro de Login"); }
         }
 
         function carregarSelectBitolas() {
             const sel = document.getElementById('bitola');
             sel.innerHTML = Object.keys(BITOLAS_SISTEMA).map(k => `<option value="${k}">${BITOLAS_SISTEMA[k].nome}</option>`).join('');
+            calcular();
+        }
+
+        // --- FUNÇÃO RECUPERADA: ADICIONAR LINHA DE DETALHE ---
+        function addLinha(containerId, listaOpcoes) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'linha-detalhe';
+            div.innerHTML = `
+                <select style="flex:2">${listaOpcoes.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+                <input type="number" class="detalhe-qtd" placeholder="Qtd" style="flex:1" oninput="calcular()">
+                <button onclick="this.parentElement.remove(); calcular()" style="background:none; border:none; color:var(--danger); cursor:pointer;">✕</button>
+            `;
+            container.appendChild(div);
             calcular();
         }
 
@@ -177,6 +186,25 @@
             document.getElementById('tag-C').innerText = (mA+mC > 0 ? (mC/(mA+mC)*100).toFixed(1) : 0) + "%";
             document.getElementById('tag-Q').innerText = (mA+mC+mQ > 0 ? (mQ/(mA+mC+mQ)*100).toFixed(1) : 0) + "%";
             document.getElementById('res-total').innerText = (mA + mC).toFixed(2);
+
+            validarDetalhamento('lista-C', pegC, 'msg-valid-C');
+        }
+
+        function validarDetalhamento(containerId, totalEsperado, msgId) {
+            const inputs = document.querySelectorAll(`#${containerId} .detalhe-qtd`);
+            let soma = 0; inputs.forEach(i => soma += parseFloat(i.value) || 0);
+            const msg = document.getElementById(msgId);
+            const btn = document.getElementById('btn-registrar');
+
+            if (soma !== totalEsperado && totalEsperado > 0) {
+                msg.innerText = `⚠️ Detalhe ${soma} de ${totalEsperado}`;
+                msg.style.color = "var(--warning)";
+                btn.disabled = true; btn.style.opacity = "0.5";
+            } else {
+                msg.innerText = totalEsperado > 0 ? "✅ OK" : "";
+                msg.style.color = "var(--success)";
+                btn.disabled = false; btn.style.opacity = "1";
+            }
         }
 
         function salvar() {
@@ -190,110 +218,73 @@
                 hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}),
                 turno: userAtivo.turno,
                 bitola: b.nome,
-                ma: pegA * b.fatorPegada,
-                mc: pegC * b.fatorPegada,
-                mq: pecQ * b.m2Peca,
+                ma: pegA * b.fatorPegada, mc: pegC * b.fatorPegada, mq: pecQ * b.m2Peca,
                 total: (pegA + pegC) * b.fatorPegada
             };
 
-            let caderno = JSON.parse(localStorage.getItem('producao_caderno')) || [];
-            caderno.push(registro);
-            localStorage.setItem('producao_caderno', JSON.stringify(caderno));
-            alert("Sucesso!"); location.reload();
+            let c = JSON.parse(localStorage.getItem('producao_caderno')) || [];
+            c.push(registro);
+            localStorage.setItem('producao_caderno', JSON.stringify(c));
+            alert("Registrado!"); location.reload();
         }
 
-        // --- ADMIN BITOLAS ---
+        // --- FUNÇÕES ADMIN ---
+        function switchTab(t) {
+            document.querySelectorAll('.admin-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById(t).style.display = 'block';
+            event.currentTarget.classList.add('active');
+        }
+
+        function renderCaderno() {
+            const d = JSON.parse(localStorage.getItem('producao_caderno')) || [];
+            const f = document.getElementById('filtro-data').value;
+            let df = f ? new Date(f).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : null;
+            document.getElementById('corpo-caderno').innerHTML = d.filter(x => !df || x.data === df).reverse().map(x => `
+                <tr><td>${x.data}<br>${x.hora}</td><td>${x.turno}</td><td>${x.bitola}</td><td>${x.ma.toFixed(2)}</td><td>${x.mc.toFixed(2)}</td><td>${x.mq.toFixed(2)}</td><td><b>${x.total.toFixed(2)}</b></td></tr>
+            `).join('');
+        }
+
         function renderEditorBitolas() {
-            const container = document.getElementById('editor-bitolas');
-            container.innerHTML = Object.keys(BITOLAS_SISTEMA).map(k => `
-                <div class="bitola-edit-card" data-key="${k}">
-                    <button class="btn-del" onclick="removerBitola('${k}')">REMOVER</button>
-                    <label>Nome Comercial</label>
-                    <input type="text" class="edit-nome" value="${BITOLAS_SISTEMA[k].nome}">
+            document.getElementById('editor-bitolas').innerHTML = Object.keys(BITOLAS_SISTEMA).map(k => `
+                <div class="card" style="position:relative">
+                    <button onclick="removerBitola('${k}')" style="position:absolute; right:10px; color:var(--danger); width:auto; border:none; background:none; cursor:pointer;">EXCLUIR</button>
+                    <label>Bitola</label><input type="text" class="edit-nome" value="${BITOLAS_SISTEMA[k].nome}">
                     <div class="flex-row">
-                        <div style="flex:1">
-                            <label>Peças por Pegada</label>
-                            <input type="number" class="edit-peças-peg" value="${BITOLAS_SISTEMA[k].pecasPorPegada || 0}">
-                        </div>
-                        <div style="flex:1">
-                            <label>m² da Pegada</label>
-                            <input type="number" step="0.0001" class="edit-fator" value="${BITOLAS_SISTEMA[k].fatorPegada}">
-                        </div>
-                        <div style="flex:1">
-                            <label>m² Unitário (Peça)</label>
-                            <input type="number" step="0.0001" class="edit-peca" value="${BITOLAS_SISTEMA[k].m2Peca}">
-                        </div>
+                        <div style="flex:1"><label>m² Pegada</label><input type="number" step="0.0001" class="edit-fator" value="${BITOLAS_SISTEMA[k].fatorPegada}"></div>
+                        <div style="flex:1"><label>m² Peça</label><input type="number" step="0.0001" class="edit-peca" value="${BITOLAS_SISTEMA[k].m2Peca}"></div>
                     </div>
                 </div>
             `).join('');
         }
 
+        function salvarConfigBitolas() {
+            const cards = document.querySelectorAll('#editor-bitolas .card');
+            const novo = {};
+            cards.forEach((c, i) => {
+                const key = "bit_" + i;
+                novo[key] = {
+                    nome: c.querySelector('.edit-nome').value,
+                    fatorPegada: parseFloat(c.querySelector('.edit-fator').value),
+                    m2Peca: parseFloat(c.querySelector('.edit-peca').value)
+                };
+            });
+            localStorage.setItem('bitolas_config', JSON.stringify(novo));
+            alert("Salvo!");
+        }
+
         function addNovaBitola() {
-            const id = "bit_" + Date.now();
-            BITOLAS_SISTEMA[id] = { nome: "Nova Bitola", fatorPegada: 0, m2Peca: 0, pecasPorPegada: 0 };
+            const k = "bit_" + Date.now();
+            BITOLAS_SISTEMA[k] = {nome: "Nova", fatorPegada: 0, m2Peca: 0};
             renderEditorBitolas();
         }
 
-        function removerBitola(key) {
-            if(confirm("Excluir esta bitola?")) {
-                delete BITOLAS_SISTEMA[key];
-                renderEditorBitolas();
-            }
-        }
-
-        function salvarConfigBitolas() {
-            const cards = document.querySelectorAll('.bitola-edit-card');
-            const novoObjeto = {};
-            cards.forEach(card => {
-                const key = card.dataset.key;
-                novoObjeto[key] = {
-                    nome: card.querySelector('.edit-nome').value,
-                    pecasPorPegada: parseInt(card.querySelector('.edit-peças-peg').value),
-                    fatorPegada: parseFloat(card.querySelector('.edit-fator').value),
-                    m2Peca: parseFloat(card.querySelector('.edit-peca').value)
-                };
-            });
-            BITOLAS_SISTEMA = novoObjeto;
-            localStorage.setItem('bitolas_config', JSON.stringify(BITOLAS_SISTEMA));
-            alert("Parâmetros Atualizados!");
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.admin-content').forEach(c => c.style.display = 'none');
-            document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).style.display = 'block';
-            event.currentTarget.classList.add('active');
-        }
-
-        function renderCaderno() {
-            const dados = JSON.parse(localStorage.getItem('producao_caderno')) || [];
-            const filtro = document.getElementById('filtro-data').value;
-            const corpo = document.getElementById('corpo-caderno');
-            let dataFiltro = filtro ? new Date(filtro).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : null;
-
-            corpo.innerHTML = dados.filter(d => !dataFiltro || d.data === dataFiltro)
-                .reverse().map(d => `
-                <tr>
-                    <td>${d.data}<br>${d.hora}</td>
-                    <td>${d.turno}</td>
-                    <td>${d.bitola}</td>
-                    <td style="color:var(--success)">${d.ma.toFixed(2)}</td>
-                    <td style="color:var(--warning)">${d.mc.toFixed(2)}</td>
-                    <td style="color:var(--danger)">${d.mq.toFixed(2)}</td>
-                    <td><b>${d.total.toFixed(2)}</b></td>
-                </tr>
-            `).join('');
-        }
-
         function addUsuario() {
-            const u = document.getElementById('new-user').value;
-            const p = document.getElementById('new-pass').value;
-            const t = document.getElementById('new-turno').value;
-            if(!u || !p) return alert("Preencha os campos!");
+            const u = document.getElementById('new-user').value, p = document.getElementById('new-pass').value, t = document.getElementById('new-turno').value;
             let db = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
-            db.push({user: u, pass: p, nivel: 'op', turno: t});
+            db.push({user:u, pass:p, nivel:'op', turno:t});
             localStorage.setItem('usuarios_db', JSON.stringify(db));
-            alert("Operador cadastrado!");
+            alert("Ok!");
         }
     </script>
 </body>
