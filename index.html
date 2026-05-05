@@ -17,7 +17,6 @@
         #login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .login-box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid var(--border); text-align: center; width: 280px; }
         
-        /* Layout Split para Operador */
         .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
         @media (max-width: 850px) { .main-layout { grid-template-columns: 1fr; } }
 
@@ -27,15 +26,12 @@
         label { display: block; font-size: 0.65rem; color: #888; font-weight: bold; margin-top: 10px; text-transform: uppercase; }
         input, select, button { width: 100%; padding: 12px; margin-top: 5px; border-radius: 6px; border: 1px solid var(--border); background: #1f1f1f; color: #fff; box-sizing: border-box; font-size: 0.9rem; }
         
-        /* Detalhamento */
         .detalhe-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px dashed #333; }
-        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 5px; }
+        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; }
         
-        /* Painel Lateral de Resumo */
         .resumo-panel { position: sticky; top: 10px; background: #000; border: 2px solid var(--primary); padding: 15px; border-radius: 10px; height: fit-content; }
         .resumo-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
         .resumo-item b { color: var(--primary); }
-        .resumo-sub { font-size: 0.7rem; color: #666; padding-left: 10px; }
 
         .admin-nav { display: flex; gap: 5px; margin-bottom: 15px; }
         .btn-tab { background: #1a1a1a; padding: 10px; font-size: 0.7rem; cursor: pointer; border: 1px solid var(--border); flex: 1; color: #888; }
@@ -46,9 +42,10 @@
         
         .btn-acao { background: var(--success); font-weight: bold; cursor: pointer; border: none; margin-top: 10px; color: white; }
         .btn-logout { background: #333; width: auto; float: right; font-size: 0.65rem; padding: 5px 10px; border: none; cursor: pointer; }
+        .info-detalhe-real { font-size: 0.65rem; color: #666; margin-left: 5px; }
     </style>
 </head>
-<body>
+<body onload="verificarSessao()">
 
     <div id="login-overlay">
         <div class="login-box">
@@ -61,14 +58,12 @@
 
     <div class="container" id="app-content">
         <header style="overflow: hidden; margin-bottom: 10px;">
-            <button class="btn-logout" onclick="location.reload()">SAIR</button>
+            <button class="btn-logout" onclick="logout()">SAIR</button>
             <span id="txt-user" style="font-size: 0.7rem; color: var(--primary); line-height: 25px;"></span>
         </header>
 
-        <!-- VISÃO OPERADOR -->
         <div id="view-op" style="display:none;">
             <div class="main-layout">
-                <!-- Coluna Esquerda: Inputs -->
                 <div class="form-lado">
                     <div class="card">
                         <h2>Dados da Produção</h2>
@@ -82,66 +77,52 @@
                         <input type="number" id="in-C" placeholder="0" oninput="calcular()">
                         <div class="detalhe-box">
                             <div id="lista-C"></div>
-                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Add Peças Defeituosas</button>
+                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Add Peças Classe C</button>
                         </div>
 
                         <label>Quebra (Total Peças Soltas)</label>
                         <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
                         <div class="detalhe-box">
                             <div id="lista-Q"></div>
-                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Add Motivo Quebra</button>
+                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Add Peças Quebradas</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Coluna Direita: Resultados em Tempo Real -->
                 <div class="resumo-panel">
-                    <h2>Resumo do Material</h2>
+                    <h2>Resumo (m² e %)</h2>
                     <div id="painel-resultados">
-                        <div class="resumo-item"><span>1ª Qualidade (A):</span><b id="res-A">0.00 m²</b></div>
+                        <div class="resumo-item"><span>1ª Qualidade:</span><b id="res-A">0.00 m²</b></div>
                         <div class="resumo-item"><span>Classe C:</span><b id="res-C">0.00 m²</b></div>
                         <div class="resumo-item"><span>Quebra:</span><b id="res-Q">0.00 m²</b></div>
                         <div class="resumo-item" style="border-top: 2px solid #333; margin-top:10px;">
-                            <span>TOTAL PRODUZIDO:</span><b id="res-total" style="font-size: 1.2rem;">0.00 m²</b>
+                            <span>TOTAL:</span><b id="res-total" style="font-size: 1.2rem;">0.00 m²</b>
                         </div>
-                        
-                        <h2 style="margin-top:20px; font-size:0.7rem">Indicadores (%)</h2>
-                        <div class="resumo-item"><span>Aproveitamento:</span><b id="perc-A">0%</b></div>
-                        <div class="resumo-item"><span>Índice de C:</span><b id="perc-C">0%</b></div>
+                        <div class="resumo-item"><span>Índice C:</span><b id="perc-C">0%</b></div>
                         <div class="resumo-item"><span>Índice Quebra:</span><b id="perc-Q">0%</b></div>
                     </div>
-                    
                     <div id="msg-erro" style="color:var(--warning); font-size:0.7rem; margin-top:10px; font-weight:bold;"></div>
                     <button class="btn-acao" id="btn-registrar" onclick="salvar()">REGISTRAR QUALIDADE</button>
                 </div>
             </div>
         </div>
 
-        <!-- VISÃO ADMIN -->
         <div id="view-admin" style="display:none;">
             <div class="admin-nav">
                 <button class="btn-tab active" onclick="switchTab('tab-caderno')">CADERNO</button>
                 <button class="btn-tab" onclick="switchTab('tab-users')">USUÁRIOS</button>
-                <button class="btn-tab" onclick="switchTab('tab-config')">BITOLAS</button>
             </div>
-
             <div id="tab-caderno" class="admin-content">
-                <div class="card" style="overflow-x:auto"><table id="tabela-caderno"><thead><tr><th>DATA</th><th>TURNO</th><th>BITOLA</th><th>A</th><th>C</th><th>Q</th><th>TOTAL</th></tr></thead><tbody id="corpo-caderno"></tbody></table></div>
+                <div class="card"><table id="tabela-caderno"><thead><tr><th>DATA</th><th>TURNO</th><th>BITOLA</th><th>A</th><th>C</th><th>Q</th><th>TOTAL</th></tr></thead><tbody id="corpo-caderno"></tbody></table></div>
             </div>
-
             <div id="tab-users" class="admin-content" style="display:none;">
                 <div class="card">
-                    <h2>Cadastrar Novo Usuário</h2>
-                    <input type="text" id="new-user" placeholder="Nome de Usuário">
+                    <h2>Novo Usuário</h2>
+                    <input type="text" id="new-user" placeholder="Login">
                     <input type="password" id="new-pass" placeholder="Senha">
                     <select id="new-turno"><option>A</option><option>B</option><option>C</option></select>
-                    <button class="btn-acao" onclick="addUsuario()">SALVAR USUÁRIO</button>
+                    <button class="btn-acao" onclick="addUsuario()">SALVAR</button>
                 </div>
-            </div>
-
-            <div id="tab-config" class="admin-content" style="display:none;">
-                <div id="editor-bitolas"></div>
-                <button class="btn-acao" onclick="salvarConfigBitolas()">SALVAR BITOLAS</button>
             </div>
         </div>
     </div>
@@ -150,13 +131,15 @@
         let userAtivo = null;
         let BITOLAS_SISTEMA = {};
 
-        function initBitolas() {
-            const salvas = localStorage.getItem('bitolas_config');
-            BITOLAS_SISTEMA = salvas ? JSON.parse(salvas) : BANCO_BITOLAS;
+        function verificarSessao() {
+            const sessao = sessionStorage.getItem('usuario_logado');
+            if (sessao) {
+                userAtivo = JSON.parse(sessao);
+                iniciarApp();
+            }
         }
 
         function autenticar() {
-            initBitolas();
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
             const db_users = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
@@ -164,18 +147,34 @@
             userAtivo = db_users.find(x => x.user === u && x.pass === p);
             
             if(userAtivo) {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('txt-user').innerText = `OPERADOR: ${userAtivo.user.toUpperCase()} | TURNO: ${userAtivo.turno}`;
-                
-                if(userAtivo.nivel === 'admin') {
-                    document.getElementById('view-admin').style.display = 'block';
-                    renderCaderno(); renderEditorBitolas();
-                } else {
-                    document.getElementById('view-op').style.display = 'block';
-                    carregarSelectBitolas();
-                }
-            } else { alert("Usuário ou senha incorretos!"); }
+                sessionStorage.setItem('usuario_logado', JSON.stringify(userAtivo));
+                iniciarApp();
+            } else { alert("Acesso negado"); }
+        }
+
+        function iniciarApp() {
+            initBitolas();
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('app-content').style.display = 'flex';
+            document.getElementById('txt-user').innerText = `OPERADOR: ${userAtivo.user.toUpperCase()} | TURNO: ${userAtivo.turno}`;
+            
+            if(userAtivo.nivel === 'admin') {
+                document.getElementById('view-admin').style.display = 'block';
+                renderCaderno();
+            } else {
+                document.getElementById('view-op').style.display = 'block';
+                carregarSelectBitolas();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('usuario_logado');
+            location.reload();
+        }
+
+        function initBitolas() {
+            const salvas = localStorage.getItem('bitolas_config');
+            BITOLAS_SISTEMA = salvas ? JSON.parse(salvas) : BANCO_BITOLAS;
         }
 
         function carregarSelectBitolas() {
@@ -194,6 +193,7 @@
                 <button onclick="this.parentElement.remove(); calcular()" style="width:30px; background:none; border:none; color:var(--danger);">✕</button>
             `;
             container.appendChild(div);
+            calcular();
         }
 
         function calcular() {
@@ -206,20 +206,15 @@
             const mC = pegC * b.fatorPegada;
             const mQ = pecQ * b.m2Peca;
             const mTotal = mA + mC;
-            const mRealComQuebra = mA + mC + mQ;
 
-            // Atualiza Lado Direito
             document.getElementById('res-A').innerText = `${mA.toFixed(2)} m²`;
             document.getElementById('res-C').innerText = `${mC.toFixed(2)} m²`;
             document.getElementById('res-Q').innerText = `${mQ.toFixed(2)} m²`;
             document.getElementById('res-total').innerText = `${mTotal.toFixed(2)} m²`;
 
-            // Percentuais
-            document.getElementById('perc-A').innerText = mTotal > 0 ? ((mA/mTotal)*100).toFixed(1) + "%" : "0%";
             document.getElementById('perc-C').innerText = mTotal > 0 ? ((mC/mTotal)*100).toFixed(1) + "%" : "0%";
-            document.getElementById('perc-Q').innerText = mRealComQuebra > 0 ? ((mQ/mRealComQuebra)*100).toFixed(1) + "%" : "0%";
+            document.getElementById('perc-Q').innerText = (mA+mC+mQ) > 0 ? ((mQ/(mA+mC+mQ))*100).toFixed(1) + "%" : "0%";
 
-            // Validação de Detalhamento
             validarTrava(pegC, b, pecQ);
         }
 
@@ -228,15 +223,15 @@
             document.querySelectorAll('#lista-C .detalhe-pcs').forEach(i => somaC += parseFloat(i.value) || 0);
             document.querySelectorAll('#lista-Q .detalhe-pcs').forEach(i => somaQ += parseFloat(i.value) || 0);
             
-            const pcsEsperadasC = pegC * (b.pcsCaixa * b.cxPegada);
+            const pcsEsperadasC = Math.round(pegC * (b.pcsCaixa * b.cxPegada));
             const msg = document.getElementById('msg-erro');
             const btn = document.getElementById('btn-registrar');
 
             if(pcsEsperadasC > 0 && somaC !== pcsEsperadasC) {
-                msg.innerText = `⚠️ Detalhe ${pcsEsperadasC - somaC} peças na Classe C`;
+                msg.innerText = `⚠️ Falta detalhar ${pcsEsperadasC - somaC} peças em C`;
                 btn.disabled = true; btn.style.opacity = 0.5;
             } else if (pecQ > 0 && somaQ !== pecQ) {
-                msg.innerText = `⚠️ Detalhe ${pecQ - somaQ} peças na Quebra`;
+                msg.innerText = `⚠️ Falta detalhar ${pecQ - somaQ} peças na Quebra`;
                 btn.disabled = true; btn.style.opacity = 0.5;
             } else {
                 msg.innerText = "";
@@ -246,77 +241,36 @@
 
         function salvar() {
             const b = BITOLAS_SISTEMA[document.getElementById('bitola').value];
-            const pegA = parseFloat(document.getElementById('in-A').value) || 0;
-            const pegC = parseFloat(document.getElementById('in-C').value) || 0;
-            const pecQ = parseFloat(document.getElementById('in-Q').value) || 0;
-
             const registro = {
                 data: new Date().toLocaleDateString('pt-BR'),
                 turno: userAtivo.turno,
                 bitola: b.nome,
-                ma: pegA * b.fatorPegada,
-                mc: pegC * b.fatorPegada,
-                mq: pecQ * b.m2Peca,
-                total: (pegA + pegC) * b.fatorPegada
+                ma: (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada,
+                mc: (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada,
+                mq: (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca,
+                total: ( (parseFloat(document.getElementById('in-A').value) || 0) + (parseFloat(document.getElementById('in-C').value) || 0) ) * b.fatorPegada
             };
 
             let logs = JSON.parse(localStorage.getItem('producao_caderno')) || [];
             logs.push(registro);
             localStorage.setItem('producao_caderno', JSON.stringify(logs));
             
-            alert("Lançamento Registrado!");
-            
-            // Limpa campos sem deslogar
-            document.getElementById('in-A').value = "";
-            document.getElementById('in-C').value = "";
-            document.getElementById('in-Q').value = "";
-            document.getElementById('lista-C').innerHTML = "";
-            document.getElementById('lista-Q').innerHTML = "";
+            alert("Registrado!");
+            document.getElementById('in-A').value = ""; document.getElementById('in-C').value = ""; document.getElementById('in-Q').value = "";
+            document.getElementById('lista-C').innerHTML = ""; document.getElementById('lista-Q').innerHTML = "";
             calcular();
         }
 
-        // --- FUNÇÕES ADMIN ---
         function addUsuario() {
             const u = document.getElementById('new-user').value;
             const p = document.getElementById('new-pass').value;
             const t = document.getElementById('new-turno').value;
-            
-            if(!u || !p) return alert("Preencha todos os campos");
-
+            if(!u || !p) return alert("Preencha tudo");
             let db = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
-            db.push({user: u, pass: p, nivel: 'op', turno: t});
+            db.push({user:u, pass:p, nivel:'op', turno:t});
             localStorage.setItem('usuarios_db', JSON.stringify(db));
-            
-            alert("Usuário " + u + " cadastrado com sucesso!");
-            document.getElementById('new-user').value = "";
-            document.getElementById('new-pass').value = "";
-        }
-
-        function renderEditorBitolas() {
-            document.getElementById('editor-bitolas').innerHTML = Object.keys(BITOLAS_SISTEMA).map(k => `
-                <div class="card" data-key="${k}">
-                    <label>Nome</label><input type="text" class="edit-nome" value="${BITOLAS_SISTEMA[k].nome}">
-                    <label>m²/Cx</label><input type="number" class="edit-m2-cx" value="${BITOLAS_SISTEMA[k].m2Caixa}">
-                    <label>Pçs/Cx</label><input type="number" class="edit-pcs-cx" value="${BITOLAS_SISTEMA[k].pcsCaixa}">
-                    <label>Cx/Pegada</label><input type="number" class="edit-cx-peg" value="${BITOLAS_SISTEMA[k].cxPegada}">
-                </div>`).join('');
-        }
-
-        function salvarConfigBitolas() {
-            const novo = {};
-            document.querySelectorAll('#editor-bitolas .card').forEach(c => {
-                const k = c.dataset.key;
-                const m2cx = parseFloat(c.querySelector('.edit-m2-cx').value);
-                const pcs = parseFloat(c.querySelector('.edit-pcs-cx').value);
-                const cxp = parseFloat(c.querySelector('.edit-cx-peg').value);
-                novo[k] = {
-                    nome: c.querySelector('.edit-nome').value,
-                    m2Caixa: m2cx, pcsCaixa: pcs, cxPegada: cxp,
-                    m2Peca: m2cx / pcs, fatorPegada: m2cx * cxp
-                };
-            });
-            localStorage.setItem('bitolas_config', JSON.stringify(novo));
-            alert("Bitolas Salvas!");
+            alert("Usuário Criado!");
+            document.getElementById('new-user').value = ""; document.getElementById('new-pass').value = "";
         }
 
         function switchTab(t) {
