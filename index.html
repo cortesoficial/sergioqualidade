@@ -12,13 +12,13 @@
             --text: #eee; --border: #282828;
         }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
-        .container { width: 100%; max-width: 1100px; margin: auto; display: none; flex-direction: column; gap: 15px; }
+        .container { width: 100%; max-width: 1150px; margin: auto; display: none; flex-direction: column; gap: 15px; }
         
         #login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .login-box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid var(--border); text-align: center; width: 280px; }
         
-        .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
-        @media (max-width: 850px) { .main-layout { grid-template-columns: 1fr; } }
+        .main-layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+        @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
 
         .card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; }
         h2 { font-size: 0.85rem; color: var(--primary); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-top: 0; }
@@ -27,29 +27,30 @@
         input, select, button { width: 100%; padding: 12px; margin-top: 5px; border-radius: 6px; border: 1px solid var(--border); background: #1f1f1f; color: #fff; box-sizing: border-box; font-size: 0.9rem; }
         
         .detalhe-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px dashed #333; }
-        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; }
+        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; background: #1a1a1a; padding: 5px; border-radius: 4px; }
         
+        /* Estilo para os números na lateral de cada defeito */
+        .badge-calc { font-size: 0.65rem; background: #000; padding: 4px 8px; border-radius: 4px; color: var(--primary); border: 1px solid #333; white-space: nowrap; min-width: 80px; text-align: center; }
+
         .resumo-panel { position: sticky; top: 10px; background: #000; border: 2px solid var(--primary); padding: 15px; border-radius: 10px; height: fit-content; }
         .resumo-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
         .resumo-item b { color: var(--primary); }
 
+        .btn-acao { background: var(--success); font-weight: bold; cursor: pointer; border: none; margin-top: 10px; color: white; }
+        .btn-logout { background: #333; width: auto; float: right; font-size: 0.65rem; padding: 5px 10px; border: none; cursor: pointer; }
+        
         .admin-nav { display: flex; gap: 5px; margin-bottom: 15px; }
         .btn-tab { background: #1a1a1a; padding: 10px; font-size: 0.7rem; cursor: pointer; border: 1px solid var(--border); flex: 1; color: #888; }
         .btn-tab.active { background: var(--primary); color: white; }
-
         table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
         th, td { border: 1px solid var(--border); padding: 10px; text-align: center; }
-        
-        .btn-acao { background: var(--success); font-weight: bold; cursor: pointer; border: none; margin-top: 10px; color: white; }
-        .btn-logout { background: #333; width: auto; float: right; font-size: 0.65rem; padding: 5px 10px; border: none; cursor: pointer; }
-        .info-detalhe-real { font-size: 0.65rem; color: #666; margin-left: 5px; }
     </style>
 </head>
 <body onload="verificarSessao()">
 
     <div id="login-overlay">
         <div class="login-box">
-            <h2>QUALIDADE INDUSTRIAL</h2>
+            <h2>SISTEMA QUALIDADE</h2>
             <input type="text" id="user-login" placeholder="Usuário">
             <input type="password" id="pass-login" placeholder="Senha">
             <button class="btn-acao" onclick="autenticar()">ENTRAR</button>
@@ -66,42 +67,42 @@
             <div class="main-layout">
                 <div class="form-lado">
                     <div class="card">
-                        <h2>Dados da Produção</h2>
-                        <label>Bitola Selecionada</label>
+                        <h2>Lançamento</h2>
+                        <label>Bitola</label>
                         <select id="bitola" onchange="calcular()"></select>
                         
-                        <label>A (1ª Qualidade - Pegadas)</label>
+                        <label>A (1ª - Pegadas)</label>
                         <input type="number" id="in-A" placeholder="0" oninput="calcular()">
                         
                         <label>C (Classe C - Pegadas)</label>
                         <input type="number" id="in-C" placeholder="0" oninput="calcular()">
                         <div class="detalhe-box">
                             <div id="lista-C"></div>
-                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Add Peças Classe C</button>
+                            <button style="font-size:0.7rem; padding:5px; background:#222;" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Add Defeito Classe C</button>
                         </div>
 
-                        <label>Quebra (Total Peças Soltas)</label>
+                        <label>Quebra (Total Peças)</label>
                         <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
                         <div class="detalhe-box">
                             <div id="lista-Q"></div>
-                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Add Peças Quebradas</button>
+                            <button style="font-size:0.7rem; padding:5px; background:#222;" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Add Motivo Quebra</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="resumo-panel">
-                    <h2>Resumo (m² e %)</h2>
+                    <h2>Detalhamento do Material</h2>
                     <div id="painel-resultados">
-                        <div class="resumo-item"><span>1ª Qualidade:</span><b id="res-A">0.00 m²</b></div>
+                        <div class="resumo-item"><span>1ª Qualidade (A):</span><b id="res-A">0.00 m²</b></div>
                         <div class="resumo-item"><span>Classe C:</span><b id="res-C">0.00 m²</b></div>
                         <div class="resumo-item"><span>Quebra:</span><b id="res-Q">0.00 m²</b></div>
-                        <div class="resumo-item" style="border-top: 2px solid #333; margin-top:10px;">
-                            <span>TOTAL:</span><b id="res-total" style="font-size: 1.2rem;">0.00 m²</b>
+                        <div class="resumo-item" style="border-top: 2px solid #333; margin-top:10px; padding-top:15px">
+                            <span>TOTAL PRODUZIDO:</span><b id="res-total" style="font-size: 1.1rem;">0.00 m²</b>
                         </div>
-                        <div class="resumo-item"><span>Índice C:</span><b id="perc-C">0%</b></div>
-                        <div class="resumo-item"><span>Índice Quebra:</span><b id="perc-Q">0%</b></div>
+                        <div class="resumo-item"><span>% de Classe C:</span><b id="perc-C">0%</b></div>
+                        <div class="resumo-item"><span>% de Quebra:</span><b id="perc-Q">0%</b></div>
                     </div>
-                    <div id="msg-erro" style="color:var(--warning); font-size:0.7rem; margin-top:10px; font-weight:bold;"></div>
+                    <div id="msg-erro" style="color:var(--warning); font-size:0.7rem; margin-top:15px; font-weight:bold; line-height:1.4"></div>
                     <button class="btn-acao" id="btn-registrar" onclick="salvar()">REGISTRAR QUALIDADE</button>
                 </div>
             </div>
@@ -121,7 +122,7 @@
                     <input type="text" id="new-user" placeholder="Login">
                     <input type="password" id="new-pass" placeholder="Senha">
                     <select id="new-turno"><option>A</option><option>B</option><option>C</option></select>
-                    <button class="btn-acao" onclick="addUsuario()">SALVAR</button>
+                    <button class="btn-acao" onclick="addUsuario()">SALVAR USUÁRIO</button>
                 </div>
             </div>
         </div>
@@ -143,9 +144,7 @@
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
             const db_users = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
-            
             userAtivo = db_users.find(x => x.user === u && x.pass === p);
-            
             if(userAtivo) {
                 sessionStorage.setItem('usuario_logado', JSON.stringify(userAtivo));
                 iniciarApp();
@@ -156,8 +155,7 @@
             initBitolas();
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('app-content').style.display = 'flex';
-            document.getElementById('txt-user').innerText = `OPERADOR: ${userAtivo.user.toUpperCase()} | TURNO: ${userAtivo.turno}`;
-            
+            document.getElementById('txt-user').innerText = `${userAtivo.user.toUpperCase()} - TURNO ${userAtivo.turno}`;
             if(userAtivo.nivel === 'admin') {
                 document.getElementById('view-admin').style.display = 'block';
                 renderCaderno();
@@ -167,10 +165,7 @@
             }
         }
 
-        function logout() {
-            sessionStorage.removeItem('usuario_logado');
-            location.reload();
-        }
+        function logout() { sessionStorage.removeItem('usuario_logado'); location.reload(); }
 
         function initBitolas() {
             const salvas = localStorage.getItem('bitolas_config');
@@ -183,14 +178,18 @@
             calcular();
         }
 
-        function addLinha(id, lista) {
-            const container = document.getElementById(id);
+        // FUNÇÃO CORRIGIDA PARA ADICIONAR LINHAS
+        function addLinha(containerId, listaOpcoes) {
+            const container = document.getElementById(containerId);
             const div = document.createElement('div');
             div.className = 'linha-detalhe';
             div.innerHTML = `
-                <select style="flex:1; padding:5px; font-size:0.7rem;">${lista.map(o => `<option>${o}</option>`).join('')}</select>
-                <input type="number" class="detalhe-pcs" placeholder="Pçs" style="width:70px; padding:5px;" oninput="calcular()">
-                <button onclick="this.parentElement.remove(); calcular()" style="width:30px; background:none; border:none; color:var(--danger);">✕</button>
+                <select style="flex:1; padding:5px; font-size:0.7rem; min-width:100px;">
+                    ${listaOpcoes.map(item => `<option value="${item}">${item}</option>`).join('')}
+                </select>
+                <input type="number" class="detalhe-pcs" placeholder="Pçs" style="width:60px; padding:5px;" oninput="calcular()">
+                <div class="badge-calc">0.00m² | 0%</div>
+                <button onclick="this.parentElement.remove(); calcular()" style="width:25px; background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer;">✕</button>
             `;
             container.appendChild(div);
             calcular();
@@ -206,6 +205,7 @@
             const mC = pegC * b.fatorPegada;
             const mQ = pecQ * b.m2Peca;
             const mTotal = mA + mC;
+            const mGeralProduzido = mA + mC + mQ;
 
             document.getElementById('res-A').innerText = `${mA.toFixed(2)} m²`;
             document.getElementById('res-C').innerText = `${mC.toFixed(2)} m²`;
@@ -213,9 +213,21 @@
             document.getElementById('res-total').innerText = `${mTotal.toFixed(2)} m²`;
 
             document.getElementById('perc-C').innerText = mTotal > 0 ? ((mC/mTotal)*100).toFixed(1) + "%" : "0%";
-            document.getElementById('perc-Q').innerText = (mA+mC+mQ) > 0 ? ((mQ/(mA+mC+mQ))*100).toFixed(1) + "%" : "0%";
+            document.getElementById('perc-Q').innerText = mGeralProduzido > 0 ? ((mQ/mGeralProduzido)*100).toFixed(1) + "%" : "0%";
+
+            // Atualizar Detalhamento Individual (Pç, m² e %)
+            atualizarBadges(b, mGeralProduzido);
 
             validarTrava(pegC, b, pecQ);
+        }
+
+        function atualizarBadges(bitola, mTotal) {
+            document.querySelectorAll('.linha-detalhe').forEach(linha => {
+                const pcs = parseFloat(linha.querySelector('.detalhe-pcs').value) || 0;
+                const m2Individual = pcs * bitola.m2Peca;
+                const percIndividual = mTotal > 0 ? ((m2Individual / mTotal) * 100).toFixed(1) : 0;
+                linha.querySelector('.badge-calc').innerText = `${m2Individual.toFixed(2)}m² | ${percIndividual}%`;
+            });
         }
 
         function validarTrava(pegC, b, pecQ) {
@@ -227,12 +239,13 @@
             const msg = document.getElementById('msg-erro');
             const btn = document.getElementById('btn-registrar');
 
-            if(pcsEsperadasC > 0 && somaC !== pcsEsperadasC) {
-                msg.innerText = `⚠️ Falta detalhar ${pcsEsperadasC - somaC} peças em C`;
-                btn.disabled = true; btn.style.opacity = 0.5;
-            } else if (pecQ > 0 && somaQ !== pecQ) {
-                msg.innerText = `⚠️ Falta detalhar ${pecQ - somaQ} peças na Quebra`;
-                btn.disabled = true; btn.style.opacity = 0.5;
+            let erros = [];
+            if(pcsEsperadasC > 0 && somaC !== pcsEsperadasC) erros.push(`Classe C: faltam ${pcsEsperadasC - somaC} peças`);
+            if(pecQ > 0 && somaQ !== pecQ) erros.push(`Quebra: faltam ${pecQ - somaQ} peças`);
+
+            if(erros.length > 0) {
+                msg.innerHTML = "⚠️ " + erros.join('<br>⚠️ ');
+                btn.disabled = true; btn.style.opacity = 0.4;
             } else {
                 msg.innerText = "";
                 btn.disabled = false; btn.style.opacity = 1;
@@ -241,21 +254,19 @@
 
         function salvar() {
             const b = BITOLAS_SISTEMA[document.getElementById('bitola').value];
-            const registro = {
+            const log = {
                 data: new Date().toLocaleDateString('pt-BR'),
                 turno: userAtivo.turno,
                 bitola: b.nome,
                 ma: (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada,
                 mc: (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada,
                 mq: (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca,
-                total: ( (parseFloat(document.getElementById('in-A').value) || 0) + (parseFloat(document.getElementById('in-C').value) || 0) ) * b.fatorPegada
+                total: ((parseFloat(document.getElementById('in-A').value) || 0) + (parseFloat(document.getElementById('in-C').value) || 0)) * b.fatorPegada
             };
-
             let logs = JSON.parse(localStorage.getItem('producao_caderno')) || [];
-            logs.push(registro);
+            logs.push(log);
             localStorage.setItem('producao_caderno', JSON.stringify(logs));
-            
-            alert("Registrado!");
+            alert("Sucesso!");
             document.getElementById('in-A').value = ""; document.getElementById('in-C').value = ""; document.getElementById('in-Q').value = "";
             document.getElementById('lista-C').innerHTML = ""; document.getElementById('lista-Q').innerHTML = "";
             calcular();
@@ -269,7 +280,7 @@
             let db = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
             db.push({user:u, pass:p, nivel:'op', turno:t});
             localStorage.setItem('usuarios_db', JSON.stringify(db));
-            alert("Usuário Criado!");
+            alert("Salvo!");
             document.getElementById('new-user').value = ""; document.getElementById('new-pass').value = "";
         }
 
