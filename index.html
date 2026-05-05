@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Qualidade Industrial</title>
-    <script src="config.js"></script>
     <style>
         :root {
             --bg: #0a0a0a; --card: #161616; --primary: #3498db;
@@ -29,8 +28,7 @@
         .detalhe-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px dashed #333; }
         .linha-detalhe { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; background: #1a1a1a; padding: 5px; border-radius: 4px; }
         
-        /* Estilo para os números na lateral de cada defeito */
-        .badge-calc { font-size: 0.65rem; background: #000; padding: 4px 8px; border-radius: 4px; color: var(--primary); border: 1px solid #333; white-space: nowrap; min-width: 80px; text-align: center; }
+        .badge-calc { font-size: 0.65rem; background: #000; padding: 4px 8px; border-radius: 4px; color: var(--primary); border: 1px solid #333; white-space: nowrap; min-width: 90px; text-align: center; }
 
         .resumo-panel { position: sticky; top: 10px; background: #000; border: 2px solid var(--primary); padding: 15px; border-radius: 10px; height: fit-content; }
         .resumo-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
@@ -67,43 +65,43 @@
             <div class="main-layout">
                 <div class="form-lado">
                     <div class="card">
-                        <h2>Lançamento</h2>
+                        <h2>Lançamento de Turno</h2>
                         <label>Bitola</label>
                         <select id="bitola" onchange="calcular()"></select>
                         
                         <label>A (1ª - Pegadas)</label>
-                        <input type="number" id="in-A" placeholder="0" oninput="calcular()">
+                        <input type="number" id="in-A" value="0" oninput="calcular()">
                         
                         <label>C (Classe C - Pegadas)</label>
-                        <input type="number" id="in-C" placeholder="0" oninput="calcular()">
+                        <input type="number" id="in-C" value="0" oninput="calcular()">
                         <div class="detalhe-box">
                             <div id="lista-C"></div>
-                            <button style="font-size:0.7rem; padding:5px; background:#222;" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Add Defeito Classe C</button>
+                            <button type="button" style="font-size:0.7rem; padding:8px; background: #222;" onclick="addLinhaDefeito()">+ Add Defeito Classe C</button>
                         </div>
 
                         <label>Quebra (Total Peças)</label>
-                        <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+                        <input type="number" id="in-Q" value="0" oninput="calcular()">
                         <div class="detalhe-box">
                             <div id="lista-Q"></div>
-                            <button style="font-size:0.7rem; padding:5px; background:#222;" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Add Motivo Quebra</button>
+                            <button type="button" style="font-size:0.7rem; padding:8px; background: #222;" onclick="addLinhaQuebra()">+ Add Motivo Quebra</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="resumo-panel">
-                    <h2>Detalhamento do Material</h2>
+                    <h2>Resumo em Tempo Real</h2>
                     <div id="painel-resultados">
                         <div class="resumo-item"><span>1ª Qualidade (A):</span><b id="res-A">0.00 m²</b></div>
                         <div class="resumo-item"><span>Classe C:</span><b id="res-C">0.00 m²</b></div>
                         <div class="resumo-item"><span>Quebra:</span><b id="res-Q">0.00 m²</b></div>
-                        <div class="resumo-item" style="border-top: 2px solid #333; margin-top:10px; padding-top:15px">
+                        <div class="resumo-item" style="border-top: 2px solid #333; margin-top:10px; padding-top:10px">
                             <span>TOTAL PRODUZIDO:</span><b id="res-total" style="font-size: 1.1rem;">0.00 m²</b>
                         </div>
                         <div class="resumo-item"><span>% de Classe C:</span><b id="perc-C">0%</b></div>
                         <div class="resumo-item"><span>% de Quebra:</span><b id="perc-Q">0%</b></div>
                     </div>
-                    <div id="msg-erro" style="color:var(--warning); font-size:0.7rem; margin-top:15px; font-weight:bold; line-height:1.4"></div>
-                    <button class="btn-acao" id="btn-registrar" onclick="salvar()">REGISTRAR QUALIDADE</button>
+                    <div id="msg-erro" style="color:var(--warning); font-size:0.7rem; margin-top:15px; font-weight:bold;"></div>
+                    <button class="btn-acao" id="btn-registrar" onclick="salvar()">REGISTRAR LANÇAMENTO</button>
                 </div>
             </div>
         </div>
@@ -118,19 +116,28 @@
             </div>
             <div id="tab-users" class="admin-content" style="display:none;">
                 <div class="card">
-                    <h2>Novo Usuário</h2>
+                    <h2>Gerenciar Usuários</h2>
                     <input type="text" id="new-user" placeholder="Login">
                     <input type="password" id="new-pass" placeholder="Senha">
                     <select id="new-turno"><option>A</option><option>B</option><option>C</option></select>
-                    <button class="btn-acao" onclick="addUsuario()">SALVAR USUÁRIO</button>
+                    <button class="btn-acao" onclick="addUsuario()">CADASTRAR</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // LISTAS DE SEGURANÇA (Caso o config.js falhe)
+        const LISTA_DEFEITOS = ["Ponta Fina", "Mancha", "Trinca", "Canto Quebrado", "Desalinhado", "Outros"];
+        const LISTA_QUEBRA = ["Refugo Prensa", "Quebra Esmaltação", "Quebra Saída Forno", "Quebra Escolha", "Outros"];
+
+        const BANCO_BITOLAS_PADRAO = {
+            "70x70": { nome: "70x70", m2Caixa: 1.96, pcsCaixa: 4, cxPegada: 20, m2Peca: 0.49, fatorPegada: 39.2 },
+            "60x60": { nome: "60x60", m2Caixa: 1.44, pcsCaixa: 4, cxPegada: 24, m2Peca: 0.36, fatorPegada: 34.56 }
+        };
+
         let userAtivo = null;
-        let BITOLAS_SISTEMA = {};
+        let BITOLAS = {};
 
         function verificarSessao() {
             const sessao = sessionStorage.getItem('usuario_logado');
@@ -143,19 +150,22 @@
         function autenticar() {
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
-            const db_users = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
-            userAtivo = db_users.find(x => x.user === u && x.pass === p);
+            const db = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
+            userAtivo = db.find(x => x.user === u && x.pass === p);
             if(userAtivo) {
                 sessionStorage.setItem('usuario_logado', JSON.stringify(userAtivo));
                 iniciarApp();
-            } else { alert("Acesso negado"); }
+            } else { alert("Login Inválido"); }
         }
 
         function iniciarApp() {
-            initBitolas();
+            const salvas = localStorage.getItem('bitolas_config');
+            BITOLAS = salvas ? JSON.parse(salvas) : BANCO_BITOLAS_PADRAO;
+            
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('app-content').style.display = 'flex';
-            document.getElementById('txt-user').innerText = `${userAtivo.user.toUpperCase()} - TURNO ${userAtivo.turno}`;
+            document.getElementById('txt-user').innerText = `LOGADO: ${userAtivo.user.toUpperCase()} | TURNO ${userAtivo.turno}`;
+            
             if(userAtivo.nivel === 'admin') {
                 document.getElementById('view-admin').style.display = 'block';
                 renderCaderno();
@@ -165,38 +175,37 @@
             }
         }
 
-        function logout() { sessionStorage.removeItem('usuario_logado'); location.reload(); }
-
-        function initBitolas() {
-            const salvas = localStorage.getItem('bitolas_config');
-            BITOLAS_SISTEMA = salvas ? JSON.parse(salvas) : BANCO_BITOLAS;
-        }
-
         function carregarSelectBitolas() {
             const sel = document.getElementById('bitola');
-            sel.innerHTML = Object.keys(BITOLAS_SISTEMA).map(k => `<option value="${k}">${BITOLAS_SISTEMA[k].nome}</option>`).join('');
+            sel.innerHTML = Object.keys(BITOLAS).map(k => `<option value="${k}">${BITOLAS[k].nome}</option>`).join('');
             calcular();
         }
 
-        // FUNÇÃO CORRIGIDA PARA ADICIONAR LINHAS
-        function addLinha(containerId, listaOpcoes) {
+        function addLinhaDefeito() {
+            criarLinha('lista-C', LISTA_DEFEITOS);
+        }
+
+        function addLinhaQuebra() {
+            criarLinha('lista-Q', LISTA_QUEBRA);
+        }
+
+        function criarLinha(containerId, opcoes) {
             const container = document.getElementById(containerId);
             const div = document.createElement('div');
             div.className = 'linha-detalhe';
             div.innerHTML = `
-                <select style="flex:1; padding:5px; font-size:0.7rem; min-width:100px;">
-                    ${listaOpcoes.map(item => `<option value="${item}">${item}</option>`).join('')}
+                <select style="flex:1; padding:5px; font-size:0.7rem;">
+                    ${opcoes.map(item => `<option value="${item}">${item}</option>`).join('')}
                 </select>
-                <input type="number" class="detalhe-pcs" placeholder="Pçs" style="width:60px; padding:5px;" oninput="calcular()">
+                <input type="number" class="detalhe-pcs" placeholder="Pçs" style="width:65px; padding:5px;" oninput="calcular()">
                 <div class="badge-calc">0.00m² | 0%</div>
-                <button onclick="this.parentElement.remove(); calcular()" style="width:25px; background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer;">✕</button>
+                <button type="button" onclick="this.parentElement.remove(); calcular()" style="width:25px; background:none; border:none; color:var(--danger); cursor:pointer;">✕</button>
             `;
             container.appendChild(div);
-            calcular();
         }
 
         function calcular() {
-            const b = BITOLAS_SISTEMA[document.getElementById('bitola').value];
+            const b = BITOLAS[document.getElementById('bitola').value];
             const pegA = parseFloat(document.getElementById('in-A').value) || 0;
             const pegC = parseFloat(document.getElementById('in-C').value) || 0;
             const pecQ = parseFloat(document.getElementById('in-Q').value) || 0;
@@ -205,46 +214,42 @@
             const mC = pegC * b.fatorPegada;
             const mQ = pecQ * b.m2Peca;
             const mTotal = mA + mC;
-            const mGeralProduzido = mA + mC + mQ;
+            const mGeralTotal = mA + mC + mQ;
 
-            document.getElementById('res-A').innerText = `${mA.toFixed(2)} m²`;
-            document.getElementById('res-C').innerText = `${mC.toFixed(2)} m²`;
-            document.getElementById('res-Q').innerText = `${mQ.toFixed(2)} m²`;
-            document.getElementById('res-total').innerText = `${mTotal.toFixed(2)} m²`;
+            document.getElementById('res-A').innerText = mA.toFixed(2) + " m²";
+            document.getElementById('res-C').innerText = mC.toFixed(2) + " m²";
+            document.getElementById('res-Q').innerText = mQ.toFixed(2) + " m²";
+            document.getElementById('res-total').innerText = mTotal.toFixed(2) + " m²";
 
             document.getElementById('perc-C').innerText = mTotal > 0 ? ((mC/mTotal)*100).toFixed(1) + "%" : "0%";
-            document.getElementById('perc-Q').innerText = mGeralProduzido > 0 ? ((mQ/mGeralProduzido)*100).toFixed(1) + "%" : "0%";
+            document.getElementById('perc-Q').innerText = mGeralTotal > 0 ? ((mQ/mGeralTotal)*100).toFixed(1) + "%" : "0%";
 
-            // Atualizar Detalhamento Individual (Pç, m² e %)
-            atualizarBadges(b, mGeralProduzido);
-
-            validarTrava(pegC, b, pecQ);
-        }
-
-        function atualizarBadges(bitola, mTotal) {
+            // Atualiza as badges de cada linha
             document.querySelectorAll('.linha-detalhe').forEach(linha => {
-                const pcs = parseFloat(linha.querySelector('.detalhe-pcs').value) || 0;
-                const m2Individual = pcs * bitola.m2Peca;
-                const percIndividual = mTotal > 0 ? ((m2Individual / mTotal) * 100).toFixed(1) : 0;
-                linha.querySelector('.badge-calc').innerText = `${m2Individual.toFixed(2)}m² | ${percIndividual}%`;
+                const p = parseFloat(linha.querySelector('.detalhe-pcs').value) || 0;
+                const m2 = p * b.m2Peca;
+                const perc = mGeralTotal > 0 ? ((m2 / mGeralTotal) * 100).toFixed(1) : 0;
+                linha.querySelector('.badge-calc').innerText = `${m2.toFixed(2)}m² | ${perc}%`;
             });
+
+            validar(pegC, b, pecQ);
         }
 
-        function validarTrava(pegC, b, pecQ) {
-            let somaC = 0, somaQ = 0;
-            document.querySelectorAll('#lista-C .detalhe-pcs').forEach(i => somaC += parseFloat(i.value) || 0);
-            document.querySelectorAll('#lista-Q .detalhe-pcs').forEach(i => somaQ += parseFloat(i.value) || 0);
+        function validar(pegC, b, pecQ) {
+            let sC = 0, sQ = 0;
+            document.querySelectorAll('#lista-C .detalhe-pcs').forEach(i => sC += parseFloat(i.value) || 0);
+            document.querySelectorAll('#lista-Q .detalhe-pcs').forEach(i => sQ += parseFloat(i.value) || 0);
             
-            const pcsEsperadasC = Math.round(pegC * (b.pcsCaixa * b.cxPegada));
+            const expC = Math.round(pegC * (b.pcsCaixa * b.cxPegada));
             const msg = document.getElementById('msg-erro');
             const btn = document.getElementById('btn-registrar');
 
-            let erros = [];
-            if(pcsEsperadasC > 0 && somaC !== pcsEsperadasC) erros.push(`Classe C: faltam ${pcsEsperadasC - somaC} peças`);
-            if(pecQ > 0 && somaQ !== pecQ) erros.push(`Quebra: faltam ${pecQ - somaQ} peças`);
+            let err = [];
+            if(expC > 0 && sC !== expC) err.push(`Classe C: faltam ${expC - sC} peças`);
+            if(pecQ > 0 && sQ !== pecQ) err.push(`Quebra: faltam ${pecQ - sQ} peças`);
 
-            if(erros.length > 0) {
-                msg.innerHTML = "⚠️ " + erros.join('<br>⚠️ ');
+            if(err.length > 0) {
+                msg.innerHTML = "⚠️ " + err.join('<br>⚠️ ');
                 btn.disabled = true; btn.style.opacity = 0.4;
             } else {
                 msg.innerText = "";
@@ -253,7 +258,7 @@
         }
 
         function salvar() {
-            const b = BITOLAS_SISTEMA[document.getElementById('bitola').value];
+            const b = BITOLAS[document.getElementById('bitola').value];
             const log = {
                 data: new Date().toLocaleDateString('pt-BR'),
                 turno: userAtivo.turno,
@@ -261,14 +266,17 @@
                 ma: (parseFloat(document.getElementById('in-A').value) || 0) * b.fatorPegada,
                 mc: (parseFloat(document.getElementById('in-C').value) || 0) * b.fatorPegada,
                 mq: (parseFloat(document.getElementById('in-Q').value) || 0) * b.m2Peca,
-                total: ((parseFloat(document.getElementById('in-A').value) || 0) + (parseFloat(document.getElementById('in-C').value) || 0)) * b.fatorPegada
+                total: (parseFloat(document.getElementById('in-A').value) + parseFloat(document.getElementById('in-C').value)) * b.fatorPegada
             };
             let logs = JSON.parse(localStorage.getItem('producao_caderno')) || [];
             logs.push(log);
             localStorage.setItem('producao_caderno', JSON.stringify(logs));
-            alert("Sucesso!");
-            document.getElementById('in-A').value = ""; document.getElementById('in-C').value = ""; document.getElementById('in-Q').value = "";
-            document.getElementById('lista-C').innerHTML = ""; document.getElementById('lista-Q').innerHTML = "";
+            alert("Salvo!");
+            document.getElementById('in-A').value = "0"; 
+            document.getElementById('in-C').value = "0"; 
+            document.getElementById('in-Q').value = "0";
+            document.getElementById('lista-C').innerHTML = ""; 
+            document.getElementById('lista-Q').innerHTML = "";
             calcular();
         }
 
@@ -276,13 +284,15 @@
             const u = document.getElementById('new-user').value;
             const p = document.getElementById('new-pass').value;
             const t = document.getElementById('new-turno').value;
-            if(!u || !p) return alert("Preencha tudo");
+            if(!u || !p) return alert("Preencha Login e Senha");
             let db = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
             db.push({user:u, pass:p, nivel:'op', turno:t});
             localStorage.setItem('usuarios_db', JSON.stringify(db));
-            alert("Salvo!");
+            alert("Usuário Criado com Sucesso!");
             document.getElementById('new-user').value = ""; document.getElementById('new-pass').value = "";
         }
+
+        function logout() { sessionStorage.removeItem('usuario_logado'); location.reload(); }
 
         function switchTab(t) {
             document.querySelectorAll('.admin-content').forEach(c => c.style.display = 'none');
