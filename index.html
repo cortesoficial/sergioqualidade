@@ -11,12 +11,16 @@
             --success: #27ae60; --warning: #f1c40f; --danger: #e74c3c;
             --text: #eee; --border: #282828;
         }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 900px; display: none; flex-direction: column; gap: 15px; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        .container { width: 100%; max-width: 1100px; margin: auto; display: none; flex-direction: column; gap: 15px; }
         
         #login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .login-box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid var(--border); text-align: center; width: 280px; }
         
+        /* Layout Split para Operador */
+        .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        @media (max-width: 850px) { .main-layout { grid-template-columns: 1fr; } }
+
         .card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; }
         h2 { font-size: 0.85rem; color: var(--primary); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-top: 0; }
         
@@ -25,9 +29,14 @@
         
         /* Detalhamento */
         .detalhe-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px dashed #333; }
-        .linha-detalhe { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; background: #1a1a1a; padding: 8px; border-radius: 6px; }
-        .info-calculada { font-size: 0.7rem; color: var(--primary); white-space: nowrap; min-width: 90px; text-align: right; }
+        .linha-detalhe { display: flex; gap: 5px; margin-bottom: 5px; }
         
+        /* Painel Lateral de Resumo */
+        .resumo-panel { position: sticky; top: 10px; background: #000; border: 2px solid var(--primary); padding: 15px; border-radius: 10px; height: fit-content; }
+        .resumo-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        .resumo-item b { color: var(--primary); }
+        .resumo-sub { font-size: 0.7rem; color: #666; padding-left: 10px; }
+
         .admin-nav { display: flex; gap: 5px; margin-bottom: 15px; }
         .btn-tab { background: #1a1a1a; padding: 10px; font-size: 0.7rem; cursor: pointer; border: 1px solid var(--border); flex: 1; color: #888; }
         .btn-tab.active { background: var(--primary); color: white; }
@@ -37,17 +46,13 @@
         
         .btn-acao { background: var(--success); font-weight: bold; cursor: pointer; border: none; margin-top: 10px; color: white; }
         .btn-logout { background: #333; width: auto; float: right; font-size: 0.65rem; padding: 5px 10px; border: none; cursor: pointer; }
-        
-        .flex-row { display: flex; gap: 10px; }
-        .perc-tag { background: #111; padding: 12px; border-radius: 6px; min-width: 55px; text-align: center; font-size: 0.8rem; border: 1px solid var(--border); align-self: flex-end; }
-        .status-msg { font-size: 0.7rem; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box">
-            <h2>SISTEMA QUALIDADE</h2>
+            <h2>QUALIDADE INDUSTRIAL</h2>
             <input type="text" id="user-login" placeholder="Usuário">
             <input type="password" id="pass-login" placeholder="Senha">
             <button class="btn-acao" onclick="autenticar()">ENTRAR</button>
@@ -55,66 +60,88 @@
     </div>
 
     <div class="container" id="app-content">
-        <header>
+        <header style="overflow: hidden; margin-bottom: 10px;">
             <button class="btn-logout" onclick="location.reload()">SAIR</button>
-            <span id="txt-user" style="font-size: 0.7rem; color: var(--primary);"></span>
+            <span id="txt-user" style="font-size: 0.7rem; color: var(--primary); line-height: 25px;"></span>
         </header>
 
+        <!-- VISÃO OPERADOR -->
         <div id="view-op" style="display:none;">
-            <div class="card">
-                <h2>Lançamento de Turno</h2>
-                <label>Bitola</label>
-                <select id="bitola" onchange="calcular()"></select>
-                
-                <div class="flex-row">
-                    <div style="flex:1"><label>A (1ª - Pegadas)</label><input type="number" id="in-A" oninput="calcular()"></div>
-                    <div class="perc-tag" id="tag-A" style="color:var(--success)">0%</div>
-                </div>
-                
-                <div class="flex-row">
-                    <div style="flex:1"><label>C (Classe C - Pegadas)</label><input type="number" id="in-C" oninput="calcular()"></div>
-                    <div class="perc-tag" id="tag-C" style="color:var(--warning)">0%</div>
-                </div>
-                <div class="detalhe-box">
-                    <label>Detalhamento de Defeitos (Classe C)</label>
-                    <div id="lista-C"></div>
-                    <button style="font-size: 0.7rem; padding: 5px; margin-top:5px;" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Add Peças Defeituosas</button>
-                    <div id="msg-valid-C" class="status-msg"></div>
+            <div class="main-layout">
+                <!-- Coluna Esquerda: Inputs -->
+                <div class="form-lado">
+                    <div class="card">
+                        <h2>Dados da Produção</h2>
+                        <label>Bitola Selecionada</label>
+                        <select id="bitola" onchange="calcular()"></select>
+                        
+                        <label>A (1ª Qualidade - Pegadas)</label>
+                        <input type="number" id="in-A" placeholder="0" oninput="calcular()">
+                        
+                        <label>C (Classe C - Pegadas)</label>
+                        <input type="number" id="in-C" placeholder="0" oninput="calcular()">
+                        <div class="detalhe-box">
+                            <div id="lista-C"></div>
+                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-C', DEFEITOS_LISTA)">+ Add Peças Defeituosas</button>
+                        </div>
+
+                        <label>Quebra (Total Peças Soltas)</label>
+                        <input type="number" id="in-Q" placeholder="0" oninput="calcular()">
+                        <div class="detalhe-box">
+                            <div id="lista-Q"></div>
+                            <button style="font-size:0.7rem; padding:5px" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Add Motivo Quebra</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex-row" style="margin-top:15px">
-                    <div style="flex:1"><label>Quebra (Total Peças)</label><input type="number" id="in-Q" oninput="calcular()"></div>
-                    <div class="perc-tag" id="tag-Q" style="color:var(--danger)">0%</div>
+                <!-- Coluna Direita: Resultados em Tempo Real -->
+                <div class="resumo-panel">
+                    <h2>Resumo do Material</h2>
+                    <div id="painel-resultados">
+                        <div class="resumo-item"><span>1ª Qualidade (A):</span><b id="res-A">0.00 m²</b></div>
+                        <div class="resumo-item"><span>Classe C:</span><b id="res-C">0.00 m²</b></div>
+                        <div class="resumo-item"><span>Quebra:</span><b id="res-Q">0.00 m²</b></div>
+                        <div class="resumo-item" style="border-top: 2px solid #333; margin-top:10px;">
+                            <span>TOTAL PRODUZIDO:</span><b id="res-total" style="font-size: 1.2rem;">0.00 m²</b>
+                        </div>
+                        
+                        <h2 style="margin-top:20px; font-size:0.7rem">Indicadores (%)</h2>
+                        <div class="resumo-item"><span>Aproveitamento:</span><b id="perc-A">0%</b></div>
+                        <div class="resumo-item"><span>Índice de C:</span><b id="perc-C">0%</b></div>
+                        <div class="resumo-item"><span>Índice Quebra:</span><b id="perc-Q">0%</b></div>
+                    </div>
+                    
+                    <div id="msg-erro" style="color:var(--warning); font-size:0.7rem; margin-top:10px; font-weight:bold;"></div>
+                    <button class="btn-acao" id="btn-registrar" onclick="salvar()">REGISTRAR QUALIDADE</button>
                 </div>
-                <div class="detalhe-box">
-                    <label>Detalhamento da Quebra (Peças)</label>
-                    <div id="lista-Q"></div>
-                    <button style="font-size: 0.7rem; padding: 5px; margin-top:5px;" onclick="addLinha('lista-Q', MOTIVOS_QUEBRA)">+ Add Motivo Quebra</button>
-                    <div id="msg-valid-Q" class="status-msg"></div>
-                </div>
-
-                <div style="text-align:center; padding:20px; background:#000; margin-top:20px; border-radius:8px; border: 1px solid #333">
-                    <small style="color:#666">PRODUÇÃO TOTAL (m²)</small><br>
-                    <b id="res-total" style="font-size:2.2rem; color:var(--primary)">0.00</b>
-                </div>
-                <button class="btn-acao" id="btn-registrar" onclick="salvar()">REGISTRAR LANÇAMENTO</button>
             </div>
         </div>
 
+        <!-- VISÃO ADMIN -->
         <div id="view-admin" style="display:none;">
             <div class="admin-nav">
                 <button class="btn-tab active" onclick="switchTab('tab-caderno')">CADERNO</button>
                 <button class="btn-tab" onclick="switchTab('tab-users')">USUÁRIOS</button>
                 <button class="btn-tab" onclick="switchTab('tab-config')">BITOLAS</button>
             </div>
+
             <div id="tab-caderno" class="admin-content">
-                <input type="date" id="filtro-data" onchange="renderCaderno()">
-                <div class="card" style="overflow-x:auto; margin-top:10px;"><table id="tabela-caderno"><thead><tr><th>DATA</th><th>TURNO</th><th>BITOLA</th><th>A (m²)</th><th>C (m²)</th><th>Q (m²)</th><th>TOTAL</th></tr></thead><tbody id="corpo-caderno"></tbody></table></div>
+                <div class="card" style="overflow-x:auto"><table id="tabela-caderno"><thead><tr><th>DATA</th><th>TURNO</th><th>BITOLA</th><th>A</th><th>C</th><th>Q</th><th>TOTAL</th></tr></thead><tbody id="corpo-caderno"></tbody></table></div>
             </div>
+
+            <div id="tab-users" class="admin-content" style="display:none;">
+                <div class="card">
+                    <h2>Cadastrar Novo Usuário</h2>
+                    <input type="text" id="new-user" placeholder="Nome de Usuário">
+                    <input type="password" id="new-pass" placeholder="Senha">
+                    <select id="new-turno"><option>A</option><option>B</option><option>C</option></select>
+                    <button class="btn-acao" onclick="addUsuario()">SALVAR USUÁRIO</button>
+                </div>
+            </div>
+
             <div id="tab-config" class="admin-content" style="display:none;">
-                <button onclick="addNovaBitola()">+ NOVA BITOLA</button>
                 <div id="editor-bitolas"></div>
-                <button class="btn-acao" onclick="salvarConfigBitolas()">SALVAR CONFIGURAÇÕES</button>
+                <button class="btn-acao" onclick="salvarConfigBitolas()">SALVAR BITOLAS</button>
             </div>
         </div>
     </div>
@@ -133,13 +160,22 @@
             const u = document.getElementById('user-login').value;
             const p = document.getElementById('pass-login').value;
             const db_users = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
+            
             userAtivo = db_users.find(x => x.user === u && x.pass === p);
+            
             if(userAtivo) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('txt-user').innerText = `ACESSO: ${userAtivo.user.toUpperCase()}`;
-                userAtivo.nivel === 'admin' ? (document.getElementById('view-admin').style.display = 'block', renderCaderno(), renderEditorBitolas()) : (document.getElementById('view-op').style.display = 'block', carregarSelectBitolas());
-            } else { alert("Acesso Negado"); }
+                document.getElementById('txt-user').innerText = `OPERADOR: ${userAtivo.user.toUpperCase()} | TURNO: ${userAtivo.turno}`;
+                
+                if(userAtivo.nivel === 'admin') {
+                    document.getElementById('view-admin').style.display = 'block';
+                    renderCaderno(); renderEditorBitolas();
+                } else {
+                    document.getElementById('view-op').style.display = 'block';
+                    carregarSelectBitolas();
+                }
+            } else { alert("Usuário ou senha incorretos!"); }
         }
 
         function carregarSelectBitolas() {
@@ -153,10 +189,9 @@
             const div = document.createElement('div');
             div.className = 'linha-detalhe';
             div.innerHTML = `
-                <select style="flex:1.5; padding:5px; font-size:0.75rem;">${lista.map(o => `<option>${o}</option>`).join('')}</select>
-                <input type="number" class="detalhe-pcs" placeholder="Peças" style="flex:1; padding:5px;" oninput="calcular()">
-                <div class="info-calculada">0.00 m² (0%)</div>
-                <button onclick="this.parentElement.remove(); calcular()" style="background:none; border:none; color:var(--danger); cursor:pointer; width:auto;">✕</button>
+                <select style="flex:1; padding:5px; font-size:0.7rem;">${lista.map(o => `<option>${o}</option>`).join('')}</select>
+                <input type="number" class="detalhe-pcs" placeholder="Pçs" style="width:70px; padding:5px;" oninput="calcular()">
+                <button onclick="this.parentElement.remove(); calcular()" style="width:30px; background:none; border:none; color:var(--danger);">✕</button>
             `;
             container.appendChild(div);
         }
@@ -170,43 +205,41 @@
             const mA = pegA * b.fatorPegada;
             const mC = pegC * b.fatorPegada;
             const mQ = pecQ * b.m2Peca;
-            const mTotalGeral = mA + mC + mQ;
+            const mTotal = mA + mC;
+            const mRealComQuebra = mA + mC + mQ;
 
-            document.getElementById('tag-A').innerText = (mA+mC > 0 ? (mA/(mA+mC)*100).toFixed(1) : 0) + "%";
-            document.getElementById('tag-C').innerText = (mA+mC > 0 ? (mC/(mA+mC)*100).toFixed(1) : 0) + "%";
-            document.getElementById('tag-Q').innerText = (mTotalGeral > 0 ? (mQ/mTotalGeral*100).toFixed(1) : 0) + "%";
-            document.getElementById('res-total').innerText = (mA + mC).toFixed(2);
+            // Atualiza Lado Direito
+            document.getElementById('res-A').innerText = `${mA.toFixed(2)} m²`;
+            document.getElementById('res-C').innerText = `${mC.toFixed(2)} m²`;
+            document.getElementById('res-Q').innerText = `${mQ.toFixed(2)} m²`;
+            document.getElementById('res-total').innerText = `${mTotal.toFixed(2)} m²`;
 
-            // Atualiza Info de Detalhes
-            atualizarInfoDetalhes('lista-C', b.m2Peca, mTotalGeral);
-            atualizarInfoDetalhes('lista-Q', b.m2Peca, mTotalGeral);
+            // Percentuais
+            document.getElementById('perc-A').innerText = mTotal > 0 ? ((mA/mTotal)*100).toFixed(1) + "%" : "0%";
+            document.getElementById('perc-C').innerText = mTotal > 0 ? ((mC/mTotal)*100).toFixed(1) + "%" : "0%";
+            document.getElementById('perc-Q').innerText = mRealComQuebra > 0 ? ((mQ/mRealComQuebra)*100).toFixed(1) + "%" : "0%";
+
+            // Validação de Detalhamento
+            validarTrava(pegC, b, pecQ);
+        }
+
+        function validarTrava(pegC, b, pecQ) {
+            let somaC = 0, somaQ = 0;
+            document.querySelectorAll('#lista-C .detalhe-pcs').forEach(i => somaC += parseFloat(i.value) || 0);
+            document.querySelectorAll('#lista-Q .detalhe-pcs').forEach(i => somaQ += parseFloat(i.value) || 0);
             
-            // Validação de Travamento
-            validarSoma('lista-C', (pegC * (b.pcsCaixa * b.cxPegada)), 'msg-valid-C');
-            validarSoma('lista-Q', pecQ, 'msg-valid-Q');
-        }
-
-        function atualizarInfoDetalhes(containerId, m2Peca, mTotalGeral) {
-            document.querySelectorAll(`#${containerId} .linha-detalhe`).forEach(linha => {
-                const pcs = parseFloat(linha.querySelector('.detalhe-pcs').value) || 0;
-                const m2Calc = pcs * m2Peca;
-                const perc = mTotalGeral > 0 ? ((m2Calc / mTotalGeral) * 100).toFixed(1) : 0;
-                linha.querySelector('.info-calculada').innerText = `${m2Calc.toFixed(2)} m² (${perc}%)`;
-            });
-        }
-
-        function validarSoma(id, totalEsperado, msgId) {
-            let soma = 0;
-            document.querySelectorAll(`#${id} .detalhe-pcs`).forEach(i => soma += parseFloat(i.value) || 0);
-            const msg = document.getElementById(msgId);
+            const pcsEsperadasC = pegC * (b.pcsCaixa * b.cxPegada);
+            const msg = document.getElementById('msg-erro');
             const btn = document.getElementById('btn-registrar');
-            if(totalEsperado > 0 && soma !== totalEsperado) {
-                msg.innerText = `⚠️ Falta detalhar: ${totalEsperado - soma} peças`;
-                msg.style.color = "var(--warning)";
+
+            if(pcsEsperadasC > 0 && somaC !== pcsEsperadasC) {
+                msg.innerText = `⚠️ Detalhe ${pcsEsperadasC - somaC} peças na Classe C`;
+                btn.disabled = true; btn.style.opacity = 0.5;
+            } else if (pecQ > 0 && somaQ !== pecQ) {
+                msg.innerText = `⚠️ Detalhe ${pecQ - somaQ} peças na Quebra`;
                 btn.disabled = true; btn.style.opacity = 0.5;
             } else {
-                msg.innerText = totalEsperado > 0 ? "✅ Detalhamento completo" : "";
-                msg.style.color = "var(--success)";
+                msg.innerText = "";
                 btn.disabled = false; btn.style.opacity = 1;
             }
         }
@@ -217,46 +250,73 @@
             const pegC = parseFloat(document.getElementById('in-C').value) || 0;
             const pecQ = parseFloat(document.getElementById('in-Q').value) || 0;
 
-            const reg = {
+            const registro = {
                 data: new Date().toLocaleDateString('pt-BR'),
                 turno: userAtivo.turno,
                 bitola: b.nome,
-                ma: pegA * b.fatorPegada, mc: pegC * b.fatorPegada, mq: pecQ * b.m2Peca,
+                ma: pegA * b.fatorPegada,
+                mc: pegC * b.fatorPegada,
+                mq: pecQ * b.m2Peca,
                 total: (pegA + pegC) * b.fatorPegada
             };
 
-            let d = JSON.parse(localStorage.getItem('producao_caderno')) || [];
-            d.push(reg);
-            localStorage.setItem('producao_caderno', JSON.stringify(d));
-            alert("Sucesso!"); location.reload();
+            let logs = JSON.parse(localStorage.getItem('producao_caderno')) || [];
+            logs.push(registro);
+            localStorage.setItem('producao_caderno', JSON.stringify(logs));
+            
+            alert("Lançamento Registrado!");
+            
+            // Limpa campos sem deslogar
+            document.getElementById('in-A').value = "";
+            document.getElementById('in-C').value = "";
+            document.getElementById('in-Q').value = "";
+            document.getElementById('lista-C').innerHTML = "";
+            document.getElementById('lista-Q').innerHTML = "";
+            calcular();
         }
 
-        // ADMIN FUNCTIONS
+        // --- FUNÇÕES ADMIN ---
+        function addUsuario() {
+            const u = document.getElementById('new-user').value;
+            const p = document.getElementById('new-pass').value;
+            const t = document.getElementById('new-turno').value;
+            
+            if(!u || !p) return alert("Preencha todos os campos");
+
+            let db = JSON.parse(localStorage.getItem('usuarios_db')) || [{user:'admin', pass:'admin', nivel:'admin', turno:'Geral'}];
+            db.push({user: u, pass: p, nivel: 'op', turno: t});
+            localStorage.setItem('usuarios_db', JSON.stringify(db));
+            
+            alert("Usuário " + u + " cadastrado com sucesso!");
+            document.getElementById('new-user').value = "";
+            document.getElementById('new-pass').value = "";
+        }
+
         function renderEditorBitolas() {
             document.getElementById('editor-bitolas').innerHTML = Object.keys(BITOLAS_SISTEMA).map(k => `
                 <div class="card" data-key="${k}">
-                    <label>Bitola</label><input type="text" class="edit-nome" value="${BITOLAS_SISTEMA[k].nome}">
-                    <div class="flex-row">
-                        <div style="flex:1"><label>m²/Cx</label><input type="number" step="0.001" class="edit-m2-cx" value="${BITOLAS_SISTEMA[k].m2Caixa}" oninput="calcAdmin('${k}')"></div>
-                        <div style="flex:1"><label>Pçs/Cx</label><input type="number" class="edit-pcs-cx" value="${BITOLAS_SISTEMA[k].pcsCaixa}" oninput="calcAdmin('${k}')"></div>
-                        <div style="flex:1"><label>Cx/Peg</label><input type="number" class="edit-cx-peg" value="${BITOLAS_SISTEMA[k].cxPegada}" oninput="calcAdmin('${k}')"></div>
-                    </div>
+                    <label>Nome</label><input type="text" class="edit-nome" value="${BITOLAS_SISTEMA[k].nome}">
+                    <label>m²/Cx</label><input type="number" class="edit-m2-cx" value="${BITOLAS_SISTEMA[k].m2Caixa}">
+                    <label>Pçs/Cx</label><input type="number" class="edit-pcs-cx" value="${BITOLAS_SISTEMA[k].pcsCaixa}">
+                    <label>Cx/Pegada</label><input type="number" class="edit-cx-peg" value="${BITOLAS_SISTEMA[k].cxPegada}">
                 </div>`).join('');
         }
 
-        function calcAdmin(k) { /* Reutiliza lógica de cálculo já descrita */ }
-
         function salvarConfigBitolas() {
             const novo = {};
-            document.querySelectorAll('#editor-bitolas .card').forEach((c, i) => {
+            document.querySelectorAll('#editor-bitolas .card').forEach(c => {
                 const k = c.dataset.key;
-                const m2Cx = parseFloat(c.querySelector('.edit-m2-cx').value) || 0;
-                const pcsCx = parseFloat(c.querySelector('.edit-pcs-cx').value) || 0;
-                const cxPeg = parseFloat(c.querySelector('.edit-cx-peg').value) || 0;
-                novo[k] = { nome: c.querySelector('.edit-nome').value, m2Caixa: m2Cx, pcsCaixa: pcsCx, cxPegada: cxPeg, m2Peca: pcsCx > 0 ? (m2Cx/pcsCx) : 0, fatorPegada: m2Cx * cxPeg };
+                const m2cx = parseFloat(c.querySelector('.edit-m2-cx').value);
+                const pcs = parseFloat(c.querySelector('.edit-pcs-cx').value);
+                const cxp = parseFloat(c.querySelector('.edit-cx-peg').value);
+                novo[k] = {
+                    nome: c.querySelector('.edit-nome').value,
+                    m2Caixa: m2cx, pcsCaixa: pcs, cxPegada: cxp,
+                    m2Peca: m2cx / pcs, fatorPegada: m2cx * cxp
+                };
             });
             localStorage.setItem('bitolas_config', JSON.stringify(novo));
-            alert("Salvo!");
+            alert("Bitolas Salvas!");
         }
 
         function switchTab(t) {
